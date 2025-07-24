@@ -2,6 +2,8 @@
 
 This folder contains specialized prompts designed to guide AI assistants into specific operational modes for enhanced productivity and output quality.
 
+![prompts](prompts.gif)
+
 ## Available Prompts
 
 ### 1. **architect.md** - System Architecture Mode
