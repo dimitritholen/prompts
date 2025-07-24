@@ -21,12 +21,12 @@ This folder contains specialized prompts designed to guide AI assistants into sp
 **How to Use**:
 
 ```
-Use @architect.md
+@architect.md
 Design a scalable e-commerce platform architecture
 ```
 
 ```
-Use @architect.md
+@architect.md
 Process @my_project_prd file.
 ```
 
@@ -45,7 +45,7 @@ Process @my_project_prd file.
 **How to Use**:
 
 ```
-Use @brainstorm.md
+@brainstorm.md
 I have an idea for a water tracking app. Help me develop this concept.
 ```
 
@@ -64,7 +64,7 @@ I have an idea for a water tracking app. Help me develop this concept.
 **How to Use**:
 
 ```
-Use @code.md
+@code.md
 Implement the user authentication system based on the PRD
 ```
 
@@ -83,7 +83,7 @@ Implement the user authentication system based on the PRD
 **How to Use**:
 
 ```
-Use @plan.md
+@plan.md
 Plan the implementation of a real-time chat feature
 ```
 
@@ -102,7 +102,7 @@ Plan the implementation of a real-time chat feature
 **How to Use**:
 
 ```
-Use @prd.md
+@prd.md
 Create a PRD for a task management mobile app
 ```
 
