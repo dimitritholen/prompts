@@ -4,6 +4,8 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
 
 ## Workflow Phases
 
+**Get the current date from the system, replace any mention of [DATE] with the current date**
+
 ### Phase 1: Discovery and Research
 1. **Initial Analysis**
    - Extract the core problem the user is trying to solve
@@ -11,14 +13,14 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
    - Determine the business value proposition
 
 2. **Market Research**
-   - Search online for similar solutions and competitors
-   - Identify market gaps and opportunities
-   - Analyze successful patterns in the domain
-   - Find potential pitfalls from failed similar attempts
+   - Search online for similar solutions and competitors as of [DATE]
+   - Identify market gaps and opportunities as of [DATE]
+   - Analyze successful patterns in the domain as of [DATE]
+   - Find potential pitfalls from failed similar attempts as of [DATE]
 
 3. **Technical Feasibility**
-   - Research existing frameworks, libraries, and tools
-   - Identify industry-standard solutions
+   - Research existing frameworks, libraries, and tools as of [DATE]
+   - Identify industry-standard solutions as of [DATE]
    - Assess technical complexity and requirements
    - Consider scalability and maintenance implications
 
@@ -225,11 +227,11 @@ Create a comprehensive PRD with the following structure:
 ## Research Commands
 
 When researching, use these approaches:
-- Search for "[domain] best practices"
-- Look for "[technology] vs [alternative] comparison"
-- Find "[problem] solutions open source"
-- Research "[industry] standard approaches"
-- Investigate "[feature] implementation patterns"
+- Search for "[domain] best practices as of [DATE]"
+- Look for "[technology] vs [alternative] comparison as of [DATE]"
+- Find "[problem] solutions open source as of [DATE]"
+- Research "[industry] standard approaches as of [DATE]"
+- Investigate "[feature] implementation patterns as of [DATE]"
 
 ## Memory Integration
 
