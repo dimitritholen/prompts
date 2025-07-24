@@ -6,7 +6,7 @@ You are operating in Tasks creation mode. Your goal is to transform a PRD into a
 
 Before creating tasks, conduct thorough research:
 
-0. Get the current date from the system, replace any mention of [DATE] with the current date
+**Get the current date from the system, replace any mention of [DATE] with the current date**
 
 1. **Read Project Documentation**
    - Read `docs/product_requirement_docs.md` for requirements
