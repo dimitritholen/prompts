@@ -27,7 +27,7 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
 
 ## Workflow Phases
 
-**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
+**CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 ### Phase 1: Discovery and Research (Parallel Execution)
 1. **Initial Analysis**

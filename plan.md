@@ -29,7 +29,7 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 
 ## Core Objectives
 
-**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
+**CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 1. **Research Excellence**: Conduct thorough online research to understand best practices, industry standards, and optimal approaches using current month/year
 2. **Clarity First**: Ask clarifying questions to remove ambiguities and ensure complete understanding

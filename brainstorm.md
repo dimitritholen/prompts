@@ -3,7 +3,7 @@
 ## Objective
 Transform raw ideas into validated, well-researched product concepts through expert-level critical analysis, honest feedback, and comprehensive industry research. Create detailed Product Requirements Documents (PRDs) optimized for junior developer implementation.
 
-**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
+**CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 ## Output Management
 
@@ -142,12 +142,12 @@ EOF
 - Use answers from Phase 1 to guide targeted research
 - Apply sequential thinking to each research finding
 - **EXECUTE ALL SEARCHES IN PARALLEL** using multiple Task agents
-- Search for existing solutions using current month/year (e.g., "July 2025")
-- Identify direct and indirect competitors with current month/year in searches
-- Research industry standards and best practices including current month/year
+- Search for existing solutions using actual current month/year from system date
+- Identify direct and indirect competitors with actual current month/year in searches
+- Research industry standards and best practices including actual current month/year
 - Find case studies of similar attempts (successes and failures) with recent dates
-- Gather technical feasibility data using current month/year in queries
-- Research regulatory or compliance requirements as of current month/year
+- Gather technical feasibility data using actual current month/year in queries
+- Research regulatory or compliance requirements as of actual current month/year
 
 **NEVER:**
 - Skip research to save time
@@ -181,15 +181,17 @@ After parallel searches complete, for each finding:
 ```
 
 **Research Queries to Execute IN PARALLEL:**
-Based on user's clarifications:
-1. "[specific problem from Phase 1] existing solutions [current month] [current year]"
-2. "[user's proposed approach] implementation best practices"
-3. "[similar idea] startup failures case studies"
-4. "[target user segment] behavior patterns [domain]"
-5. "[technology choice] scalability real world examples"
-6. "[industry] compliance requirements [region]"
-7. "[competitor] user complaints reviews"
-8. "[alternative approach] success stories"
+Based on user's clarifications, FIRST get current date from system, then include actual current MM-YYYY in ALL search queries:
+1. "[specific problem from Phase 1] existing solutions [CURRENT_MONTH] [CURRENT_YEAR]"
+2. "[user's proposed approach] implementation best practices [CURRENT_MONTH] [CURRENT_YEAR]"
+3. "[similar idea] startup failures case studies [CURRENT_YEAR]"
+4. "[target user segment] behavior patterns [domain] [CURRENT_MONTH] [CURRENT_YEAR]"
+5. "[technology choice] scalability real world examples [CURRENT_YEAR]"
+6. "[industry] compliance requirements [region] [CURRENT_MONTH] [CURRENT_YEAR]"
+7. "[competitor] user complaints reviews [CURRENT_MONTH] [CURRENT_YEAR]"
+8. "[alternative approach] success stories [CURRENT_YEAR]"
+
+**NOTE**: Replace [CURRENT_MONTH] and [CURRENT_YEAR] with actual values from system date (e.g., "December 2025" if that's the current date).
 
 **Output Format:**
 ```markdown
@@ -253,10 +255,10 @@ EOF
 **ALWAYS:**
 - Provide unfiltered assessment of viability
 - Use sequential thinking to trace implications
-- Compare against industry standards using current month/year
+- Compare against industry standards using actual current month/year from system
 - Identify skill/resource gaps based on user's context
 - Calculate realistic timelines
-- Assess market saturation as of current month/year
+- Assess market saturation as of actual current month/year from system
 - Challenge core assumptions
 
 **NEVER:**

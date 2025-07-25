@@ -29,7 +29,7 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
 
 ## Core Objectives
 
-**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
+**CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 1. **System Design Excellence**: Create architectures that scale, perform, and maintain
 2. **Best Practices Research**: Leverage industry standards and proven patterns using current month/year
