@@ -64,7 +64,13 @@ function Get-InstallLocation {
     Write-Host "2) Local (current project only) - ./.claude/commands"
     Write-Host ""
     
-    $choice = Read-Host "Enter your choice (1 or 2) [1]"
+    # Check if running interactively
+    if ([Environment]::UserInteractive -and -not [Environment]::GetCommandLineArgs().Contains("-NonInteractive")) {
+        $choice = Read-Host "Enter your choice (1 or 2) [1]"
+    } else {
+        Write-ColorOutput "Running in non-interactive mode, defaulting to global installation" -ForegroundColor Blue
+        $choice = "1"
+    }
     
     # Default to option 1 if empty
     if ([string]::IsNullOrWhiteSpace($choice)) {

@@ -66,7 +66,15 @@ get_install_location() {
     echo "1) Global (available in all projects) - ~/.claude/commands [default]"
     echo "2) Local (current project only) - ./.claude/commands"
     echo
-    read -p "Enter your choice (1 or 2) [1]: " choice
+    
+    # Check if running interactively
+    if [ -t 0 ]; then
+        read -p "Enter your choice (1 or 2) [1]: " choice
+    else
+        # Non-interactive mode - default to global
+        print_color "$BLUE" "Running in non-interactive mode, defaulting to global installation"
+        choice="1"
+    fi
     
     # Default to option 1 if empty
     if [ -z "$choice" ]; then
@@ -107,17 +115,22 @@ install_prompt() {
     
     print_color "$BLUE" "Installing /#:${command_name}..."
     
+    # Create a temporary file
+    local temp_file=$(mktemp)
+    
     # Download the prompt file
     if command -v curl &> /dev/null; then
-        curl -sSL "$source_url" -o "$dest_file.tmp" 2>/dev/null || {
-            print_color "$RED" "❌ Failed to download ${prompt_file}"
+        if ! curl -sSL "$source_url" -o "$temp_file"; then
+            print_color "$RED" "❌ Failed to download ${prompt_file} from $source_url"
+            rm -f "$temp_file"
             return 1
-        }
+        fi
     elif command -v wget &> /dev/null; then
-        wget -q "$source_url" -O "$dest_file.tmp" 2>/dev/null || {
-            print_color "$RED" "❌ Failed to download ${prompt_file}"
+        if ! wget -q "$source_url" -O "$temp_file"; then
+            print_color "$RED" "❌ Failed to download ${prompt_file} from $source_url"
+            rm -f "$temp_file"
             return 1
-        }
+        fi
     else
         print_color "$RED" "❌ Neither curl nor wget is available"
         exit 1
@@ -133,11 +146,11 @@ install_prompt() {
         echo ""
         echo "---"
         echo ""
-        cat "$dest_file.tmp"
+        cat "$temp_file"
     } > "$dest_file"
     
     # Clean up temp file
-    rm -f "$dest_file.tmp"
+    rm -f "$temp_file"
     
     print_color "$GREEN" "✓ Installed /#:${command_name}"
 }
