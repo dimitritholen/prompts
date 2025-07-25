@@ -376,6 +376,8 @@ Or for specific command help:
 
 Hash Prompts automatically generates specialized AI agents tailored to your specific project as you progress through the pipeline. These agents become experts in your project's technology stack, conventions, and requirements.
 
+![agents](images/parallel.png)
+
 ### What Are Project Agents?
 
 Project agents are specialized AI assistants that deeply understand your specific project context. They are automatically generated and stored in `.claude/agents/` as you use Hash Prompts commands.
@@ -592,21 +594,25 @@ The framework enforces SLC principles throughout development to prevent feature 
 ### Core Principles
 
 **Simple**: Remove barriers and eliminate unnecessary complexity
+
 - Streamlined user experience
 - Intuitive interface requiring minimal learning
 - Can a new user accomplish their main goal within 5 minutes?
 
 **Lovable**: Create genuine user delight and emotional connection
+
 - Solves real pain points effectively
 - Creates positive emotional response
 - Would users be genuinely disappointed if this disappeared?
 
 **Complete**: Fully deliver on the core promise without gaps
+
 - Users can complete their primary task end-to-end
 - No major functionality gaps in core workflow
 - Does this fulfill the promise made?
 
 ### SLC Scoring (1-5 scale)
+
 - **5**: Exceptional (intuitive/evangelists/exceeds expectations)
 - **4**: Very good (easy/satisfied/meets expectations)
 - **3**: Acceptable (reasonable/useful/minor gaps)
@@ -616,7 +622,9 @@ The framework enforces SLC principles throughout development to prevent feature 
 **Threshold**: All three scores must be 3+ for a feature to qualify
 
 ### Feature Validation Checklist
+
 Before adding any feature, ensure it passes:
+
 - ✓ Maintains or improves simplicity
 - ✓ Users will genuinely love this addition
 - ✓ Helps complete the core promise
@@ -625,6 +633,7 @@ Before adding any feature, ensure it passes:
 - ✓ Cannot be solved with existing features
 
 ### Warning Signs
+
 - **Simple Violations**: Users need training, cluttered interface
 - **Lovable Violations**: Low engagement, high churn
 - **Complete Violations**: Users need external tools, create workarounds
