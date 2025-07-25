@@ -4,6 +4,49 @@ This folder contains specialized prompts designed to guide AI assistants into sp
 
 ![prompts](prompts.gif)
 
+## Quick Installation
+
+### Option 1: One-Line Install (Recommended)
+
+**Unix/Linux/macOS:**
+```bash
+curl -sSL https://raw.githubusercontent.com/dimitritholen/prompts/features/add_pipeline/scripts/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/dimitritholen/prompts/features/add_pipeline/scripts/install.ps1 | iex
+```
+
+### Option 2: Clone and Install
+
+```bash
+git clone https://github.com/dimitritholen/prompts.git
+cd prompts
+
+# Unix/Linux/macOS
+./scripts/install.sh
+
+# Windows
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+```
+
+### What Gets Installed
+
+The installer creates Claude commands under the `#` namespace:
+- `/#:brainstorm` - Idea validation and development
+- `/#:prd` - Product requirements documentation
+- `/#:architect` - System architecture design
+- `/#:tasks` - Task breakdown and planning
+- `/#:plan` - Detailed implementation planning
+- `/#:code` - Code implementation
+- `/#:feature` - Feature integration
+- `/#:test` - Testing strategy
+- `/#:deploy` - Deployment and DevOps
+- `/#:pipeline` - Workflow orchestration
+
+Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
+
 ## Available Prompts
 
 ### 1. **architect.md** - System Architecture Mode
@@ -21,10 +64,10 @@ This folder contains specialized prompts designed to guide AI assistants into sp
 **How to Use**:
 
 ```
-@architect.md
-Design a scalable e-commerce platform architecture
+/#:architect Design a scalable e-commerce platform architecture
 ```
 
+Or with the prompt file directly:
 ```
 @architect.md
 Process @my_project_prd file.
@@ -45,8 +88,7 @@ Process @my_project_prd file.
 **How to Use**:
 
 ```
-@brainstorm.md
-I have an idea for a water tracking app. Help me develop this concept.
+/#:brainstorm I have an idea for a water tracking app. Help me develop this concept.
 ```
 
 ### 3. **code.md** - Coding Implementation Mode
@@ -64,8 +106,7 @@ I have an idea for a water tracking app. Help me develop this concept.
 **How to Use**:
 
 ```
-@code.md
-Implement the user authentication system based on the PRD
+/#:code Implement the user authentication system based on the PRD
 ```
 
 ### 4. **plan.md** - Planning Mode
@@ -83,8 +124,7 @@ Implement the user authentication system based on the PRD
 **How to Use**:
 
 ```
-@plan.md
-Plan the implementation of a real-time chat feature
+/#:plan Plan the implementation of a real-time chat feature
 ```
 
 ### 5. **prd.md** - Product Requirements Document Creation
@@ -102,8 +142,7 @@ Plan the implementation of a real-time chat feature
 **How to Use**:
 
 ```
-@prd.md
-Create a PRD for a task management mobile app
+/#:prd Create a PRD for a task management mobile app
 ```
 
 ### 6. **tasks.md** - Task Breakdown Mode
@@ -121,8 +160,7 @@ Create a PRD for a task management mobile app
 **How to Use**:
 
 ```
-@tasks.md
-Break down the e-commerce PRD into implementation tasks
+/#:tasks Break down the e-commerce PRD into implementation tasks
 ```
 
 ### 7. **feature.md** - Feature Integration Mode
@@ -140,8 +178,7 @@ Break down the e-commerce PRD into implementation tasks
 **How to Use**:
 
 ```
-@feature.md
-Add user authentication with OAuth2 support for Google and GitHub providers
+/#:feature Add user authentication with OAuth2 support for Google and GitHub providers
 ```
 
 ### 8. **test.md** - Comprehensive Testing Strategy
@@ -159,8 +196,7 @@ Add user authentication with OAuth2 support for Google and GitHub providers
 **How to Use**:
 
 ```
-@test.md
-Create comprehensive test strategy for the e-commerce platform
+/#:test Create comprehensive test strategy for the e-commerce platform
 ```
 
 ### 9. **deploy.md** - Deployment & DevOps Mode
@@ -178,8 +214,7 @@ Create comprehensive test strategy for the e-commerce platform
 **How to Use**:
 
 ```
-@deploy.md
-Design deployment strategy for microservices architecture
+/#:deploy Design deployment strategy for microservices architecture
 ```
 
 ### 10. **pipeline.md** - Pipeline Orchestration
@@ -197,8 +232,7 @@ Design deployment strategy for microservices architecture
 **How to Use**:
 
 ```
-@pipeline.md
-Start new project workflow for task management application
+/#:pipeline Start new project workflow for task management application
 ```
 
 ## Complete Development Pipeline
@@ -271,7 +305,21 @@ flowchart TB
 
 ## Usage Guidelines
 
-### In AI Coding Tools
+### Using Claude Commands
+
+After installation, you can use the commands directly in Claude:
+
+```
+/#:brainstorm I want to build a fitness tracking app
+
+/#:architect Design the system architecture
+
+/#:pipeline start
+```
+
+### Using Prompt Files Directly
+
+You can also reference the prompt files directly in your AI coding tools:
 
 1. **Reference Before Prompt**: Include the prompt file at the beginning of your message:
    
