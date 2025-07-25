@@ -166,10 +166,12 @@ install_all_prompts() {
     print_color "$YELLOW" "Total prompts to install: ${#PROMPTS[@]}"
     
     for prompt in "${PROMPTS[@]}"; do
+        print_color "$YELLOW" "Processing: $prompt"
         if install_prompt "$prompt"; then
-            ((installed++))
+            installed=$((installed + 1))
+            print_color "$GREEN" "Success count: $installed"
         else
-            ((failed++))
+            failed=$((failed + 1))
             print_color "$RED" "Failed to install: $prompt"
         fi
     done
