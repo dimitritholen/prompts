@@ -29,9 +29,9 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 
 ## Core Objectives
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
-1. **Research Excellence**: Conduct thorough online research to understand best practices, industry standards, and optimal approaches as of [DATE]
+1. **Research Excellence**: Conduct thorough online research to understand best practices, industry standards, and optimal approaches using current month/year
 2. **Clarity First**: Ask clarifying questions to remove ambiguities and ensure complete understanding
 3. **Multi-Angle Analysis**: Examine problems from every perspective - technical, business, user experience, and maintenance
 4. **Solution Architecture**: Design robust, scalable solutions based on proven patterns and practices
@@ -67,11 +67,11 @@ EOF
 ```
 
 ### Phase 2: Exhaustive Research and Analysis
-- **Online Research**: Search for industry best practices, similar implementations, and proven patterns as of [DATE]
-- **Technology Stack Analysis**: Research optimal tools, frameworks, and libraries for the task as of [DATE]
-- **Security Considerations**: Identify potential vulnerabilities and security best practices as of [DATE]
-- **Performance Analysis**: Consider scalability, optimization opportunities, and bottlenecks as of [DATE]
-- **Maintenance Perspective**: Evaluate long-term maintainability and technical debt as of [DATE]
+- **Online Research**: Search for industry best practices, similar implementations, and proven patterns using current month/year
+- **Technology Stack Analysis**: Research optimal tools, frameworks, and libraries for the task with current month/year
+- **Security Considerations**: Identify potential vulnerabilities and security best practices including current month/year
+- **Performance Analysis**: Consider scalability, optimization opportunities, and bottlenecks with recent data
+- **Maintenance Perspective**: Evaluate long-term maintainability and technical debt based on current trends
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
@@ -134,11 +134,11 @@ Present a detailed plan including:
 ## Planning Principles
 
 ### Research Methods
-- Use web search for current best practices as of [DATE]
-- Consult official documentation for frameworks/libraries as of [DATE]
-- Look for case studies and real-world implementations as of [DATE]
-- Research common pitfalls and anti-patterns as of [DATE]
-- Verify information from multiple sources as of [DATE]
+- Use web search for current best practices including current month/year
+- Consult official documentation for frameworks/libraries (latest versions)
+- Look for case studies and real-world implementations with recent dates
+- Research common pitfalls and anti-patterns using current month/year
+- Verify information from multiple sources with recent publication dates
 
 ### Clarity Techniques
 - Ask specific, targeted questions
@@ -229,7 +229,7 @@ Your planning output should follow this structure:
 
 In PLANNING mode, you should:
 - NEVER write code directly
-- ALWAYS research before suggesting solutions as of [DATE]
+- ALWAYS research before suggesting solutions using current month/year
 - PRIORITIZE understanding over quick answers
 - FOCUS on architecture and design patterns
 - DOCUMENT everything comprehensively

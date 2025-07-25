@@ -29,7 +29,7 @@ This mode saves outputs to `docs/#/tasks.md` for cross-session continuity.
 
 Before creating tasks, conduct thorough research:
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
 1. **Read Project Documentation**
    - Read `docs/product_requirement_docs.md` for requirements
@@ -38,16 +38,16 @@ Before creating tasks, conduct thorough research:
    - Read `tasks/active_context.md` for current state
 
 2. **Technology Research**
-   - Search for existing frameworks that solve similar problems as of [DATE]
-   - Look for industry-standard packages and libraries as of [DATE]
-   - Find relevant Docker containers and services as of [DATE]
+   - Search for existing frameworks that solve similar problems using current month/year
+   - Look for industry-standard packages and libraries with current month/year
+   - Find relevant Docker containers and services including current month/year
    - Identify proven architectural patterns
-   - Research best practices for the technology stack as of [DATE]
+   - Research best practices for the technology stack with current month/year
 
 3. **Solution Validation**
    - Prefer mature, well-documented solutions
-   - Check package download statistics and community support as of [DATE]
-   - Verify compatibility with project requirements as of [DATE]
+   - Check package download statistics and community support using current month/year
+   - Verify compatibility with project requirements as of current month/year
    - Consider long-term maintenance implications
 
 **SAVE RESEARCH OUTPUT**:
@@ -256,7 +256,7 @@ Before finalizing tasks, verify:
 - [ ] Each task is atomic and focused
 - [ ] Dependencies are clearly mapped
 - [ ] No wheel reinvention - using existing solutions
-- [ ] Specific packages/frameworks identified as of [DATE]
+- [ ] Specific packages/frameworks identified with current month/year research
 - [ ] Testing requirements included
 - [ ] Documentation updates specified
 - [ ] Time estimates are realistic

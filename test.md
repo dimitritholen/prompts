@@ -41,7 +41,7 @@ This mode saves outputs to `docs/#/test.md` for cross-session continuity.
 
 ### Phase 1: Test Strategy Analysis
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
 1. **Requirements Analysis**
    - Read `docs/product_requirement_docs.md` for functional requirements
@@ -235,7 +235,7 @@ describe('ComponentName', () => {
 
 ### Phase 4: Test Tooling and Framework Selection
 
-**Research current best practices as of [DATE]**
+**Research current best practices using current month/year in all searches**
 
 #### Testing Framework Matrix
 | Type | Recommended Tools | Why |

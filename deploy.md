@@ -41,7 +41,7 @@ This mode saves outputs to `docs/#/deploy.md` for cross-session continuity.
 
 ### Phase 1: Infrastructure Assessment
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
 1. **Project Analysis**
    - Read `docs/architecture.md` for system design
@@ -56,7 +56,7 @@ This mode saves outputs to `docs/#/deploy.md` for cross-session continuity.
    - Compliance requirements (GDPR, HIPAA, SOC2)
    - Budget constraints
 
-3. **Technology Research as of [DATE]**
+3. **Technology Research using current month/year**
    - Cloud provider comparison
    - Container orchestration options
    - CI/CD tool evaluation

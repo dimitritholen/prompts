@@ -27,7 +27,7 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
 
 ## Workflow Phases
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
 ### Phase 1: Discovery and Research
 1. **Initial Analysis**
@@ -36,14 +36,14 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
    - Determine the business value proposition
 
 2. **Market Research**
-   - Search online for similar solutions and competitors as of [DATE]
-   - Identify market gaps and opportunities as of [DATE]
-   - Analyze successful patterns in the domain as of [DATE]
-   - Find potential pitfalls from failed similar attempts as of [DATE]
+   - Search online for similar solutions and competitors using current month/year
+   - Identify market gaps and opportunities with current month/year in searches
+   - Analyze successful patterns in the domain including current month/year
+   - Find potential pitfalls from failed similar attempts with recent dates
 
 3. **Technical Feasibility**
-   - Research existing frameworks, libraries, and tools as of [DATE]
-   - Identify industry-standard solutions as of [DATE]
+   - Research existing frameworks, libraries, and tools using current month/year
+   - Identify industry-standard solutions with current month/year in queries
    - Assess technical complexity and requirements
    - Consider scalability and maintenance implications
 
@@ -517,11 +517,11 @@ echo "Domain agent generation complete!"
 ## Research Commands
 
 When researching, use these approaches:
-- Search for "[domain] best practices as of [DATE]"
-- Look for "[technology] vs [alternative] comparison as of [DATE]"
-- Find "[problem] solutions open source as of [DATE]"
-- Research "[industry] standard approaches as of [DATE]"
-- Investigate "[feature] implementation patterns as of [DATE]"
+- Search for "[domain] best practices [current month] [current year]"
+- Look for "[technology] vs [alternative] comparison [current month] [current year]"
+- Find "[problem] solutions open source [current month] [current year]"
+- Research "[industry] standard approaches [current month] [current year]"
+- Investigate "[feature] implementation patterns [current month] [current year]"
 
 ## Memory Integration
 

@@ -29,11 +29,11 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
 
 ## Core Objectives
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
 1. **System Design Excellence**: Create architectures that scale, perform, and maintain
-2. **Best Practices Research**: Leverage industry standards and proven patterns as of [DATE]
-3. **Technology Selection**: Choose optimal tech stacks based on requirements as of [DATE]
+2. **Best Practices Research**: Leverage industry standards and proven patterns using current month/year
+3. **Technology Selection**: Choose optimal tech stacks based on requirements with current month/year
 4. **Future-Proof Design**: Build systems that adapt to changing needs
 
 ## Architecture Workflow
@@ -42,22 +42,22 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
 
 #### Industry Research Protocol
 1. **Web Search for Best Practices**
-   - Search for "[domain] architecture best practices as of [DATE]"
-   - Research successful implementations in similar domains as of [DATE]
-   - Study failure cases and lessons learned as of [DATE]
-   - Analyze industry benchmarks and standards as of [DATE]
+   - Search for "[domain] architecture best practices [current month] [current year]"
+   - Research successful implementations in similar domains with current month/year
+   - Study failure cases and lessons learned including recent dates
+   - Analyze industry benchmarks and standards using current month/year
 
 2. **Technology Stack Research**
-   - Compare framework capabilities and trade-offs as of [DATE]
-   - Research integration patterns as of [DATE]
-   - Evaluate community support and ecosystem as of [DATE]
-   - Consider long-term viability as of [DATE]
+   - Compare framework capabilities and trade-offs using current month/year
+   - Research integration patterns with current month/year in searches
+   - Evaluate community support and ecosystem as of current month/year
+   - Consider long-term viability based on current trends
 
 3. **Pattern Analysis**
-   - Identify applicable design patterns as of [DATE]
-   - Research microservices vs monolith trade-offs as of [DATE]
-   - Study event-driven vs request-driven architectures as of [DATE]
-   - Analyze data flow patterns as of [DATE]
+   - Identify applicable design patterns using current month/year
+   - Research microservices vs monolith trade-offs with recent dates
+   - Study event-driven vs request-driven architectures including current month/year
+   - Analyze data flow patterns with current month/year context
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
@@ -555,7 +555,7 @@ Evaluate your architecture against:
 
 ## Best Practices Checklist
 
-- [ ] Researched similar successful architectures as of [DATE]
+- [ ] Researched similar successful architectures using current month/year
 - [ ] Considered multiple architectural patterns
 - [ ] Evaluated technology options objectively
 - [ ] Designed for current and future scale
