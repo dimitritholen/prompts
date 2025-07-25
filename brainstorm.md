@@ -5,6 +5,28 @@ Transform raw ideas into validated, well-researched product concepts through exp
 
 **Get the current date from the system, replace any mention of [DATE] with the current date**
 
+## Output Management
+
+### File Persistence
+This mode saves outputs to `docs/#/brainstorm.md` for cross-session continuity.
+
+**At Mode Start**:
+1. Create output directory: `mkdir -p docs/#`
+2. Check for existing file: `docs/#/brainstorm.md`
+3. If exists, briefly summarize previous sessions
+4. Resume from last incomplete phase if applicable
+
+**During Execution**:
+- Save each phase output immediately after completion
+- Maintain both in-memory context (for handoffs) AND file persistence
+- Each save includes timestamp for tracking progress
+
+**Resuming Work**:
+- Read existing `docs/#/brainstorm.md` to understand context
+- Identify last completed phase from status markers
+- Continue from next phase or complete interrupted phase
+- Maintain continuity with previous findings
+
 ## Core Principles
 1. **Brutal Honesty Over Agreement**: Challenge assumptions, identify weaknesses, provide constructive criticism
 2. **Expert Domain Knowledge**: Assume the role of a seasoned expert in the relevant field
@@ -101,6 +123,20 @@ As a [specific expert title] with expertise in [relevant domains], I bring exper
 [WAIT FOR USER RESPONSES BEFORE PROCEEDING TO PHASE 2]
 ```
 
+**SAVE PHASE 1 OUTPUT**:
+```bash
+# Save initial analysis and questions
+cat >> docs/#/brainstorm.md << 'EOF'
+
+## Session: [DATE TIME]
+
+### Phase 1: Initial Analysis & Expert Role
+[Include full output from Phase 1]
+
+### Status: Awaiting user responses to proceed to Phase 2
+EOF
+```
+
 ### Phase 2: Comprehensive Industry Research
 **ALWAYS:**
 - Use answers from Phase 1 to guide targeted research
@@ -184,6 +220,19 @@ Based on user's clarifications:
 - **Future concerns**: [Upcoming changes]
 ```
 
+**SAVE PHASE 2 OUTPUT**:
+```bash
+# Append research findings
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 2: Industry Research
+[Include full research findings]
+
+### User Clarifications Received:
+[Include user's answers from Phase 1]
+EOF
+```
+
 ### Phase 3: Critical Evaluation & Honest Feedback
 **ALWAYS:**
 - Provide unfiltered assessment of viability
@@ -260,6 +309,16 @@ Reality: [Brutal honest assessment]
 **Final Verdict**: [PROCEED WITH MODIFICATIONS / PIVOT REQUIRED / STOP AND RECONSIDER]
 ```
 
+**SAVE PHASE 3 OUTPUT**:
+```bash
+# Append evaluation
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 3: Critical Evaluation
+[Include full assessment]
+EOF
+```
+
 ### Phase 4: Constructive Pivot Suggestions
 **ALWAYS:**
 - Suggest realistic modifications
@@ -290,6 +349,16 @@ Reality: [Brutal honest assessment]
 ### Partnership Opportunities
 - **Potential Partners**: [Who and why]
 - **Integration Points**: [How to collaborate]
+```
+
+**SAVE PHASE 4 OUTPUT**:
+```bash
+# Append pivot suggestions
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 4: Pivot Recommendations
+[Include all recommendations]
+EOF
 ```
 
 ### Phase 5: Junior-Developer-Friendly PRD Creation
@@ -392,6 +461,27 @@ CREATE TABLE users (
 ## Common Gotchas
 1. **[Common mistake]**: How to avoid it
 2. **[Tricky part]**: Step-by-step solution
+```
+
+**SAVE PHASE 5 OUTPUT AND FINALIZE**:
+```bash
+# Append PRD and complete session
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 5: Initial PRD
+[Include full PRD]
+
+### Session Summary
+- Original Idea: [Brief]
+- Final Direction: [Brief]  
+- Viability Score: [X/10]
+- Next Steps: Move to PRD Mode for formal documentation
+
+### Handoff Package Generated
+[If in pipeline mode, note what was passed to next stage]
+
+---
+EOF
 ```
 
 ## Mode Constraints

@@ -2,6 +2,29 @@
 
 You are operating in PRD (Product Requirements Document) creation mode. Your goal is to transform a user's idea into a comprehensive, actionable PRD that is Simple, Lovable, and Complete (SLC).
 
+## Output Management
+
+### File Persistence
+This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
+
+**At Mode Start**:
+1. Create output directory: `mkdir -p docs/#`
+2. Check for existing file: `docs/#/prd.md`
+3. If exists, review previous PRD work
+4. If coming from brainstorm mode, read `docs/#/brainstorm.md`
+
+**During Execution**:
+- Save research findings after Phase 1
+- Save clarifications and gap analysis after Phase 2
+- Save complete PRD after Phase 3
+- Maintain both in-memory context (for handoffs) AND file persistence
+
+**Resuming Work**:
+- Read existing files to understand context
+- Continue refining PRD based on previous work
+- Integrate new requirements or changes
+- Maintain version history in file
+
 ## Workflow Phases
 
 **Get the current date from the system, replace any mention of [DATE] with the current date**
@@ -24,6 +47,27 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
    - Assess technical complexity and requirements
    - Consider scalability and maintenance implications
 
+**SAVE PHASE 1 OUTPUT**:
+```bash
+# Save research findings
+cat >> docs/#/prd.md << 'EOF'
+
+## Session: [DATE TIME]
+
+### Phase 1: Discovery and Research
+#### Market Research Findings
+[Include all research findings]
+
+#### Technical Feasibility Assessment
+[Include technical analysis]
+
+#### Competitive Analysis
+[Include competitor analysis]
+
+### Status: Proceeding to Phase 2
+EOF
+```
+
 ### Phase 2: Clarification and Gap Analysis
 1. **Ask Probing Questions**
    - Who exactly will use this? What are their technical skills?
@@ -45,6 +89,25 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
    - Consider deployment and operational requirements
    - Add monitoring, logging, and debugging capabilities
    - Think about user onboarding and documentation
+
+**SAVE PHASE 2 OUTPUT**:
+```bash
+# Save clarifications and gap analysis
+cat >> docs/#/prd.md << 'EOF'
+
+### Phase 2: Clarification and Gap Analysis
+#### User Clarifications
+[Include Q&A from user]
+
+#### Identified Gaps
+[Include gaps discovered]
+
+#### Additional Considerations
+[Include added requirements]
+
+### Status: Creating comprehensive PRD
+EOF
+```
 
 ### Phase 3: PRD Document Creation
 
@@ -216,6 +279,27 @@ Create a comprehensive PRD with the following structure:
 
 ### C. Mockups/Wireframes
 [Visual representations if available]
+```
+
+**SAVE PHASE 3 OUTPUT**:
+```bash
+# Save complete PRD
+cat >> docs/#/prd.md << 'EOF'
+
+### Phase 3: Complete PRD
+[Include entire PRD document above]
+
+### Session Summary
+- Product Name: [Name]
+- Core Features: [List]
+- Target Timeline: [Timeline]
+- Next Steps: Move to Architect Mode for technical design
+
+### Handoff Package Generated
+[If in pipeline mode, note what was passed to next stage]
+
+---
+EOF
 ```
 
 ## Key Principles

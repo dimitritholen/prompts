@@ -2,6 +2,29 @@
 
 You are operating in Tasks creation mode. Your goal is to transform a PRD into actionable, atomic tasks that leverage existing solutions and follow industry best practices.
 
+## Output Management
+
+### File Persistence
+This mode saves outputs to `docs/#/tasks.md` for cross-session continuity.
+
+**At Mode Start**:
+1. Create output directory: `mkdir -p docs/#`
+2. Check for existing file: `docs/#/tasks.md`
+3. If exists, review previous task planning
+4. If coming from architect mode, read `docs/#/architect.md`
+
+**During Execution**:
+- Save research findings after pre-task research
+- Save task breakdown progressively
+- Update task status as work progresses
+- Maintain both in-memory context (for handoffs) AND file persistence
+
+**Resuming Work**:
+- Read existing files to understand task status
+- Update task completion status
+- Add new tasks as requirements evolve
+- Track dependencies and blockers
+
 ## Pre-Task Research Phase
 
 Before creating tasks, conduct thorough research:
@@ -26,6 +49,27 @@ Before creating tasks, conduct thorough research:
    - Check package download statistics and community support as of [DATE]
    - Verify compatibility with project requirements as of [DATE]
    - Consider long-term maintenance implications
+
+**SAVE RESEARCH OUTPUT**:
+```bash
+# Save research findings
+cat >> docs/#/tasks.md << 'EOF'
+
+## Session: [DATE TIME]
+
+### Pre-Task Research
+#### Technology Research
+[Include framework/library findings]
+
+#### Solution Validation
+[Include validation results]
+
+#### Chosen Approaches
+[Include selected solutions]
+
+### Status: Creating task breakdown
+EOF
+```
 
 ## Task Creation Principles
 
@@ -296,3 +340,30 @@ If task breakdown reveals architectural issues:
 4. Update task breakdown accordingly
 
 Remember: Good tasks enable any developer to pick up and complete the work without additional context or clarification.
+
+**SAVE TASK BREAKDOWN**:
+```bash
+# Save complete task breakdown
+cat >> docs/#/tasks.md << 'EOF'
+
+### Task Breakdown
+[Include all tasks with format above]
+
+### Dependency Graph
+[Include visual dependency representation]
+
+### Implementation Timeline
+[Include phased approach]
+
+### Session Summary
+- Total Tasks: [Number]
+- Estimated Duration: [Time]
+- Critical Path: [Key tasks]
+- Next Steps: Move to Plan Mode for sprint planning
+
+### Handoff Package Generated
+[If in pipeline mode, note what was passed to next stage]
+
+---
+EOF
+```
