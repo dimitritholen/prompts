@@ -153,6 +153,7 @@ install_prompt() {
     rm -f "$temp_file"
     
     print_color "$GREEN" "✓ Installed /#:${command_name}"
+    return 0
 }
 
 # Function to install all prompts
@@ -162,11 +163,14 @@ install_all_prompts() {
     local installed=0
     local failed=0
     
+    print_color "$YELLOW" "Total prompts to install: ${#PROMPTS[@]}"
+    
     for prompt in "${PROMPTS[@]}"; do
         if install_prompt "$prompt"; then
             ((installed++))
         else
             ((failed++))
+            print_color "$RED" "Failed to install: $prompt"
         fi
     done
     
@@ -209,8 +213,8 @@ handle_error() {
     exit 1
 }
 
-# Set error handler
-trap handle_error ERR
+# Set error handler - disabled during download attempts
+# trap handle_error ERR
 
 # Main installation flow
 main() {
