@@ -29,12 +29,12 @@ $Prompts = @(
 
 # Module files to install
 $Modules = @(
-    "modules/common.md",
-    "modules/research.md",
-    "modules/slc-validation.md",
-    "modules/agent-generation.md",
-    "modules/handoffs.md",
-    "modules/README.md"
+    "modules/common.inc",
+    "modules/research.inc",
+    "modules/slc-validation.inc",
+    "modules/agent-generation.inc",
+    "modules/handoffs.inc",
+    "modules/README.inc"
 )
 
 # Function to print colored output

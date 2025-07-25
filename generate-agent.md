@@ -178,7 +178,7 @@ fi
 echo "✨ Generating ${TECHNOLOGY} expert agent..."
 
 # Source the agent generation functions from modules
-# See: modules/agent-generation.md for:
+# See: modules/agent-generation.inc for:
 #   - generate_color() function  
 #   - generate_dynamic_agent() function
 # In actual implementation, these would be sourced from the module

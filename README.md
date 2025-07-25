@@ -89,12 +89,12 @@ Hash Prompts uses a modular architecture for better maintainability and reusabil
 
 ### Core Modules
 
-- **`modules/common.md`** - Output management, file persistence, session handling
-- **`modules/research.md`** - Parallel search patterns, query templates, caching
-- **`modules/slc-validation.md`** - Complete SLC framework and validation checklists
-- **`modules/agent-generation.md`** - Agent creation functions and color palettes
-- **`modules/handoffs.md`** - Stage transitions, quality gates, handoff templates
-- **`modules/README.md`** - Module usage guide
+- **`modules/common.inc`** - Output management, file persistence, session handling
+- **`modules/research.inc`** - Parallel search patterns, query templates, caching
+- **`modules/slc-validation.inc`** - Complete SLC framework and validation checklists
+- **`modules/agent-generation.inc`** - Agent creation functions and color palettes
+- **`modules/handoffs.inc`** - Stage transitions, quality gates, handoff templates
+- **`modules/README.inc`** - Module usage guide
 
 ### Benefits
 

@@ -336,13 +336,13 @@ PROJECT_NAME="[Project Name from PRD]"
 mkdir -p .claude/agents
 
 # Agent generation functions are now modularized
-# See: modules/agent-generation.md for:
+# See: modules/agent-generation.inc for:
 #   - generate_color() function
 #   - generate_dynamic_agent() function
 # These functions handle agent creation based on technology research
 
 # Note: In actual usage, source the functions from the module
-# source modules/agent-generation.md
+# source modules/agent-generation.inc
 
 # Parse the technology research data from the saved file
 if [ -f "docs/#/architect.md" ]; then
