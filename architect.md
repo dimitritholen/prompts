@@ -523,15 +523,18 @@ cat >> docs/#/architect.md << 'EOF'
 [List all generated agents with their colors and specialties]
 
 ### Agent Activation
-To use these agents in your current Claude Code session, run:
-```
-/reload
+To use these agents, restart Claude Code and resume your session:
+```bash
+# Exit Claude Code (Ctrl+C or Cmd+C)
+# Then resume with:
+claude --resume
 ```
 EOF
 
 echo "Agent generation complete! Run 'ls .claude/agents/' to see all generated agents."
 echo ""
-echo "🔄 IMPORTANT: Run '/reload' in Claude Code to activate the new agents in your current session."
+echo "⚠️  IMPORTANT: Restart Claude Code to activate the new agents."
+echo "   Exit Claude Code and resume with: claude --resume"
 echo ""
 ```
 

@@ -60,7 +60,7 @@ fi
 
 1. **End-to-End Vision**: See the complete journey from idea to production
 2. **Automatic Agent Generation**: Creates specialized AI agents at each stage
-3. **Agent Activation**: Run `/reload` after agent generation to use them immediately
+3. **Agent Activation**: Restart Claude Code after agent generation to use them
 4. **Seamless Handoffs**: Ensure smooth transitions between phases
 5. **Context Preservation**: Maintain project knowledge across stages
 6. **Quality Gates**: Enforce standards at each transition
@@ -169,7 +169,7 @@ flowchart TB
 - Acceptance criteria defined
 - Success metrics established
 - Stakeholder alignment
-- Domain agents created (run `/reload` to activate)
+- Domain agents created (restart Claude Code to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -211,7 +211,7 @@ flowchart TB
 - Technology stack defined
 - Component design finalized
 - Risk mitigation planned
-- Tech stack agents created (run `/reload` to activate)
+- Tech stack agents created (restart Claude Code to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -252,7 +252,7 @@ flowchart TB
 - Dependencies mapped
 - Timeline estimated
 - Resources identified
-- Quality & convention agents created (run `/reload` to activate)
+- Quality & convention agents created (restart Claude Code to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -1062,10 +1062,12 @@ if [ -d ".claude/agents" ] && [ "$(ls -A .claude/agents 2>/dev/null)" ]; then
     ls .claude/agents/code-reviewer.md .claude/agents/test-engineer.md .claude/agents/documentation-writer.md .claude/agents/security-engineer.md .claude/agents/performance-optimizer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' >> docs/#/pipeline.md || echo "None yet" >> docs/#/pipeline.md
     
     echo "" >> docs/#/pipeline.md
-    echo "### 🔄 Agent Activation" >> docs/#/pipeline.md
-    echo "To use these agents in your current Claude Code session, run:" >> docs/#/pipeline.md
-    echo '```' >> docs/#/pipeline.md
-    echo "/reload" >> docs/#/pipeline.md
+    echo "### ⚠️ Agent Activation" >> docs/#/pipeline.md
+    echo "To use these agents, restart Claude Code and resume your session:" >> docs/#/pipeline.md
+    echo '```bash' >> docs/#/pipeline.md
+    echo "# Exit Claude Code (Ctrl+C or Cmd+C)" >> docs/#/pipeline.md
+    echo "# Then resume with:" >> docs/#/pipeline.md
+    echo "claude --resume" >> docs/#/pipeline.md
     echo '```' >> docs/#/pipeline.md
     
     echo "---" >> docs/#/pipeline.md
@@ -1073,7 +1075,10 @@ if [ -d ".claude/agents" ] && [ "$(ls -A .claude/agents 2>/dev/null)" ]; then
     # Display reload reminder if new agents were just generated
     if [ "$AGENTS_GENERATED" = "true" ]; then
         echo ""
-        echo "🔄 IMPORTANT: New agents have been generated! Run '/reload' in Claude Code to activate them."
+        echo "⚠️  IMPORTANT: New agents have been generated!"
+        echo "   Restart Claude Code to activate them:"
+        echo "   1. Exit Claude Code (Ctrl+C or Cmd+C)"
+        echo "   2. Resume with: claude --resume"
         echo ""
     fi
 fi
