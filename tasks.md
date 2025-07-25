@@ -228,4 +228,71 @@ Provide tasks in a numbered list with:
 4. Time estimates
 5. Current status checkboxes
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: Follows Architect Mode
+- **Required Inputs**:
+  - Approved architecture document
+  - Technology stack decisions
+  - Component designs
+  - PRD for reference
+  - Technical specifications
+- **Previous Stage**: Architect Mode
+
+### Input Validation
+Before creating tasks:
+1. Verify architecture is complete
+2. Confirm technology choices are final
+3. Check all components are defined
+4. Review implementation priorities
+
+### Handoff to Next Stage
+After task breakdown is complete:
+
+1. **Next Mode**: Plan Mode
+2. **Handoff Deliverables**:
+   - Complete task breakdown
+   - Dependency graph
+   - Time estimates
+   - Resource requirements
+   - Priority ordering
+   - Risk identification
+
+3. **Handoff Format**:
+```markdown
+## Tasks → Plan Handoff
+
+### Task Summary
+- **Total Tasks**: [Number]
+- **Estimated Duration**: [Total time]
+- **Critical Path**: [Key dependencies]
+- **Blocking Tasks**: [Must complete first]
+
+### Resource Requirements
+- **Technical Skills**: [Required expertise]
+- **Tools/Services**: [External dependencies]
+- **Team Size**: [Recommended team]
+
+### Implementation Phases
+1. **Phase 1 - Foundation**: Tasks #1-5 (X days)
+2. **Phase 2 - Core Features**: Tasks #6-15 (Y days)
+3. **Phase 3 - Integration**: Tasks #16-20 (Z days)
+
+### High-Risk Tasks
+- Task #X: [Risk and mitigation]
+- Task #Y: [Risk and mitigation]
+
+### Documentation
+- Task Plan: `tasks/tasks_plan.md`
+- Active Context: `tasks/active_context.md`
+```
+
+### Backward Navigation
+If task breakdown reveals architectural issues:
+1. Document specific concerns
+2. Return to Architect Mode
+3. Adjust architecture as needed
+4. Update task breakdown accordingly
+
 Remember: Good tasks enable any developer to pick up and complete the work without additional context or clarification.

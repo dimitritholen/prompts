@@ -229,4 +229,77 @@ Evaluate your architecture against:
 - [ ] Considered operational requirements
 - [ ] Validated against requirements
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: Follows PRD Mode
+- **Required Inputs**:
+  - Approved PRD document
+  - Functional and non-functional requirements
+  - Performance and scalability targets
+  - Security and compliance requirements
+  - Budget and timeline constraints
+- **Previous Stage**: PRD Mode
+
+### Input Validation
+Before starting architecture design:
+1. Verify PRD completeness
+2. Confirm all requirements are clear
+3. Check for any architectural constraints
+4. Review existing technical decisions
+
+### Handoff to Next Stage
+After architecture is designed and approved:
+
+1. **Next Mode**: Tasks Mode
+2. **Handoff Deliverables**:
+   - System architecture document
+   - Technology stack decisions
+   - Component design and interfaces
+   - Deployment architecture
+   - Security architecture
+   - Performance optimization strategy
+   - Risk analysis and mitigation
+
+3. **Handoff Format**:
+```markdown
+## Architect → Tasks Handoff
+
+### Architecture Summary
+- **Pattern**: [Microservices/Monolith/Serverless/etc.]
+- **Primary Stack**: [Languages, frameworks, databases]
+- **Infrastructure**: [Cloud provider, orchestration]
+- **Key Components**: [List with responsibilities]
+
+### Technical Decisions
+- **Database**: [Choice and rationale]
+- **API Design**: [REST/GraphQL/gRPC]
+- **Authentication**: [Approach]
+- **Caching**: [Strategy]
+- **Messaging**: [If applicable]
+
+### Implementation Priorities
+1. [Foundation components]
+2. [Core business logic]
+3. [Integration layers]
+4. [Performance optimizations]
+
+### Risk Mitigation
+- **Technical Risks**: [Identified risks and mitigation]
+- **Scalability Concerns**: [Approach]
+- **Security Measures**: [Key implementations]
+
+### Documentation
+- Architecture: `docs/architecture.md`
+- Technical Specs: `docs/technical.md`
+- Diagrams: [Location of architecture diagrams]
+```
+
+### Backward Navigation
+If architecture reveals requirement gaps:
+1. Document specific clarifications needed
+2. Return to PRD Mode with findings
+3. Update requirements based on technical constraints
+4. Re-validate architecture after PRD updates
+
 Remember: Great architecture balances ideal design with practical constraints. Focus on creating systems that are not just technically sound but also aligned with business goals and operational realities.

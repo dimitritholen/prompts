@@ -241,4 +241,66 @@ After PRD approval, update:
 - `tasks/tasks_plan.md` with initial task breakdown
 - `tasks/active_context.md` with project kickoff status
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: Typically follows Brainstorm Mode
+- **Required Inputs**: 
+  - Validated concept from brainstorming
+  - Market research insights
+  - Target user definition
+  - Initial requirements understanding
+- **Previous Stage**: Brainstorm Mode (or direct entry with clear idea)
+
+### Input Validation
+Before starting PRD creation:
+1. Check if brainstorming was completed
+2. Verify concept validation status
+3. Review any existing documentation
+4. Confirm resource constraints are understood
+
+### Handoff to Next Stage
+After PRD is complete and approved:
+
+1. **Next Mode**: Architect Mode
+2. **Handoff Deliverables**:
+   - Complete PRD document
+   - Success metrics and KPIs
+   - User journeys and workflows
+   - Technical requirements
+   - Acceptance criteria
+   - Timeline and milestones
+
+3. **Handoff Format**:
+```markdown
+## PRD → Architect Handoff
+
+### Requirements Summary
+- **Product Vision**: [One-line vision]
+- **Core Features**: [MVP feature list]
+- **Target Users**: [Primary and secondary]
+- **Success Metrics**: [Key KPIs]
+
+### Technical Requirements
+- **Performance**: [Requirements]
+- **Security**: [Requirements]
+- **Scalability**: [Requirements]
+- **Integration**: [External systems]
+
+### Constraints
+- **Timeline**: [Delivery expectations]
+- **Budget**: [Resource limitations]
+- **Technical**: [Platform/stack constraints]
+
+### Key Decisions Needed
+- Architecture pattern selection
+- Technology stack recommendation
+- Infrastructure approach
+- Security architecture
+
+### Documentation Location
+- PRD: `docs/product_requirement_docs.md`
+- Supporting Docs: [Links to research, mockups]
+```
+
 Remember: A good PRD eliminates ambiguity and provides clear direction for implementation.

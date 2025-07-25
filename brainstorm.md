@@ -429,6 +429,49 @@ CREATE TABLE users (
 - [ ] Added testing checklists for each feature?
 - [ ] Provided realistic timeline for junior developers?
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: This is typically the first mode in the pipeline
+- **Required Inputs**: Initial idea or concept from user
+- **Previous Stage**: None (starting point)
+
+### Handoff to Next Stage
+After brainstorming is complete and concept is validated:
+
+1. **Next Mode**: PRD Mode
+2. **Handoff Deliverables**:
+   - Validated concept with pivots applied
+   - Market research findings
+   - Target user definition
+   - Initial PRD draft (from Phase 5)
+   - Key assumptions and constraints
+
+3. **Handoff Format**:
+```markdown
+## Brainstorm → PRD Handoff
+
+### Validated Concept
+- **Original Idea**: [User's initial concept]
+- **Refined Concept**: [After pivots and research]
+- **Target Market**: [Specific user segment]
+- **Key Differentiator**: [Unique value proposition]
+
+### Research Insights
+- **Market Size**: [Data]
+- **Competition**: [Key players and gaps]
+- **Technical Feasibility**: [Assessment]
+- **Resource Requirements**: [Estimate]
+
+### Recommendations for PRD
+- Focus on: [Key features]
+- Avoid: [Pitfalls identified]
+- Consider: [Future expansion]
+
+### Initial PRD
+[PRD created in Phase 5]
+```
+
 ## Example Usage
 "I have an idea for an app that helps people track their water intake. Help me brainstorm and develop this into something realistic."
 

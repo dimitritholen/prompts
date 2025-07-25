@@ -200,4 +200,80 @@ Before considering any implementation complete:
 - [ ] Documentation updated
 - [ ] Code is self-documenting
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: Follows Plan Mode
+- **Required Inputs**:
+  - Approved implementation plan
+  - Task assignments
+  - Technical approach
+  - Testing strategy
+  - Architecture and PRD for reference
+- **Previous Stage**: Plan Mode
+
+### Input Validation
+Before coding:
+1. Verify plan completeness
+2. Confirm development environment setup
+3. Check all dependencies available
+4. Review coding standards
+
+### Handoff to Next Stage
+After implementation milestones:
+
+1. **Next Mode**: Test Mode (for comprehensive testing) or Deploy Mode (if tests included)
+2. **Handoff Deliverables**:
+   - Implemented code
+   - Unit tests
+   - Integration tests (if applicable)
+   - Updated documentation
+   - Performance metrics
+   - Known issues/limitations
+
+3. **Handoff Format**:
+```markdown
+## Code → Test/Deploy Handoff
+
+### Implementation Summary
+- **Completed Tasks**: [List with numbers]
+- **Code Coverage**: [Percentage]
+- **Performance**: [Key metrics]
+- **Documentation**: [Updated files]
+
+### Testing Status
+- **Unit Tests**: [Pass/Fail ratio]
+- **Integration Tests**: [Status]
+- **Manual Testing**: [What needs verification]
+
+### Code Quality
+- **Linting**: [Status]
+- **Type Checking**: [Status]
+- **Security Scan**: [Results]
+
+### Deployment Readiness
+- [ ] All features implemented
+- [ ] Tests passing
+- [ ] Documentation complete
+- [ ] Performance acceptable
+- [ ] No critical bugs
+
+### Next Steps
+- Additional testing needed: [Specific areas]
+- Deployment considerations: [Environment specific]
+```
+
+### Backward Navigation
+Common scenarios for returning to previous modes:
+1. **Unclear Requirements**: Return to Plan or PRD Mode
+2. **Architecture Issues**: Return to Architect Mode
+3. **Task Clarification**: Return to Tasks Mode
+4. **Complex Algorithm**: Return to Plan Mode for detailed design
+
+### Continuous Cycle
+Code Mode often cycles with:
+- **Test Mode**: For test-driven development
+- **Feature Mode**: For incremental feature additions
+- **Plan Mode**: For complex problem solving
+
 Remember: Good code is written for humans to read and only incidentally for machines to execute. Prioritize clarity, maintainability, and correctness in every implementation.

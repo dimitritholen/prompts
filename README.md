@@ -144,6 +144,131 @@ Break down the e-commerce PRD into implementation tasks
 Add user authentication with OAuth2 support for Google and GitHub providers
 ```
 
+### 8. **test.md** - Comprehensive Testing Strategy
+
+**Purpose**: Ensures robust, reliable code through systematic testing approaches that catch bugs early and prevent regressions.
+
+**Key Features**:
+
+- Test-first mindset and pyramid strategy
+- Unit, integration, and E2E test planning
+- Performance and security testing
+- CI/CD integration guidance
+- Living documentation through tests
+
+**How to Use**:
+
+```
+@test.md
+Create comprehensive test strategy for the e-commerce platform
+```
+
+### 9. **deploy.md** - Deployment & DevOps Mode
+
+**Purpose**: Ensures smooth, reliable deployments and robust production operations through infrastructure as code and automation.
+
+**Key Features**:
+
+- Infrastructure as code principles
+- CI/CD pipeline design
+- Container orchestration strategies
+- Monitoring and observability setup
+- Progressive deployment patterns
+
+**How to Use**:
+
+```
+@deploy.md
+Design deployment strategy for microservices architecture
+```
+
+### 10. **pipeline.md** - Pipeline Orchestration
+
+**Purpose**: Guides projects through the complete journey from ideation to production, ensuring smooth handoffs between phases.
+
+**Key Features**:
+
+- End-to-end workflow orchestration
+- Quality gates between stages
+- Seamless mode transitions
+- Context preservation across phases
+- Pipeline customization for project types
+
+**How to Use**:
+
+```
+@pipeline.md
+Start new project workflow for task management application
+```
+
+## Complete Development Pipeline
+
+The prompts form a comprehensive pipeline from ideation to deployment:
+
+```mermaid
+flowchart TB
+    subgraph "Phase 1: Discovery"
+        A[💡 Initial Idea] --> B[🧠 Brainstorm Mode]
+        B --> C[📋 PRD Mode]
+    end
+    
+    subgraph "Phase 2: Design"
+        C --> D[🏗️ Architect Mode]
+        D --> E[✅ Tasks Mode]
+    end
+    
+    subgraph "Phase 3: Implementation"
+        E --> F[📐 Plan Mode]
+        F --> G[💻 Code Mode]
+        G --> H[🧪 Test Mode]
+    end
+    
+    subgraph "Phase 4: Deployment"
+        H --> I[🚀 Deploy Mode]
+    end
+    
+    subgraph "Phase 5: Evolution"
+        I --> J[🔄 Feature Mode]
+        J --> F
+    end
+    
+    K[🎯 Pipeline Mode] -.-> A
+    K -.-> B
+    K -.-> C
+    K -.-> D
+    K -.-> E
+    K -.-> F
+    K -.-> G
+    K -.-> H
+    K -.-> I
+    K -.-> J
+```
+
+### Pipeline Stages Explained
+
+1. **Discovery Phase**
+   - Start with an idea
+   - Use Brainstorm Mode for validation and research
+   - Formalize with PRD Mode
+
+2. **Design Phase**
+   - Create system architecture with Architect Mode
+   - Break down into atomic tasks with Tasks Mode
+
+3. **Implementation Phase**
+   - Plan the approach with Plan Mode
+   - Implement with Code Mode
+   - Validate with Test Mode
+
+4. **Deployment Phase**
+   - Deploy to production with Deploy Mode
+
+5. **Evolution Phase**
+   - Add features with Feature Mode
+   - Return to planning and implementation
+
+**Pipeline Mode** orchestrates the entire flow, ensuring smooth transitions and quality gates between stages.
+
 ## Usage Guidelines
 
 ### In AI Coding Tools
@@ -176,13 +301,16 @@ Add user authentication with OAuth2 support for Google and GitHub providers
 
 1. **Choose the Right Mode**: 
    
-   - Use `architect.md` for system design decisions
    - Use `brainstorm.md` for idea validation and development
+   - Use `prd.md` for formal requirement documentation
+   - Use `architect.md` for system design decisions
+   - Use `tasks.md` for breaking down work into manageable pieces
    - Use `plan.md` before starting complex features
    - Use `code.md` for actual implementation
-   - Use `prd.md` for formal requirement documentation
-   - Use `tasks.md` for project management
+   - Use `test.md` for comprehensive testing strategies
+   - Use `deploy.md` for deployment and infrastructure
    - Use `feature.md` for integrating new features into existing projects
+   - Use `pipeline.md` to orchestrate the entire workflow
 
 2. **Provide Context**: The more specific context you provide, the better the output quality.
 

@@ -154,4 +154,79 @@ In PLANNING mode, you should:
 - FOCUS on architecture and design patterns
 - DOCUMENT everything comprehensively
 
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: Follows Tasks Mode
+- **Required Inputs**:
+  - Complete task breakdown
+  - Architecture documentation
+  - PRD for reference
+  - Technology decisions
+  - Resource constraints
+- **Previous Stage**: Tasks Mode
+
+### Input Validation
+Before planning:
+1. Review all tasks and dependencies
+2. Verify resource availability
+3. Confirm technical approach
+4. Check timeline constraints
+
+### Handoff to Next Stage
+After planning is complete:
+
+1. **Next Mode**: Code Mode
+2. **Handoff Deliverables**:
+   - Detailed implementation plan
+   - Risk mitigation strategies
+   - Testing approach
+   - First tasks to implement
+   - Success criteria
+   - Technical approach details
+
+3. **Handoff Format**:
+```markdown
+## Plan → Code Handoff
+
+### Implementation Ready
+- **Approach Validated**: [Confirmation]
+- **Starting Point**: Task #X - [Description]
+- **Technical Strategy**: [Summary]
+- **Testing Strategy**: [TDD/other approach]
+
+### Implementation Order
+1. Task #X: [Why first]
+2. Task #Y: [Dependencies clear]
+3. Task #Z: [Next logical step]
+
+### Key Decisions
+- **Patterns**: [Design patterns to use]
+- **Libraries**: [Specific packages selected]
+- **Conventions**: [Coding standards]
+
+### Risk Awareness
+- **Technical Risks**: [Specific concerns]
+- **Mitigation**: [How to handle]
+
+### Success Criteria
+- [ ] All tests passing
+- [ ] Performance targets met
+- [ ] Security requirements satisfied
+- [ ] Documentation complete
+```
+
+### Backward Navigation
+If planning reveals task or architecture issues:
+1. Document specific gaps found
+2. Return to Tasks or Architect Mode
+3. Update previous deliverables
+4. Re-plan with new information
+
+### Alternative Entry Points
+Plan Mode can also be entered from:
+- **Feature Mode**: When planning feature integration
+- **Code Mode**: When hitting complex implementation challenges
+- **Deploy Mode**: When planning deployment strategies
+
 Remember: The goal is to create a plan so thorough that implementation becomes straightforward and predictable. Invest time in planning to save multiples of that time in implementation and maintenance.
