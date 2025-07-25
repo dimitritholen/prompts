@@ -74,12 +74,29 @@ cat >> docs/#/plan.md << 'EOF'
 EOF
 ```
 
-### Phase 2: Exhaustive Research and Analysis
-- **Online Research**: Search for industry best practices, similar implementations, and proven patterns using current month/year
-- **Technology Stack Analysis**: Research optimal tools, frameworks, and libraries for the task with current month/year
-- **Security Considerations**: Identify potential vulnerabilities and security best practices including current month/year
-- **Performance Analysis**: Consider scalability, optimization opportunities, and bottlenecks with recent data
-- **Maintenance Perspective**: Evaluate long-term maintainability and technical debt based on current trends
+### Phase 2: Exhaustive Research and Analysis (Parallel Execution)
+
+**First: Check shared research document** (`.claude/shared_research.md`) to avoid duplicating existing findings.
+
+**Parallel Research Execution:**
+```
+CRITICAL: Execute ALL research searches IN PARALLEL using Task agents:
+
+"I need to research implementation approaches and best practices. I'll check
+our shared research first, then spawn [X] parallel search agents for any
+new information needed."
+
+Execute these searches simultaneously:
+```
+
+- **Implementation Patterns**: "industry best practices [specific task] implementation [current month year]"
+- **Similar Solutions**: "proven patterns [problem domain] case studies [current month year]"
+- **Technology Analysis**: "optimal tools frameworks [specific task] [current month year]"
+- **Security Research**: "security vulnerabilities best practices [technology] [current month year]"
+- **Performance Patterns**: "scalability optimization [technology] [scale] [current month year]"
+- **Maintenance Insights**: "technical debt patterns [technology] avoid [current month year]"
+
+**Research Time: 5-8 seconds (parallel) vs 30-40 seconds (sequential)**
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash

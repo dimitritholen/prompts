@@ -96,16 +96,8 @@ CATEGORY="$3"
 # Sanitize technology name for file
 AGENT_NAME=$(echo "${TECHNOLOGY}-${CATEGORY:-specialist}" | tr '[:upper:]' '[:lower:]' | tr ' /' '--')
 
-# Generate color from technology name
-generate_color() {
-    local tech_name="$1"
-    local colors=("blue" "teal" "sky" "cyan" "orange" "indigo" "lime" "emerald" "purple" "pink" "rose" "amber" "yellow" "green" "red")
-    local hash=$(echo -n "$tech_name" | cksum | cut -d' ' -f1)
-    local color_index=$((hash % ${#colors[@]}))
-    echo "${colors[$color_index]}"
-}
-
-COLOR=$(generate_color "$TECHNOLOGY")
+# Color will be generated using function from architect.md
+COLOR=""  # Will be set by generate_dynamic_agent function
 
 # Create agent directory
 mkdir -p .claude/agents

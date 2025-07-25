@@ -15,39 +15,44 @@ Hash Prompts is a comprehensive collection of AI prompts that guide you through 
 
 ### 🎯 Core Development Commands
 
+**/#:pipeline start** - Initialize a new project pipeline
+- Creates project structure and directories
+- Checks for existing PRD documents
+- Initializes research cache and shared research
+- Sets up pipeline status tracking
+- Guides you through the entire development lifecycle
+
 **/#:brainstorm** - Transform your raw idea into a validated concept
-- Performs market research and competitive analysis
-- Identifies potential pivots and improvements
+- Performs parallel market research (8 searches simultaneously)
+- Identifies potential pivots and improvements  
 - Applies SLC (Simple, Lovable, Complete) validation
 - Prevents feature creep with 80/20 rule analysis
 - Creates a junior-friendly PRD draft
 - Saves output to: `docs/#/brainstorm.md`
 
 **/#:prd** - Create a comprehensive Product Requirements Document
-- Conducts deep research into best practices
+- Conducts parallel research (6 searches simultaneously)
 - Applies SLC framework validation to all features
 - Prioritizes core features using anti-over-engineering principles
 - Asks clarifying questions to fill gaps
-- Produces a complete, actionable PRD
+- Generates domain-specific agents
 - Saves output to: `docs/#/prd.md`
 
-**/#:architect** - Design robust system architecture
-- Researches industry best practices and patterns
+**/#:architect** - Design robust system architecture  
+- Executes 15-20 parallel research searches
 - Applies simplicity-first architecture principles
 - Uses SLC-weighted technology selection criteria
 - Validates against over-engineering with complexity checks
-- Creates scalable, maintainable designs
-- Saves output to: `docs/#/architect.md`
 - Generates tech stack agents in `.claude/agents/`
+- Saves output to: `docs/#/architect.md`
 
 **/#:tasks** - Break down project into actionable tasks
+- Parallel research for implementation details (6 searches)
 - Creates atomic, well-defined tasks with SLC validation
 - Applies YAGNI principles to task necessity
 - Filters out over-engineering and speculative tasks
-- Identifies dependencies and priorities
-- Estimates time and resources
-- Saves output to: `docs/#/tasks.md`
 - Generates quality assurance agents
+- Saves output to: `docs/#/tasks.md`
 
 **/#:plan** - Create detailed implementation plan
 - Validates all solutions against SLC principles
@@ -102,6 +107,19 @@ Hash Prompts is a comprehensive collection of AI prompts that guide you through 
 - Shows all available commands
 - Explains typical workflows
 - Provides usage examples
+
+## 🚀 Key Features
+
+### Parallel Research Execution
+- All modes execute searches simultaneously using Task agents
+- Research time reduced by 60-80% (from minutes to seconds)
+- Automatic caching prevents duplicate searches (24-hour cache)
+- Shared research document builds knowledge across pipeline
+
+### Agent Generation
+- Automatic creation of specialized AI agents based on your project
+- Domain experts, tech stack specialists, and quality assurance agents
+- Agents persist across sessions and understand your project context
 
 ## 🔄 Typical Workflows
 

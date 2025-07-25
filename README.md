@@ -564,9 +564,54 @@ You can also reference the prompt files directly in your AI coding tools:
 
 4. **Leverage Research**: These prompts emphasize research-based approaches. Allow the AI to search for best practices and industry standards.
 
+## SLC (Simple, Lovable, Complete) Validation Framework
+
+The framework enforces SLC principles throughout development to prevent feature creep and maintain product focus.
+
+### Core Principles
+
+**Simple**: Remove barriers and eliminate unnecessary complexity
+- Streamlined user experience
+- Intuitive interface requiring minimal learning
+- Can a new user accomplish their main goal within 5 minutes?
+
+**Lovable**: Create genuine user delight and emotional connection
+- Solves real pain points effectively
+- Creates positive emotional response
+- Would users be genuinely disappointed if this disappeared?
+
+**Complete**: Fully deliver on the core promise without gaps
+- Users can complete their primary task end-to-end
+- No major functionality gaps in core workflow
+- Does this fulfill the promise made?
+
+### SLC Scoring (1-5 scale)
+- **5**: Exceptional (intuitive/evangelists/exceeds expectations)
+- **4**: Very good (easy/satisfied/meets expectations)
+- **3**: Acceptable (reasonable/useful/minor gaps)
+- **2**: Poor (complex/tolerated/notable gaps)
+- **1**: Failing (confusing/frustrated/major gaps)
+
+**Threshold**: All three scores must be 3+ for a feature to qualify
+
+### Feature Validation Checklist
+Before adding any feature, ensure it passes:
+- ✓ Maintains or improves simplicity
+- ✓ Users will genuinely love this addition
+- ✓ Helps complete the core promise
+- ✓ Based on actual user research/feedback
+- ✓ Essential for primary user journey
+- ✓ Cannot be solved with existing features
+
+### Warning Signs
+- **Simple Violations**: Users need training, cluttered interface
+- **Lovable Violations**: Low engagement, high churn
+- **Complete Violations**: Users need external tools, create workarounds
+
 ## Notes
 
 - These prompts are designed to work with AI assistants that support file references (like Claude, Cursor, etc.)
 - Each prompt enforces specific behaviors and output formats optimized for its purpose
 - The prompts encourage the AI to ask clarifying questions before proceeding
 - All prompts emphasize industry best practices and avoiding reinventing the wheel
+- SLC validation is integrated throughout all modes to maintain product focus

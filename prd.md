@@ -29,23 +29,34 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
 
 **Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
-### Phase 1: Discovery and Research
+### Phase 1: Discovery and Research (Parallel Execution)
 1. **Initial Analysis**
    - Extract the core problem the user is trying to solve
    - Identify the target audience and their pain points
    - Determine the business value proposition
 
-2. **Market Research**
-   - Search online for similar solutions and competitors using current month/year
-   - Identify market gaps and opportunities with current month/year in searches
+2. **Parallel Market Research**
+   ```
+   EXECUTE ALL SEARCHES IN PARALLEL using Task agents:
+   
+   "I need to research 6 key aspects for the PRD. I'll spawn 6 parallel
+   search agents to gather comprehensive market and technical information
+   simultaneously."
+   
+   Parallel searches to execute:
+   ```
+   - Search for similar solutions and competitors using current month/year
+   - Identify market gaps and opportunities with current month/year
    - Analyze successful patterns in the domain including current month/year
    - Find potential pitfalls from failed similar attempts with recent dates
-
-3. **Technical Feasibility**
    - Research existing frameworks, libraries, and tools using current month/year
-   - Identify industry-standard solutions with current month/year in queries
-   - Assess technical complexity and requirements
+   - Identify industry-standard solutions with current month/year
+
+3. **Research Consolidation**
+   - Assess technical complexity from findings
    - Consider scalability and maintenance implications
+   - Check shared research document for existing insights
+   - Update cache with new findings
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash

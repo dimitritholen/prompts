@@ -137,11 +137,12 @@ cat >> docs/#/brainstorm.md << 'EOF'
 EOF
 ```
 
-### Phase 2: Comprehensive Industry Research
+### Phase 2: Comprehensive Industry Research (Parallel Execution)
 **ALWAYS:**
 - Use answers from Phase 1 to guide targeted research
 - Apply sequential thinking to each research finding
-- Search for existing solutions using current month/year (e.g., "July 2025") using Perplexity/Web Search
+- **EXECUTE ALL SEARCHES IN PARALLEL** using multiple Task agents
+- Search for existing solutions using current month/year (e.g., "July 2025")
 - Identify direct and indirect competitors with current month/year in searches
 - Research industry standards and best practices including current month/year
 - Find case studies of similar attempts (successes and failures) with recent dates
@@ -153,10 +154,25 @@ EOF
 - Ignore negative findings
 - Cherry-pick only positive examples
 - Research without user's clarification answers
+- Execute searches sequentially (always use parallel execution)
 
-**Sequential Research Methodology:**
+**Parallel Research Execution:**
 ```
-For each finding:
+IMPORTANT: Execute all 8 searches simultaneously using Task agents:
+
+"I need to research 8 different aspects of this idea. I'll spawn 8 parallel 
+search agents to gather this information simultaneously, reducing research 
+time from ~40 seconds to ~5-8 seconds."
+
+Then create 8 Task tool invocations in a single response, each with:
+- description: Brief search topic
+- prompt: Detailed search instruction with specific query
+- subagent_type: general-purpose
+```
+
+**Sequential Research Methodology (Applied to Results):**
+```
+After parallel searches complete, for each finding:
 1. Surface fact → "Company X offers feature Y"
 2. Dig deeper → Why did they build it that way?
 3. Trace impact → What happened to their users/business?
@@ -164,7 +180,7 @@ For each finding:
 5. Apply to context → How does this affect our idea?
 ```
 
-**Research Queries to Execute:**
+**Research Queries to Execute IN PARALLEL:**
 Based on user's clarifications:
 1. "[specific problem from Phase 1] existing solutions [current month] [current year]"
 2. "[user's proposed approach] implementation best practices"

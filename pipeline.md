@@ -389,6 +389,60 @@ flowchart TB
    - Plan feature implementation
    - Continue development cycle
 
+## Research Optimization Features
+
+### Parallel Search Execution
+When modes need to perform multiple searches, they execute them in parallel using multiple Task agents. This reduces research time by 60-80%.
+
+### Research Cache System
+```bash
+# Initialize research cache for the project
+init_research_cache() {
+    mkdir -p .claude/research_cache
+    echo '{"version": "1.0", "searches": {}}' > .claude/research_cache/index.json
+}
+
+# Check cache before searching
+check_cache() {
+    local query="$1"
+    local cache_key=$(echo -n "$query" | sha256sum | cut -c1-16)
+    local cache_file=".claude/research_cache/${cache_key}.md"
+    
+    if [ -f "$cache_file" ]; then
+        local age=$(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file")))
+        if [ $age -lt 86400 ]; then  # 24 hour cache
+            return 0
+        fi
+    fi
+    return 1
+}
+```
+
+### Shared Research Document
+All modes contribute to a shared research document to avoid duplication:
+```bash
+# Initialize shared research
+create_shared_research() {
+    cat > .claude/shared_research.md << 'EOF'
+# Shared Research Context
+## Project: [Project Name]
+
+### Technology Research
+- Best Practices: [First mode to research adds here]
+- Implementation Patterns: [Shared by Architect, Tasks, Plan]
+- Performance Considerations: [Used by multiple modes]
+
+### Market Research
+- Competitor Analysis: [From Brainstorm/PRD]
+- Industry Standards: [Shared reference]
+
+### Framework Analysis
+- Technology Comparisons: [Once researched, always reused]
+- Integration Patterns: [Shared knowledge]
+EOF
+}
+```
+
 ## Pipeline Orchestration Commands
 
 ### Starting a New Project

@@ -38,34 +38,50 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
 
 ## Architecture Workflow
 
-### Phase 1: Comprehensive Research
+### Phase 1: Comprehensive Research (Parallel Execution)
 
-#### Industry Research Protocol
-1. **Web Search for Best Practices**
-   - Search for "[domain] architecture best practices [current month] [current year]"
-   - Research successful implementations in similar domains with current month/year
-   - Study failure cases and lessons learned including recent dates
-   - Analyze industry benchmarks and standards using current month/year
+#### Parallel Research Protocol
+```
+CRITICAL: Execute ALL research searches in PARALLEL using Task agents:
 
-2. **Technology Stack Research**
-   - Compare framework capabilities and trade-offs using current month/year
-   - Research integration patterns with current month/year in searches
-   - Evaluate community support and ecosystem as of current month/year
-   - Consider long-term viability based on current trends
+"I need to research architecture patterns, technology options, and best practices.
+I'll spawn [X] parallel search agents to gather all necessary information 
+simultaneously, reducing research time by 80%."
 
-3. **Agent Persona Research for Each Technology**
-   - Search "[Technology] expert developer best practices [current month year]"
-   - Search "[Technology] common development tasks when to use [current month year]"
-   - Identify key expertise areas and specializations
-   - Gather common problem-solving scenarios
-   - Extract typical workflow patterns and tools
-   - Document integration points with other technologies
+Categories to research in parallel:
+1. Architecture patterns and best practices
+2. Technology stack comparisons
+3. Framework-specific expertise
+4. Integration patterns
+5. Scalability strategies
+6. Security considerations
+```
 
-4. **Pattern Analysis**
-   - Identify applicable design patterns using current month/year
-   - Research microservices vs monolith trade-offs with recent dates
-   - Study event-driven vs request-driven architectures including current month/year
-   - Analyze data flow patterns with current month/year context
+#### Research Topics for Parallel Execution:
+1. **Architecture Best Practices (4 parallel searches)**
+   - "[domain] architecture best practices [current month] [current year]"
+   - "successful [domain] implementations case studies [current month year]"
+   - "architecture failures lessons learned [current month year]"
+   - "industry benchmarks standards [domain] [current month year]"
+
+2. **Technology Stack Research (3-5 parallel searches per technology)**
+   - "[Technology] vs alternatives comparison [current month year]"
+   - "[Technology] integration patterns best practices [current month year]"
+   - "[Technology] scalability performance [current month year]"
+   - "[Technology] security considerations [current month year]"
+   - "[Technology] developer experience ecosystem [current month year]"
+
+3. **Agent Persona Research (2 searches per technology)**
+   - "[Technology] expert developer best practices [current month year]"
+   - "[Technology] common tasks workflows when to use [current month year]"
+
+4. **Pattern Analysis (4 parallel searches)**
+   - "microservices vs monolith [domain] [current month year]"
+   - "event-driven architecture [domain] patterns [current month year]"
+   - "data flow patterns [domain] best practices [current month year]"
+   - "design patterns [domain] [scale] [current month year]"
+
+**Total: Execute 15-20 searches in parallel (5-8 seconds) instead of sequential (75-100 seconds)**
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash

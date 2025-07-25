@@ -25,30 +25,42 @@ This mode saves outputs to `docs/#/tasks.md` for cross-session continuity.
 - Add new tasks as requirements evolve
 - Track dependencies and blockers
 
-## Pre-Task Research Phase
+## Pre-Task Research Phase (Parallel Execution)
 
 Before creating tasks, conduct thorough research:
 
 **Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
 
-1. **Read Project Documentation**
+1. **Read Project Documentation** (Check shared research first!)
+   - Check `.claude/shared_research.md` for existing findings
    - Read `docs/product_requirement_docs.md` for requirements
    - Read `docs/architecture.md` for system design
    - Read `docs/technical.md` for technical decisions
    - Read `tasks/active_context.md` for current state
 
-2. **Technology Research**
-   - Search for existing frameworks that solve similar problems using current month/year
-   - Look for industry-standard packages and libraries with current month/year
-   - Find relevant Docker containers and services including current month/year
-   - Identify proven architectural patterns
-   - Research best practices for the technology stack with current month/year
+2. **Parallel Technology Research**
+   ```
+   EXECUTE ALL SEARCHES IN PARALLEL:
+   
+   "I need to research implementation details and best practices for the task
+   breakdown. I'll spawn [X] parallel search agents to gather all necessary
+   technical information simultaneously."
+   
+   Parallel searches to execute:
+   ```
+   - "existing frameworks [problem domain] [current month year]"
+   - "industry standard packages [technology] [current month year]"
+   - "Docker containers services [technology] [current month year]"
+   - "architectural patterns [domain] implementation [current month year]"
+   - "best practices [technology stack] [current month year]"
+   - "common pitfalls [technology] avoid [current month year]"
 
-3. **Solution Validation**
+3. **Solution Validation** (Post-research)
    - Prefer mature, well-documented solutions
-   - Check package download statistics and community support using current month/year
-   - Verify compatibility with project requirements as of current month/year
+   - Check package statistics from parallel search results
+   - Verify compatibility with project requirements
    - Consider long-term maintenance implications
+   - Update shared research document with findings
 
 **SAVE RESEARCH OUTPUT**:
 ```bash
