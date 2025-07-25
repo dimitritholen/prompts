@@ -3,8 +3,40 @@
 # Hash Prompts Installer
 # This script installs Hash Prompts as Claude commands with /#: prefix
 # Repository: https://github.com/dimitritholen/prompts
+#
+# Usage:
+#   bash install.sh                    # Interactive mode (if possible)
+#   bash install.sh --global           # Force global installation
+#   bash install.sh --local            # Force local installation
+#   curl ... | bash -s -- --global     # Force global when piped
 
 set -e
+
+# Parse command line arguments
+FORCE_LOCATION=""
+for arg in "$@"; do
+    case $arg in
+        --global)
+            FORCE_LOCATION="global"
+            ;;
+        --local)
+            FORCE_LOCATION="local"
+            ;;
+        --help|-h)
+            echo "Hash Prompts Installer"
+            echo ""
+            echo "Usage:"
+            echo "  bash install.sh              # Interactive installation"
+            echo "  bash install.sh --global     # Install globally (~/.claude/commands)"
+            echo "  bash install.sh --local      # Install locally (./.claude/commands)"
+            echo ""
+            echo "When piped from curl:"
+            echo "  curl -sSL ... | bash -s -- --global"
+            echo "  curl -sSL ... | bash -s -- --local"
+            exit 0
+            ;;
+    esac
+done
 
 # Colors for output
 RED='\033[0;31m'
@@ -63,20 +95,48 @@ check_claude_cli() {
 
 # Function to prompt for installation type
 get_install_location() {
+    # Check if location was forced via command line
+    if [ -n "$FORCE_LOCATION" ]; then
+        case $FORCE_LOCATION in
+            global)
+                INSTALL_DIR="$HOME/.claude/commands"
+                INSTALL_TYPE="global"
+                print_color "$BLUE" "Installing globally (--global flag specified)"
+                ;;
+            local)
+                INSTALL_DIR="./.claude/commands"
+                INSTALL_TYPE="local"
+                print_color "$BLUE" "Installing locally (--local flag specified)"
+                ;;
+        esac
+        print_color "$GREEN" "→ Installing to: $INSTALL_DIR"
+        return
+    fi
+    
     echo
     print_color "$YELLOW" "Where would you like to install the commands?"
     echo "1) Global (available in all projects) - ~/.claude/commands [default]"
     echo "2) Local (current project only) - ./.claude/commands"
     echo
+    print_color "$YELLOW" "Tip: Use --global or --local flag to skip this prompt"
+    echo
     
-    # Check if we can read user input
-    # When piped from curl, we can't interact with the user
-    if [ -t 0 ] && [ -t 1 ]; then
-        # Interactive mode - wait for user input
-        read -p "Enter your choice (1 or 2) [1]: " choice < /dev/tty
+    # Try to read from terminal even when piped
+    choice=""
+    if [ -e /dev/tty ]; then
+        # We have a terminal available, try to read from it
+        printf "Enter your choice (1 or 2) [1]: "
+        read -r choice < /dev/tty 2>/dev/null || {
+            # If reading from /dev/tty fails, fall back to non-interactive
+            echo
+            print_color "$YELLOW" "Cannot read input, defaulting to global installation"
+            print_color "$BLUE" "Tip: Use 'curl ... | bash -s -- --global' or '--local' to specify"
+            choice="1"
+        }
     else
-        # Non-interactive mode (piped from curl) - default to global
-        print_color "$BLUE" "Running in non-interactive mode, defaulting to global installation"
+        # No terminal available at all
+        print_color "$YELLOW" "Running in non-interactive mode, defaulting to global installation"
+        print_color "$BLUE" "Tip: Use 'curl ... | bash -s -- --global' or '--local' to specify"
         choice="1"
     fi
     
