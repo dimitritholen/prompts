@@ -1,4 +1,4 @@
-# Hash Prompts - AI Command Collection
+# Hash Prompts - Claude Code Command Collection  
 
 A powerful collection of specialized prompts designed to guide AI assistants into specific operational modes for enhanced productivity and output quality. Named "Hash Prompts" for their distinctive `/#:` command syntax.
 
