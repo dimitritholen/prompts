@@ -58,6 +58,7 @@ Hash Prompts installs commands under the `#` namespace, giving you access to:
 - `/#:test` - Testing strategy
 - `/#:deploy` - Deployment and DevOps
 - `/#:pipeline` - Workflow orchestration
+- `/#:generate-agent` - Dynamic agent generation
 - `/#:help` - Display command reference and workflows
 
 Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
@@ -543,6 +544,8 @@ You can also reference the prompt files directly in your AI coding tools:
    - Use `deploy.md` for deployment and infrastructure
    - Use `feature.md` for integrating new features into existing projects
    - Use `pipeline.md` to orchestrate the entire workflow
+   - Use `generate-agent.md` for creating specialized expert agents
+   - Use `help.md` for command reference and guidance
 
 2. **Provide Context**: The more specific context you provide, the better the output quality.
 
