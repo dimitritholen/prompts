@@ -5,6 +5,7 @@ A powerful collection of specialized prompts designed to guide AI assistants int
 ## Why Hash Prompts?
 
 The name "Hash Prompts" comes from our unique command syntax `/#:` where:
+
 - `/` starts a Claude command
 - `#` provides a short, memorable namespace
 - `:` separates namespace from command name
@@ -12,6 +13,7 @@ The name "Hash Prompts" comes from our unique command syntax `/#:` where:
 This creates commands like `/#:brainstorm` and `/#:architect` that are easy to type and remember while avoiding conflicts with other command systems.
 
 **Key Features**:
+
 - 🚀 Complete development pipeline from idea to deployment
 - 🤖 Automatic generation of project-specific AI agents
 - 📁 Persistent file outputs for cross-session continuity
@@ -23,11 +25,13 @@ This creates commands like `/#:brainstorm` and `/#:architect` that are easy to t
 ### Option 1: One-Line Install (Recommended)
 
 **Unix/Linux/macOS:**
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/dimitritholen/prompts/features/add_pipeline/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 irm https://raw.githubusercontent.com/dimitritholen/prompts/features/add_pipeline/scripts/install.ps1 | iex
 ```
@@ -60,6 +64,7 @@ You can always type `/#:help` to see all available commands and their descriptio
 ### What Gets Installed
 
 Hash Prompts installs commands under the `#` namespace, giving you access to:
+
 - `/#:brainstorm` - Idea validation and development
 - `/#:prd` - Product requirements documentation
 - `/#:architect` - System architecture design
@@ -99,6 +104,7 @@ Commands are installed globally by default (~/.claude/commands) but can be insta
 ```
 
 Or with the prompt file directly:
+
 ```
 @architect.md
 Process @my_project_prd file.
@@ -338,6 +344,7 @@ Process @my_project_prd file.
 ```
 
 Or for specific command help:
+
 ```
 /#:help brainstorm
 ```
@@ -357,18 +364,21 @@ Project agents are specialized AI assistants that deeply understand your specifi
 Agents are created at different pipeline stages based on your project's needs:
 
 #### **PRD Stage** - Domain & Business Agents
+
 - **Domain Expert**: Specialized knowledge for your industry (e.g., e-commerce, healthcare, fintech)
 - **Product Manager**: Product strategy and feature prioritization
 - **UX Designer**: User experience and interface design (for UI-focused projects)
 - **Compliance Officer**: Regulatory and compliance requirements (when applicable)
 
 #### **Architect Stage** - Technology Stack Agents
+
 - **Frontend Developer**: Expert in your chosen framework (React, Vue, Angular, etc.)
 - **Backend Developer**: Specialist in your backend language and framework
 - **Database Specialist**: Expert in your database technology (PostgreSQL, MongoDB, etc.)
 - **DevOps Engineer**: Infrastructure, CI/CD, and deployment specialist
 
 #### **Tasks Stage** - Quality & Convention Agents
+
 - **Code Reviewer**: Enforces your project's coding standards and best practices
 - **Test Engineer**: Ensures comprehensive testing with your test frameworks
 - **Documentation Writer**: Maintains consistent, high-quality documentation
@@ -407,6 +417,7 @@ After running through the pipeline, you might have agents like:
 ```
 
 You can then use these agents in your development:
+
 ```
 "I need to create a new user dashboard component"
 → The react-developer agent provides component code following your project patterns
@@ -519,14 +530,14 @@ The `/#:` prefix identifies these as Hash Prompts, providing a clean namespace t
 You can also reference the prompt files directly in your AI coding tools:
 
 1. **Reference Before Prompt**: Include the prompt file at the beginning of your message:
-   
+
    ```
    @architect.md
    [Your specific request]
    ```
 
 2. **Combine Multiple Prompts**: You can chain prompts for comprehensive workflows:
-   
+
    ```
    @brainstorm.md
    [Develop idea]
@@ -544,8 +555,8 @@ You can also reference the prompt files directly in your AI coding tools:
 
 ### Best Practices
 
-1. **Choose the Right Mode**: 
-   
+1. **Choose the Right Mode**:
+
    - Use `brainstorm.md` for idea validation and development
    - Use `prd.md` for formal requirement documentation
    - Use `architect.md` for system design decisions
@@ -562,12 +573,13 @@ You can also reference the prompt files directly in your AI coding tools:
 2. **Provide Context**: The more specific context you provide, the better the output quality.
 
 3. **Follow the Workflow**: For new projects, consider this sequence:
-   
+
    ```
    brainstorm → prd → architect → tasks → plan → code
    ```
-   
+
    For adding features to existing projects:
+
    ```
    feature → plan → code
    ```
