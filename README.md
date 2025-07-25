@@ -66,7 +66,8 @@ Commands are installed globally by default (~/.claude/commands) but can be insta
 
 ## Available Prompts
 
-### 1. **architect.md** - System Architecture Mode
+<details>
+<summary><h3>1. <strong>architect.md</strong> - System Architecture Mode</h3></summary>
 
 **Purpose**: Transforms the AI into an expert system architect focused on designing robust, scalable architectures.
 
@@ -90,7 +91,10 @@ Or with the prompt file directly:
 Process @my_project_prd file.
 ```
 
-### 2. **brainstorm.md** - Expert Idea Development & Critical Analysis
+</details>
+
+<details>
+<summary><h3>2. <strong>brainstorm.md</strong> - Expert Idea Development & Critical Analysis</h3></summary>
 
 **Purpose**: Enables brutally honest idea evaluation, research-based validation, and PRD creation optimized for junior developers.
 
@@ -108,7 +112,10 @@ Process @my_project_prd file.
 /#:brainstorm I have an idea for a water tracking app. Help me develop this concept.
 ```
 
-### 3. **code.md** - Coding Implementation Mode
+</details>
+
+<details>
+<summary><h3>3. <strong>code.md</strong> - Coding Implementation Mode</h3></summary>
 
 **Purpose**: Focuses on writing clean, efficient, and maintainable code following industry best practices.
 
@@ -126,7 +133,10 @@ Process @my_project_prd file.
 /#:code Implement the user authentication system based on the PRD
 ```
 
-### 4. **plan.md** - Planning Mode
+</details>
+
+<details>
+<summary><h3>4. <strong>plan.md</strong> - Planning Mode</h3></summary>
 
 **Purpose**: Research, analyze, and formulate comprehensive solutions before any implementation.
 
@@ -144,7 +154,10 @@ Process @my_project_prd file.
 /#:plan Plan the implementation of a real-time chat feature
 ```
 
-### 5. **prd.md** - Product Requirements Document Creation
+</details>
+
+<details>
+<summary><h3>5. <strong>prd.md</strong> - Product Requirements Document Creation</h3></summary>
 
 **Purpose**: Transforms ideas into comprehensive, actionable PRDs following the SLC principle (Simple, Lovable, Complete).
 
@@ -162,7 +175,10 @@ Process @my_project_prd file.
 /#:prd Create a PRD for a task management mobile app
 ```
 
-### 6. **tasks.md** - Task Breakdown Mode
+</details>
+
+<details>
+<summary><h3>6. <strong>tasks.md</strong> - Task Breakdown Mode</h3></summary>
 
 **Purpose**: Converts PRDs into atomic, actionable tasks with clear implementation paths.
 
@@ -180,7 +196,10 @@ Process @my_project_prd file.
 /#:tasks Break down the e-commerce PRD into implementation tasks
 ```
 
-### 7. **feature.md** - Feature Integration Mode
+</details>
+
+<details>
+<summary><h3>7. <strong>feature.md</strong> - Feature Integration Mode</h3></summary>
 
 **Purpose**: Seamlessly integrates new feature requests into existing task systems while maintaining project coherence and avoiding duplication.
 
@@ -198,7 +217,10 @@ Process @my_project_prd file.
 /#:feature Add user authentication with OAuth2 support for Google and GitHub providers
 ```
 
-### 8. **test.md** - Comprehensive Testing Strategy
+</details>
+
+<details>
+<summary><h3>8. <strong>test.md</strong> - Comprehensive Testing Strategy</h3></summary>
 
 **Purpose**: Ensures robust, reliable code through systematic testing approaches that catch bugs early and prevent regressions.
 
@@ -216,7 +238,10 @@ Process @my_project_prd file.
 /#:test Create comprehensive test strategy for the e-commerce platform
 ```
 
-### 9. **deploy.md** - Deployment & DevOps Mode
+</details>
+
+<details>
+<summary><h3>9. <strong>deploy.md</strong> - Deployment & DevOps Mode</h3></summary>
 
 **Purpose**: Ensures smooth, reliable deployments and robust production operations through infrastructure as code and automation.
 
@@ -234,7 +259,10 @@ Process @my_project_prd file.
 /#:deploy Design deployment strategy for microservices architecture
 ```
 
-### 10. **pipeline.md** - Pipeline Orchestration
+</details>
+
+<details>
+<summary><h3>10. <strong>pipeline.md</strong> - Pipeline Orchestration</h3></summary>
 
 **Purpose**: Guides projects through the complete journey from ideation to production, ensuring smooth handoffs between phases.
 
@@ -252,7 +280,10 @@ Process @my_project_prd file.
 /#:pipeline start
 ```
 
-### 11. **help.md** - Command Reference and Guide
+</details>
+
+<details>
+<summary><h3>11. <strong>help.md</strong> - Command Reference and Guide</h3></summary>
 
 **Purpose**: Provides comprehensive help and guidance for all Hash Prompts commands and workflows.
 
@@ -274,6 +305,8 @@ Or for specific command help:
 ```
 /#:help brainstorm
 ```
+
+</details>
 
 ## 🤖 Automatic Agent Generation
 
