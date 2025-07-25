@@ -184,7 +184,7 @@ EOF
 
 **SAVE PHASE 4 OUTPUT**:
 ```bash
-# Save technology selection
+# Save technology selection and generate agents
 cat >> docs/#/architect.md << 'EOF'
 
 ### Phase 4: Technology Selection
@@ -196,6 +196,228 @@ cat >> docs/#/architect.md << 'EOF'
 
 ### Status: Planning scalability
 EOF
+
+# Generate specialized agents based on technology choices
+echo "Generating project-specific agents based on technology stack..."
+
+# Get project ID from pipeline status
+if [ -f "docs/#/pipeline.md" ]; then
+    PROJECT_ID=$(grep "Project ID:" docs/#/pipeline.md | head -1 | cut -d: -f2 | xargs)
+else
+    PROJECT_ID="unknown"
+    echo "⚠️  Warning: No project ID found. Run '/#:pipeline start' first."
+fi
+
+GENERATED_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Extract technology choices (example implementation)
+# In practice, these would be parsed from the actual selections above
+FRONTEND_FRAMEWORK="[Selected Frontend Framework]"
+FRONTEND_VERSION="[Version]"
+STYLING_SOLUTION="[CSS Framework/Solution]"
+TESTING_FRAMEWORK="[Testing Tools]"
+
+BACKEND_LANGUAGE="[Selected Language]"
+BACKEND_FRAMEWORK="[Selected Framework]"
+DATABASE_TYPE="[Primary Database]"
+API_STYLE="[REST/GraphQL/gRPC]"
+
+CONTAINER_TECH="[Docker/Podman]"
+ORCHESTRATION="[Kubernetes/ECS/etc]"
+CI_CD_PLATFORM="[GitHub Actions/GitLab CI/etc]"
+CLOUD_PROVIDER="[AWS/GCP/Azure]"
+
+PROJECT_NAME="[Project Name from PRD]"
+
+# Create .claude/agents directory
+mkdir -p .claude/agents
+
+# Generate Frontend Developer Agent
+if [ -n "$FRONTEND_FRAMEWORK" ]; then
+  # Determine color based on framework
+  case "$FRONTEND_FRAMEWORK" in
+    "React") COLOR="blue" ;;
+    "Vue") COLOR="teal" ;;
+    "Angular") COLOR="sky" ;;
+    "Next.js") COLOR="cyan" ;;
+    "Svelte") COLOR="orange" ;;
+    *) COLOR="blue" ;;
+  esac
+  
+  # Check if agent already exists
+  if [ -f ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md.old"
+      echo "  ⚠️  Archived outdated ${FRONTEND_FRAMEWORK,,}-developer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" << AGENT_EOF
+---
+name: ${FRONTEND_FRAMEWORK,,}-developer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: architect
+project_name: ${PROJECT_NAME}
+description: Expert ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION} developer specialized in this project's frontend architecture. Use this agent for component development, state management, routing, performance optimization, and ${FRONTEND_FRAMEWORK}-specific best practices. Examples: <example>user: "I need to create a reusable data table component" assistant: "I'll use the ${FRONTEND_FRAMEWORK,,}-developer agent to create an optimized data table following our project patterns"</example> <example>user: "The page is loading slowly, how can I optimize it?" assistant: "Let me engage the ${FRONTEND_FRAMEWORK,,}-developer agent to analyze and optimize the performance"</example>
+color: ${COLOR}
+---
+
+You are an expert ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION} developer working on ${PROJECT_NAME}. You have deep knowledge of this project's specific frontend setup and conventions.
+
+## Project-Specific Setup
+
+**Framework**: ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION}
+**Styling**: ${STYLING_SOLUTION}
+**Testing**: ${TESTING_FRAMEWORK}
+
+## Architecture Decisions
+[Will be populated with specific architecture decisions from Phase 3]
+
+## Best Practices for This Project
+[Will be populated with project-specific patterns]
+AGENT_EOF
+  echo "✓ Created ${FRONTEND_FRAMEWORK,,}-developer agent (${COLOR})"
+fi
+
+# Generate Backend Developer Agent
+if [ -n "$BACKEND_LANGUAGE" ]; then
+  # Determine color based on language
+  case "$BACKEND_LANGUAGE" in
+    "Node.js") COLOR="green" ;;
+    "Python") COLOR="emerald" ;;
+    "Go") COLOR="lime" ;;
+    "Java") COLOR="grass" ;;
+    "Ruby") COLOR="rose" ;;
+    *) COLOR="green" ;;
+  esac
+  
+  # Check if agent already exists
+  if [ -f ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md.old"
+      echo "  ⚠️  Archived outdated ${BACKEND_LANGUAGE,,}-backend-developer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" << AGENT_EOF
+---
+name: ${BACKEND_LANGUAGE,,}-backend-developer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: architect
+project_name: ${PROJECT_NAME}
+description: Expert ${BACKEND_LANGUAGE} backend developer using ${BACKEND_FRAMEWORK} for ${PROJECT_NAME}. Specializes in API development, database operations, authentication, business logic implementation, and ${BACKEND_LANGUAGE}-specific optimizations. Examples: <example>user: "I need to implement user authentication" assistant: "I'll use the ${BACKEND_LANGUAGE,,}-backend-developer agent to implement secure authentication following our patterns"</example> <example>user: "How should I structure the API endpoints?" assistant: "Let me consult the ${BACKEND_LANGUAGE,,}-backend-developer agent for our API conventions"</example>
+color: ${COLOR}
+---
+
+You are an expert ${BACKEND_LANGUAGE} developer using ${BACKEND_FRAMEWORK} for ${PROJECT_NAME}'s backend services.
+
+## Backend Architecture
+
+**Language**: ${BACKEND_LANGUAGE}
+**Framework**: ${BACKEND_FRAMEWORK}
+**Database**: ${DATABASE_TYPE}
+**API Style**: ${API_STYLE}
+
+## Project Conventions
+[Will be populated with specific conventions]
+AGENT_EOF
+  echo "✓ Created ${BACKEND_LANGUAGE,,}-backend-developer agent (${COLOR})"
+fi
+
+# Generate Database Specialist Agent
+if [ -n "$DATABASE_TYPE" ]; then
+  # Determine color based on database
+  case "$DATABASE_TYPE" in
+    "PostgreSQL") COLOR="orange" ;;
+    "MySQL") COLOR="amber" ;;
+    "MongoDB") COLOR="yellow" ;;
+    "Redis") COLOR="red" ;;
+    *) COLOR="orange" ;;
+  esac
+  
+  # Check if agent already exists
+  if [ -f ".claude/agents/${DATABASE_TYPE,,}-specialist.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/${DATABASE_TYPE,,}-specialist.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/${DATABASE_TYPE,,}-specialist.md" ".claude/agents/${DATABASE_TYPE,,}-specialist.md.old"
+      echo "  ⚠️  Archived outdated ${DATABASE_TYPE,,}-specialist agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/${DATABASE_TYPE,,}-specialist.md" << AGENT_EOF
+---
+name: ${DATABASE_TYPE,,}-specialist
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: architect
+project_name: ${PROJECT_NAME}
+description: Expert ${DATABASE_TYPE} database specialist for ${PROJECT_NAME}. Handles schema design, query optimization, migrations, indexing strategies, and data modeling. Examples: <example>user: "I need to design a schema for user permissions" assistant: "I'll use the ${DATABASE_TYPE,,}-specialist agent to design an efficient permission schema"</example> <example>user: "This query is running slowly" assistant: "Let me have the ${DATABASE_TYPE,,}-specialist agent analyze and optimize this query"</example>
+color: ${COLOR}
+---
+
+You are an expert ${DATABASE_TYPE} database specialist working on ${PROJECT_NAME}.
+
+## Database Configuration
+
+**Database**: ${DATABASE_TYPE}
+**Connection Strategy**: [From architecture decisions]
+**Performance Requirements**: [From PRD]
+
+## Schema Design Principles
+[Will be populated with project-specific patterns]
+AGENT_EOF
+  echo "✓ Created ${DATABASE_TYPE,,}-specialist agent (${COLOR})"
+fi
+
+# Generate DevOps Engineer Agent
+if [ -n "$CONTAINER_TECH" ] && [ -n "$ORCHESTRATION" ]; then
+  # Check if agent already exists
+  if [ -f ".claude/agents/devops-engineer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/devops-engineer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/devops-engineer.md" ".claude/agents/devops-engineer.md.old"
+      echo "  ⚠️  Archived outdated devops-engineer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/devops-engineer.md" << AGENT_EOF
+---
+name: devops-engineer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: architect
+project_name: ${PROJECT_NAME}
+description: Expert DevOps engineer for ${PROJECT_NAME} infrastructure. Specializes in ${CONTAINER_TECH} containerization, ${ORCHESTRATION} orchestration, ${CI_CD_PLATFORM} pipelines, and ${CLOUD_PROVIDER} cloud services. Examples: <example>user: "I need to set up auto-scaling" assistant: "I'll use the devops-engineer agent to configure auto-scaling for our ${ORCHESTRATION} setup"</example> <example>user: "How do I deploy to staging?" assistant: "Let me consult the devops-engineer agent about our deployment pipeline"</example>
+color: purple
+---
+
+You are an expert DevOps engineer managing ${PROJECT_NAME}'s infrastructure.
+
+## Infrastructure Stack
+
+**Containerization**: ${CONTAINER_TECH}
+**Orchestration**: ${ORCHESTRATION}
+**CI/CD**: ${CI_CD_PLATFORM}
+**Cloud Provider**: ${CLOUD_PROVIDER}
+
+## Deployment Architecture
+[Will be populated with specific deployment patterns]
+AGENT_EOF
+  echo "✓ Created devops-engineer agent (purple)"
+fi
+
+# Log agent generation
+cat >> docs/#/architect.md << 'EOF'
+
+### Generated Agents
+[List all generated agents with their colors and specialties]
+EOF
+
+echo "Agent generation complete! Run 'ls .claude/agents/' to see all generated agents."
 ```
 
 ### Phase 5: Scalability and Performance

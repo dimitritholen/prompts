@@ -31,6 +31,7 @@ PROMPTS=(
     "test.md"
     "deploy.md"
     "pipeline.md"
+    "help.md"
 )
 
 # Function to print colored output

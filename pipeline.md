@@ -385,17 +385,67 @@ flowchart TB
 
 ### Starting a New Project
 ```markdown
-/pipeline start
+/#:pipeline start
 ```
 **Implementation**:
 ```bash
+# Check for existing agents without pipeline context
+if [ -d ".claude/agents" ] && [ ! -f "docs/#/pipeline.md" ]; then
+    echo "⚠️  Found existing agents without project context"
+    echo "These may be from a previous project iteration."
+    echo ""
+    echo "Options:"
+    echo "1) Archive existing agents to .claude/agents.backup.[timestamp]"
+    echo "2) Delete existing agents" 
+    echo "3) Keep existing agents (may cause conflicts)"
+    
+    # Check if running interactively
+    if [ -t 0 ]; then
+        read -p "Choose (1/2/3) [1]: " choice
+    else
+        echo "Running in non-interactive mode, defaulting to archive"
+        choice="1"
+    fi
+    
+    # Default to option 1 if empty
+    if [ -z "$choice" ]; then
+        choice="1"
+    fi
+    
+    case $choice in
+        1)
+            # Archive existing agents
+            timestamp=$(date +%Y%m%d_%H%M%S)
+            mv .claude/agents ".claude/agents.backup.${timestamp}"
+            echo "✓ Archived existing agents to .claude/agents.backup.${timestamp}"
+            mkdir -p .claude/agents
+            ;;
+        2)
+            # Delete existing agents
+            rm -rf .claude/agents
+            echo "✓ Deleted existing agents"
+            mkdir -p .claude/agents
+            ;;
+        3)
+            # Keep existing agents
+            echo "⚠️  Keeping existing agents - may cause conflicts with new project"
+            ;;
+    esac
+    echo
+fi
+
+# Generate unique project ID
+PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+
 # Create pipeline status file
 mkdir -p docs/#
-cat > docs/#/pipeline.md << 'EOF'
+cat > docs/#/pipeline.md << EOF
 # Pipeline Status
 
 ## Project: [Project Name]
-## Started: [DATE TIME]
+## Project ID: ${PROJECT_ID}
+## Started: ${TIMESTAMP}
 
 ### Pipeline Configuration
 - Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
@@ -411,15 +461,21 @@ cat > docs/#/pipeline.md << 'EOF'
 - ⏳ Code: Not started
 - ⏳ Test: Not started
 - ⏳ Deploy: Not started
+
+### Project Metadata
+- Project ID: ${PROJECT_ID}
+- Created: ${TIMESTAMP}
+- Last Updated: ${TIMESTAMP}
 EOF
 
 echo "> Pipeline initialized"
+echo "> Project ID: ${PROJECT_ID}"
 echo "> Next: /#:brainstorm [your idea]"
 ```
 
 ### Checking Pipeline Status
 ```markdown
-/pipeline status
+/#:pipeline status
 ```
 **Implementation**:
 ```bash
@@ -444,13 +500,13 @@ if [ -f "docs/#/pipeline.md" ]; then
     fi
 else
     echo "> No pipeline in progress"
-    echo "> Run '/pipeline start' to begin"
+    echo "> Run '/#:pipeline start' to begin"
 fi
 ```
 
 ### Pipeline Validation
 ```markdown
-/pipeline validate
+/#:pipeline validate
 ```
 **Implementation**:
 ```bash
@@ -492,7 +548,7 @@ fi
 
 ### Resuming Pipeline
 ```markdown
-/pipeline resume
+/#:pipeline resume
 ```
 **Implementation**:
 ```bash
@@ -527,9 +583,324 @@ case $last_stage in
     # Continue for other stages...
     *)
         echo "> No previous work found"
-        echo "> Start fresh with: /pipeline start"
+        echo "> Start fresh with: /#:pipeline start"
         ;;
 esac
+```
+
+### Listing Project Agents
+```markdown
+/#:pipeline agents
+```
+**Implementation**:
+```bash
+# List all generated project-specific agents
+echo "> Project-Specific Agents:"
+echo
+
+if [ -d ".claude/agents" ]; then
+    # Count agents by category
+    tech_count=0
+    domain_count=0
+    quality_count=0
+    
+    # List all agents with their descriptions
+    for agent_file in .claude/agents/*.md; do
+        if [ -f "$agent_file" ]; then
+            agent_name=$(basename "$agent_file" .md)
+            # Extract color from agent file
+            color=$(grep "^color:" "$agent_file" | cut -d' ' -f2)
+            # Extract first line of description
+            desc=$(grep "^description:" "$agent_file" | cut -d' ' -f2- | head -c 80)
+            
+            # Categorize agent
+            case "$agent_name" in
+                *-developer|*-specialist|devops-engineer)
+                    echo "🔧 Tech Stack: $agent_name ($color)"
+                    echo "   $desc..."
+                    ((tech_count++))
+                    ;;
+                *-expert|product-manager|ux-designer|compliance-officer)
+                    echo "📋 Domain: $agent_name ($color)"
+                    echo "   $desc..."
+                    ((domain_count++))
+                    ;;
+                code-reviewer|test-engineer|documentation-writer|security-engineer|performance-optimizer)
+                    echo "✅ Quality: $agent_name ($color)"
+                    echo "   $desc..."
+                    ((quality_count++))
+                    ;;
+            esac
+            echo
+        fi
+    done
+    
+    echo "> Summary:"
+    echo "  - Tech Stack Agents: $tech_count"
+    echo "  - Domain Agents: $domain_count"
+    echo "  - Quality Agents: $quality_count"
+    echo "  - Total: $((tech_count + domain_count + quality_count))"
+else
+    echo "> No project agents found."
+    echo "> Agents are generated as you progress through the pipeline:"
+    echo "  - PRD Mode → Domain agents"
+    echo "  - Architect Mode → Tech stack agents"
+    echo "  - Tasks Mode → Quality/convention agents"
+fi
+```
+
+### Agent Suggestions
+```markdown
+/#:pipeline suggest
+```
+**Implementation**:
+```bash
+# Suggest relevant agent based on current context
+echo "> Analyzing current context..."
+
+# Check last modified file to understand what user is working on
+latest_file=$(ls -t *.* 2>/dev/null | head -1)
+
+if [ -n "$latest_file" ]; then
+    # Suggest agent based on file type
+    case "${latest_file##*.}" in
+        js|ts|jsx|tsx)
+            if [ -f ".claude/agents/react-developer.md" ]; then
+                echo "> Suggested: Use 'react-developer' agent for React components"
+            elif [ -f ".claude/agents/nodejs-backend-developer.md" ]; then
+                echo "> Suggested: Use 'nodejs-backend-developer' agent for backend code"
+            fi
+            ;;
+        py)
+            if [ -f ".claude/agents/python-backend-developer.md" ]; then
+                echo "> Suggested: Use 'python-backend-developer' agent for Python code"
+            fi
+            ;;
+        sql)
+            if [ -f ".claude/agents/postgresql-specialist.md" ]; then
+                echo "> Suggested: Use 'postgresql-specialist' agent for database queries"
+            fi
+            ;;
+        test.*|spec.*)
+            if [ -f ".claude/agents/test-engineer.md" ]; then
+                echo "> Suggested: Use 'test-engineer' agent for test creation"
+            fi
+            ;;
+        md)
+            if [ -f ".claude/agents/documentation-writer.md" ]; then
+                echo "> Suggested: Use 'documentation-writer' agent for documentation"
+            fi
+            ;;
+    esac
+fi
+
+# Check current pipeline stage
+if [ -f "docs/#/pipeline.md" ]; then
+    current_stage=$(grep "Current Stage:" docs/#/pipeline.md | tail -1 | cut -d: -f2 | xargs)
+    case "$current_stage" in
+        "Code")
+            echo "> For coding tasks, consider using:"
+            ls .claude/agents/*-developer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//'
+            ;;
+        "Test")
+            echo "> For testing, use: test-engineer"
+            ;;
+        "Deploy")
+            echo "> For deployment, use: devops-engineer"
+            ;;
+    esac
+fi
+```
+
+### Pipeline Reset
+```markdown
+/#:pipeline reset
+```
+**Implementation**:
+```bash
+# Reset pipeline and start fresh
+echo "> Pipeline Reset"
+echo 
+
+# Check for existing files
+has_agents=false
+has_docs=false
+
+if [ -d ".claude/agents" ] && [ "$(ls -A .claude/agents 2>/dev/null)" ]; then
+    has_agents=true
+fi
+
+if [ -d "docs/#" ] && [ "$(ls -A docs/# 2>/dev/null)" ]; then
+    has_docs=true
+fi
+
+if [ "$has_agents" = true ] || [ "$has_docs" = true ]; then
+    echo "This will archive existing project files:"
+    [ "$has_agents" = true ] && echo "  - .claude/agents/ → .claude/agents.backup.[timestamp]"
+    [ "$has_docs" = true ] && echo "  - docs/#/ → docs/#.backup.[timestamp]"
+    echo
+    
+    # Check if running interactively
+    if [ -t 0 ]; then
+        read -p "Continue with reset? (y/n) [y]: " confirm
+    else
+        echo "Running in non-interactive mode, proceeding with reset"
+        confirm="y"
+    fi
+    
+    # Default to yes if empty
+    if [ -z "$confirm" ]; then
+        confirm="y"
+    fi
+    
+    if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+        timestamp=$(date +%Y%m%d_%H%M%S)
+        
+        # Archive existing files
+        if [ "$has_agents" = true ]; then
+            mv .claude/agents ".claude/agents.backup.${timestamp}"
+            echo "✓ Archived agents to .claude/agents.backup.${timestamp}"
+            mkdir -p .claude/agents
+        fi
+        
+        if [ "$has_docs" = true ]; then
+            mv docs/# "docs/#.backup.${timestamp}"
+            echo "✓ Archived docs to docs/#.backup.${timestamp}"
+            mkdir -p docs/#
+        fi
+        
+        echo
+        echo "✓ Pipeline reset complete"
+        echo "> Run '/#:pipeline start' to begin a new project"
+    else
+        echo "Reset cancelled"
+    fi
+else
+    echo "No existing project files found"
+    echo "> Run '/#:pipeline start' to begin a new project"
+fi
+```
+
+### Agent Management Commands
+```markdown
+/#:pipeline agents clean
+```
+**Implementation**:
+```bash
+# Clean agents not matching current project
+echo "> Cleaning outdated agents..."
+
+if [ ! -f "docs/#/pipeline.md" ]; then
+    echo "❌ No active project found. Run '/#:pipeline start' first."
+    exit 1
+fi
+
+# Get current project ID
+CURRENT_PROJECT_ID=$(grep "Project ID:" docs/#/pipeline.md | head -1 | cut -d: -f2 | xargs)
+cleaned=0
+kept=0
+
+if [ -d ".claude/agents" ]; then
+    for agent in .claude/agents/*.md; do
+        if [ -f "$agent" ]; then
+            agent_project_id=$(grep "^project_id:" "$agent" | cut -d' ' -f2)
+            
+            if [ "$agent_project_id" != "$CURRENT_PROJECT_ID" ]; then
+                agent_name=$(basename "$agent")
+                mv "$agent" "${agent}.old"
+                echo "  ✓ Archived outdated ${agent_name}"
+                ((cleaned++))
+            else
+                ((kept++))
+            fi
+        fi
+    done
+fi
+
+echo
+echo "Summary:"
+echo "  - Archived: $cleaned outdated agents"
+echo "  - Kept: $kept current agents"
+```
+
+```markdown
+/#:pipeline agents validate
+```
+**Implementation**:
+```bash
+# Validate agent consistency with current project
+echo "> Validating project agents..."
+
+if [ ! -f "docs/#/pipeline.md" ]; then
+    echo "❌ No active project found. Run '/#:pipeline start' first."
+    exit 1
+fi
+
+# Get current project ID
+CURRENT_PROJECT_ID=$(grep "Project ID:" docs/#/pipeline.md | head -1 | cut -d: -f2 | xargs)
+PROJECT_NAME=$(grep "^## Project:" docs/#/pipeline.md | cut -d: -f2- | xargs)
+
+valid=0
+stale=0
+missing=0
+
+echo "Project: $PROJECT_NAME"
+echo "Project ID: $CURRENT_PROJECT_ID"
+echo
+
+if [ -d ".claude/agents" ]; then
+    for agent in .claude/agents/*.md; do
+        if [ -f "$agent" ]; then
+            agent_name=$(basename "$agent" .md)
+            agent_project_id=$(grep "^project_id:" "$agent" | cut -d' ' -f2)
+            agent_date=$(grep "^generated_date:" "$agent" | cut -d' ' -f2-)
+            agent_stage=$(grep "^pipeline_stage:" "$agent" | cut -d' ' -f2)
+            
+            if [ "$agent_project_id" = "$CURRENT_PROJECT_ID" ]; then
+                echo "✓ ${agent_name}"
+                echo "  - Stage: ${agent_stage}"
+                echo "  - Generated: ${agent_date}"
+                ((valid++))
+            else
+                echo "⚠️  ${agent_name} (STALE)"
+                echo "  - From project: ${agent_project_id}"
+                echo "  - Generated: ${agent_date}"
+                ((stale++))
+            fi
+            echo
+        fi
+    done
+else
+    echo "⚠️  No agents directory found"
+fi
+
+# Check for expected agents based on pipeline progress
+if [ -f "docs/#/prd.md" ]; then
+    [ ! -f ".claude/agents/product-manager.md" ] && echo "⚠️  Missing: product-manager agent" && ((missing++))
+fi
+
+if [ -f "docs/#/architect.md" ]; then
+    # Check for at least one developer agent
+    if ! ls .claude/agents/*-developer.md >/dev/null 2>&1; then
+        echo "⚠️  Missing: tech stack developer agents" && ((missing++))
+    fi
+fi
+
+if [ -f "docs/#/tasks.md" ]; then
+    [ ! -f ".claude/agents/code-reviewer.md" ] && echo "⚠️  Missing: code-reviewer agent" && ((missing++))
+    [ ! -f ".claude/agents/test-engineer.md" ] && echo "⚠️  Missing: test-engineer agent" && ((missing++))
+fi
+
+echo
+echo "Summary:"
+echo "  - Valid agents: $valid"
+echo "  - Stale agents: $stale"
+echo "  - Missing expected agents: $missing"
+
+if [ $stale -gt 0 ]; then
+    echo
+    echo "Run '/#:pipeline agents clean' to remove stale agents"
+fi
 ```
 
 ## Quality Gates
@@ -654,9 +1025,34 @@ cat >> docs/#/pipeline.md << 'EOF'
 ### Decisions Made
 [Document key decisions]
 
+### Agents Generated
+[List any new agents created in this stage]
+
 ### Next Steps
 [Clear next actions]
 
 ---
 EOF
+
+# Update agent summary if agents were generated
+if [ -d ".claude/agents" ] && [ "$(ls -A .claude/agents 2>/dev/null)" ]; then
+    agent_count=$(ls .claude/agents/*.md 2>/dev/null | wc -l)
+    echo "## Agent Summary" >> docs/#/pipeline.md
+    echo "Total project agents: $agent_count" >> docs/#/pipeline.md
+    echo "" >> docs/#/pipeline.md
+    
+    # List agents by category
+    echo "### Tech Stack Agents" >> docs/#/pipeline.md
+    ls .claude/agents/*-developer.md .claude/agents/*-specialist.md .claude/agents/devops-engineer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' >> docs/#/pipeline.md || echo "None yet" >> docs/#/pipeline.md
+    
+    echo "" >> docs/#/pipeline.md
+    echo "### Domain Agents" >> docs/#/pipeline.md
+    ls .claude/agents/*-expert.md .claude/agents/product-manager.md .claude/agents/ux-designer.md .claude/agents/compliance-officer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' >> docs/#/pipeline.md || echo "None yet" >> docs/#/pipeline.md
+    
+    echo "" >> docs/#/pipeline.md
+    echo "### Quality Agents" >> docs/#/pipeline.md
+    ls .claude/agents/code-reviewer.md .claude/agents/test-engineer.md .claude/agents/documentation-writer.md .claude/agents/security-engineer.md .claude/agents/performance-optimizer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' >> docs/#/pipeline.md || echo "None yet" >> docs/#/pipeline.md
+    
+    echo "---" >> docs/#/pipeline.md
+fi
 ```

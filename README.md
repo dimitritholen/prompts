@@ -53,6 +53,7 @@ Hash Prompts installs commands under the `#` namespace, giving you access to:
 - `/#:test` - Testing strategy
 - `/#:deploy` - Deployment and DevOps
 - `/#:pipeline` - Workflow orchestration
+- `/#:help` - Display command reference and workflows
 
 Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
 
@@ -241,7 +242,30 @@ Process @my_project_prd file.
 **How to Use**:
 
 ```
-/#:pipeline Start new project workflow for task management application
+/#:pipeline start
+```
+
+### 11. **help.md** - Command Reference and Guide
+
+**Purpose**: Provides comprehensive help and guidance for all Hash Prompts commands and workflows.
+
+**Key Features**:
+
+- Complete command reference with descriptions
+- Typical workflow examples
+- File organization guide
+- Agent overview and usage
+- Best practices and tips
+
+**How to Use**:
+
+```
+/#:help
+```
+
+Or for specific command help:
+```
+/#:help brainstorm
 ```
 
 ## Complete Development Pipeline

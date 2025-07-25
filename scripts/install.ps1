@@ -22,7 +22,8 @@ $Prompts = @(
     "feature.md",
     "test.md",
     "deploy.md",
-    "pipeline.md"
+    "pipeline.md",
+    "help.md"
 )
 
 # Function to print colored output

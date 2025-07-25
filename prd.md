@@ -283,7 +283,7 @@ Create a comprehensive PRD with the following structure:
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Save complete PRD
+# Save complete PRD and generate domain agents
 cat >> docs/#/prd.md << 'EOF'
 
 ### Phase 3: Complete PRD
@@ -300,6 +300,212 @@ cat >> docs/#/prd.md << 'EOF'
 
 ---
 EOF
+
+# Generate domain-specific agents based on PRD analysis
+echo "Generating domain and business logic agents..."
+
+# Get project ID from pipeline status
+if [ -f "docs/#/pipeline.md" ]; then
+    PROJECT_ID=$(grep "Project ID:" docs/#/pipeline.md | head -1 | cut -d: -f2 | xargs)
+else
+    PROJECT_ID="unknown"
+    echo "⚠️  Warning: No project ID found. Run '/#:pipeline start' first."
+fi
+
+GENERATED_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Extract domain information from PRD (example implementation)
+# In practice, these would be parsed from the actual PRD above
+PROJECT_NAME="[Product Name from PRD]"
+DOMAIN="[Primary Domain - e.g., E-commerce, Healthcare, Finance]"
+INDUSTRY="[Industry Sector]"
+TARGET_USERS="[Primary User Types]"
+COMPLIANCE="[Regulatory Requirements - GDPR, HIPAA, SOC2, etc.]"
+BUSINESS_MODEL="[B2B, B2C, SaaS, etc.]"
+KEY_FEATURES="[Core Feature Categories]"
+
+# Create .claude/agents directory if not exists
+mkdir -p .claude/agents
+
+# Generate Domain Expert Agent
+if [ -n "$DOMAIN" ]; then
+  # Determine color based on domain
+  case "$DOMAIN" in
+    "E-commerce") COLOR="amber" ;;
+    "Healthcare") COLOR="emerald" ;;
+    "Finance") COLOR="slate" ;;
+    "Education") COLOR="violet" ;;
+    "Gaming") COLOR="pink" ;;
+    "Social") COLOR="sky" ;;
+    *) COLOR="zinc" ;;
+  esac
+  
+  # Check if agent already exists
+  if [ -f ".claude/agents/${DOMAIN,,}-expert.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/${DOMAIN,,}-expert.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/${DOMAIN,,}-expert.md" ".claude/agents/${DOMAIN,,}-expert.md.old"
+      echo "  ⚠️  Archived outdated ${DOMAIN,,}-expert agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/${DOMAIN,,}-expert.md" << AGENT_EOF
+---
+name: ${DOMAIN,,}-expert
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: prd
+project_name: ${PROJECT_NAME}
+description: Domain expert for ${INDUSTRY} specializing in ${DOMAIN} systems for ${PROJECT_NAME}. Understands business logic, industry standards, user behavior patterns, and domain-specific best practices. ${COMPLIANCE:+Also knowledgeable about ${COMPLIANCE} compliance requirements.} Examples: <example>user: "How should we handle user data retention?" assistant: "I'll consult the ${DOMAIN,,}-expert agent for industry-standard data retention policies${COMPLIANCE:+ and ${COMPLIANCE} requirements}"</example> <example>user: "What features do ${TARGET_USERS} expect?" assistant: "Let me use the ${DOMAIN,,}-expert agent to analyze typical ${TARGET_USERS} expectations in ${DOMAIN}"</example>
+color: ${COLOR}
+---
+
+You are a domain expert in ${INDUSTRY} ${DOMAIN} systems working on ${PROJECT_NAME}.
+
+## Domain Knowledge
+
+**Industry**: ${INDUSTRY}
+**Domain**: ${DOMAIN}
+**Target Users**: ${TARGET_USERS}
+**Business Model**: ${BUSINESS_MODEL}
+${COMPLIANCE:+**Compliance Requirements**: ${COMPLIANCE}}
+
+## Core Business Rules
+[Will be populated with specific business logic from PRD]
+
+## User Behavior Patterns
+[Will be populated with target user insights]
+
+## Industry Best Practices
+[Will be populated with domain-specific patterns]
+AGENT_EOF
+  echo "✓ Created ${DOMAIN,,}-expert agent (${COLOR})"
+fi
+
+# Generate Compliance Officer Agent if regulations exist
+if [ -n "$COMPLIANCE" ] && [ "$COMPLIANCE" != "None" ]; then
+  # Check if agent already exists
+  if [ -f ".claude/agents/compliance-officer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/compliance-officer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/compliance-officer.md" ".claude/agents/compliance-officer.md.old"
+      echo "  ⚠️  Archived outdated compliance-officer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/compliance-officer.md" << AGENT_EOF
+---
+name: compliance-officer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: prd
+project_name: ${PROJECT_NAME}
+description: Compliance and security expert for ${PROJECT_NAME} ensuring adherence to ${COMPLIANCE} requirements. Specializes in data privacy, security controls, audit trails, and regulatory compliance. Examples: <example>user: "How should we handle user consent?" assistant: "I'll use the compliance-officer agent to ensure our consent mechanism meets ${COMPLIANCE} requirements"</example> <example>user: "What data can we collect?" assistant: "Let me consult the compliance-officer agent about ${COMPLIANCE} data collection rules"</example>
+color: scarlet
+---
+
+You are a compliance and security expert ensuring ${PROJECT_NAME} meets all ${COMPLIANCE} requirements.
+
+## Regulatory Framework
+
+**Primary Regulations**: ${COMPLIANCE}
+**Industry**: ${INDUSTRY}
+**Data Types**: [From PRD analysis]
+
+## Compliance Requirements
+[Will be populated with specific regulatory requirements]
+
+## Security Controls
+[Will be populated with required security measures]
+AGENT_EOF
+  echo "✓ Created compliance-officer agent (scarlet)"
+fi
+
+# Generate Product Manager Agent
+# Check if agent already exists
+if [ -f ".claude/agents/product-manager.md" ]; then
+  existing_project_id=$(grep "^project_id:" ".claude/agents/product-manager.md" | cut -d' ' -f2)
+  if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+    mv ".claude/agents/product-manager.md" ".claude/agents/product-manager.md.old"
+    echo "  ⚠️  Archived outdated product-manager agent from previous project"
+  fi
+fi
+
+cat > ".claude/agents/product-manager.md" << AGENT_EOF
+---
+name: product-manager
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: prd
+project_name: ${PROJECT_NAME}
+description: Product management expert for ${PROJECT_NAME} with deep understanding of the product vision, user needs, and business goals. Helps with feature prioritization, user story creation, and product strategy. Examples: <example>user: "Should we add this feature?" assistant: "I'll consult the product-manager agent to evaluate this against our product strategy and user needs"</example> <example>user: "How should we prioritize the backlog?" assistant: "Let me use the product-manager agent to prioritize based on user value and business impact"</example>
+color: indigo
+---
+
+You are the product manager for ${PROJECT_NAME} with comprehensive knowledge of the product strategy and user needs.
+
+## Product Vision
+
+**Product**: ${PROJECT_NAME}
+**Target Users**: ${TARGET_USERS}
+**Core Value Proposition**: [From PRD]
+**Key Features**: ${KEY_FEATURES}
+
+## Success Metrics
+[Will be populated from PRD success criteria]
+
+## Product Strategy
+[Will be populated with strategic decisions]
+AGENT_EOF
+echo "✓ Created product-manager agent (indigo)"
+
+# Generate UX Designer Agent if user experience is emphasized
+if echo "$KEY_FEATURES" | grep -qiE "ui|ux|design|interface|experience"; then
+  # Check if agent already exists
+  if [ -f ".claude/agents/ux-designer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/ux-designer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/ux-designer.md" ".claude/agents/ux-designer.md.old"
+      echo "  ⚠️  Archived outdated ux-designer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/ux-designer.md" << AGENT_EOF
+---
+name: ux-designer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: prd
+project_name: ${PROJECT_NAME}
+description: UX/UI design expert for ${PROJECT_NAME} specializing in creating intuitive, accessible, and delightful user experiences for ${TARGET_USERS}. Handles interface design, user flows, accessibility, and design systems. Examples: <example>user: "How should we design the onboarding flow?" assistant: "I'll use the ux-designer agent to create an intuitive onboarding experience for ${TARGET_USERS}"</example> <example>user: "Is this interface accessible?" assistant: "Let me have the ux-designer agent review this for accessibility compliance"</example>
+color: pink
+---
+
+You are a UX/UI design expert working on ${PROJECT_NAME}'s user experience.
+
+## Design Philosophy
+
+**Target Users**: ${TARGET_USERS}
+**Design Principles**: [From PRD]
+**Accessibility Standards**: WCAG 2.1 AA
+
+## User Experience Goals
+[Will be populated from PRD user journey]
+
+## Design System
+[Will be populated with project design patterns]
+AGENT_EOF
+  echo "✓ Created ux-designer agent (pink)"
+fi
+
+# Log agent generation
+cat >> docs/#/prd.md << 'EOF'
+
+### Generated Domain Agents
+[List all generated domain-specific agents with their specialties]
+EOF
+
+echo "Domain agent generation complete!"
 ```
 
 ## Key Principles

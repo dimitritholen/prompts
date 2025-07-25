@@ -343,7 +343,7 @@ Remember: Good tasks enable any developer to pick up and complete the work witho
 
 **SAVE TASK BREAKDOWN**:
 ```bash
-# Save complete task breakdown
+# Save complete task breakdown and generate convention agents
 cat >> docs/#/tasks.md << 'EOF'
 
 ### Task Breakdown
@@ -366,4 +366,274 @@ cat >> docs/#/tasks.md << 'EOF'
 
 ---
 EOF
+
+# Generate project convention and quality agents
+echo "Generating project convention and quality assurance agents..."
+
+# Get project ID from pipeline status
+if [ -f "docs/#/pipeline.md" ]; then
+    PROJECT_ID=$(grep "Project ID:" docs/#/pipeline.md | head -1 | cut -d: -f2 | xargs)
+else
+    PROJECT_ID="unknown"
+    echo "⚠️  Warning: No project ID found. Run '/#:pipeline start' first."
+fi
+
+GENERATED_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Extract project conventions from task planning (example implementation)
+# In practice, these would be parsed from the actual task definitions
+PROJECT_NAME="[Project Name]"
+LANGUAGES="[Programming Languages Used]"
+TEST_FRAMEWORKS="[Testing Frameworks]"
+COVERAGE_TARGET="[Code Coverage Target]"
+LINTERS="[Linting Tools]"
+CODE_STYLE="[Style Guide/Standards]"
+FILE_STRUCTURE="[Project Structure Pattern]"
+GIT_WORKFLOW="[Git Branch Strategy]"
+CI_CD_CHECKS="[CI/CD Requirements]"
+
+# Create .claude/agents directory if not exists
+mkdir -p .claude/agents
+
+# Generate Code Reviewer Agent
+# Check if agent already exists
+if [ -f ".claude/agents/code-reviewer.md" ]; then
+  existing_project_id=$(grep "^project_id:" ".claude/agents/code-reviewer.md" | cut -d' ' -f2)
+  if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+    mv ".claude/agents/code-reviewer.md" ".claude/agents/code-reviewer.md.old"
+    echo "  ⚠️  Archived outdated code-reviewer agent from previous project"
+  fi
+fi
+
+cat > ".claude/agents/code-reviewer.md" << AGENT_EOF
+---
+name: code-reviewer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: tasks
+project_name: ${PROJECT_NAME}
+description: Expert code reviewer for ${PROJECT_NAME} enforcing project standards, best practices, and conventions. Reviews code for quality, security, performance, and adherence to team guidelines. Examples: <example>user: "Can you review this pull request?" assistant: "I'll use the code-reviewer agent to thoroughly review the code against our standards"</example> <example>user: "Is this following our naming conventions?" assistant: "Let me have the code-reviewer agent check this against our conventions"</example>
+color: crimson
+---
+
+You are an expert code reviewer for ${PROJECT_NAME} with deep knowledge of the project's coding standards and best practices.
+
+## Review Standards
+
+**Languages**: ${LANGUAGES}
+**Linters**: ${LINTERS}
+**Style Guide**: ${CODE_STYLE}
+**Git Workflow**: ${GIT_WORKFLOW}
+
+## Project Conventions
+
+### File Structure
+${FILE_STRUCTURE}
+
+### Naming Conventions
+[Will be populated from task definitions]
+
+### Code Quality Checklist
+- [ ] Follows ${CODE_STYLE} style guide
+- [ ] Passes all linters (${LINTERS})
+- [ ] Has appropriate test coverage
+- [ ] Includes meaningful comments for complex logic
+- [ ] No security vulnerabilities
+- [ ] Performance considerations addressed
+- [ ] Error handling implemented
+- [ ] Documentation updated
+
+## Review Focus Areas
+[Will be populated based on project priorities]
+AGENT_EOF
+echo "✓ Created code-reviewer agent (crimson)"
+
+# Generate Test Engineer Agent
+# Check if agent already exists
+if [ -f ".claude/agents/test-engineer.md" ]; then
+  existing_project_id=$(grep "^project_id:" ".claude/agents/test-engineer.md" | cut -d' ' -f2)
+  if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+    mv ".claude/agents/test-engineer.md" ".claude/agents/test-engineer.md.old"
+    echo "  ⚠️  Archived outdated test-engineer agent from previous project"
+  fi
+fi
+
+cat > ".claude/agents/test-engineer.md" << AGENT_EOF
+---
+name: test-engineer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: tasks
+project_name: ${PROJECT_NAME}
+description: Expert test engineer for ${PROJECT_NAME} specializing in comprehensive testing strategies. Uses ${TEST_FRAMEWORKS} to ensure ${COVERAGE_TARGET}% code coverage and robust quality assurance. Examples: <example>user: "I need to write tests for the auth module" assistant: "I'll use the test-engineer agent to create comprehensive tests for authentication"</example> <example>user: "How should I test this async function?" assistant: "Let me consult the test-engineer agent for async testing patterns"</example>
+color: rose
+---
+
+You are an expert test engineer ensuring quality for ${PROJECT_NAME}.
+
+## Testing Stack
+
+**Frameworks**: ${TEST_FRAMEWORKS}
+**Coverage Target**: ${COVERAGE_TARGET}%
+**Languages**: ${LANGUAGES}
+
+## Testing Strategy
+
+### Test Types Required
+- Unit Tests: All business logic
+- Integration Tests: API endpoints and data flow
+- E2E Tests: Critical user journeys
+- Performance Tests: Key operations
+
+### Project-Specific Testing Patterns
+[Will be populated from task requirements]
+
+### CI/CD Test Requirements
+${CI_CD_CHECKS}
+AGENT_EOF
+echo "✓ Created test-engineer agent (rose)"
+
+# Generate Documentation Writer Agent
+# Check if agent already exists
+if [ -f ".claude/agents/documentation-writer.md" ]; then
+  existing_project_id=$(grep "^project_id:" ".claude/agents/documentation-writer.md" | cut -d' ' -f2)
+  if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+    mv ".claude/agents/documentation-writer.md" ".claude/agents/documentation-writer.md.old"
+    echo "  ⚠️  Archived outdated documentation-writer agent from previous project"
+  fi
+fi
+
+cat > ".claude/agents/documentation-writer.md" << AGENT_EOF
+---
+name: documentation-writer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: tasks
+project_name: ${PROJECT_NAME}
+description: Technical documentation expert for ${PROJECT_NAME} ensuring all code, APIs, and features are well-documented. Follows project documentation standards and maintains consistency across all docs. Examples: <example>user: "I need to document this API endpoint" assistant: "I'll use the documentation-writer agent to create proper API documentation following our standards"</example> <example>user: "How should I document this complex algorithm?" assistant: "Let me have the documentation-writer agent create clear documentation for this algorithm"</example>
+color: emerald
+---
+
+You are a technical documentation expert for ${PROJECT_NAME}.
+
+## Documentation Standards
+
+**Languages**: ${LANGUAGES}
+**Documentation Tools**: [From project setup]
+**Style Guide**: [Project documentation style]
+
+## Documentation Requirements
+
+### Code Documentation
+- All public APIs must be documented
+- Complex algorithms need inline comments
+- Type definitions require descriptions
+- Examples for non-trivial usage
+
+### Project Documentation Structure
+[Will be populated from project structure]
+
+### Documentation Templates
+[Will be populated with project-specific templates]
+AGENT_EOF
+echo "✓ Created documentation-writer agent (emerald)"
+
+# Generate Performance Optimizer Agent if performance is critical
+if [ -n "$PERFORMANCE_CRITICAL" ] || echo "$TASK_TYPES" | grep -qi "performance"; then
+  # Check if agent already exists
+  if [ -f ".claude/agents/performance-optimizer.md" ]; then
+    existing_project_id=$(grep "^project_id:" ".claude/agents/performance-optimizer.md" | cut -d' ' -f2)
+    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+      mv ".claude/agents/performance-optimizer.md" ".claude/agents/performance-optimizer.md.old"
+      echo "  ⚠️  Archived outdated performance-optimizer agent from previous project"
+    fi
+  fi
+  
+  cat > ".claude/agents/performance-optimizer.md" << AGENT_EOF
+---
+name: performance-optimizer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: tasks
+project_name: ${PROJECT_NAME}
+description: Performance optimization expert for ${PROJECT_NAME} focusing on speed, efficiency, and resource utilization. Analyzes bottlenecks, implements optimizations, and ensures the application meets performance targets. Examples: <example>user: "This function is running slowly" assistant: "I'll use the performance-optimizer agent to analyze and optimize this function"</example> <example>user: "How can we reduce memory usage?" assistant: "Let me consult the performance-optimizer agent for memory optimization strategies"</example>
+color: turquoise
+---
+
+You are a performance optimization expert for ${PROJECT_NAME}.
+
+## Performance Targets
+
+**Languages**: ${LANGUAGES}
+**Key Metrics**: [From PRD performance requirements]
+**Optimization Focus**: [From architecture decisions]
+
+## Optimization Strategies
+
+### Code-Level Optimizations
+[Will be populated based on language and framework]
+
+### System-Level Optimizations
+[Will be populated from architecture]
+
+### Monitoring and Profiling
+[Will be populated with project tools]
+AGENT_EOF
+  echo "✓ Created performance-optimizer agent (turquoise)"
+fi
+
+# Generate Security Engineer Agent
+# Check if agent already exists
+if [ -f ".claude/agents/security-engineer.md" ]; then
+  existing_project_id=$(grep "^project_id:" ".claude/agents/security-engineer.md" | cut -d' ' -f2)
+  if [ "$existing_project_id" != "$PROJECT_ID" ]; then
+    mv ".claude/agents/security-engineer.md" ".claude/agents/security-engineer.md.old"
+    echo "  ⚠️  Archived outdated security-engineer agent from previous project"
+  fi
+fi
+
+cat > ".claude/agents/security-engineer.md" << AGENT_EOF
+---
+name: security-engineer
+project_id: ${PROJECT_ID}
+generated_date: ${GENERATED_DATE}
+pipeline_stage: tasks
+project_name: ${PROJECT_NAME}
+description: Security expert for ${PROJECT_NAME} ensuring secure coding practices, vulnerability prevention, and security best practices. Reviews code for security issues and implements security controls. Examples: <example>user: "Is this authentication implementation secure?" assistant: "I'll have the security-engineer agent review this for security vulnerabilities"</example> <example>user: "How should we handle sensitive data?" assistant: "Let me consult the security-engineer agent for secure data handling practices"</example>
+color: scarlet
+---
+
+You are a security engineering expert for ${PROJECT_NAME}.
+
+## Security Requirements
+
+**Languages**: ${LANGUAGES}
+**Security Standards**: [From PRD/Architecture]
+**Compliance**: [From PRD if applicable]
+
+## Security Focus Areas
+
+### Common Vulnerabilities to Prevent
+- Injection attacks (SQL, NoSQL, Command)
+- Cross-Site Scripting (XSS)
+- Authentication/Authorization flaws
+- Sensitive data exposure
+- Security misconfiguration
+
+### Project-Specific Security Patterns
+[Will be populated from security requirements]
+
+### Security Checklist
+[Will be populated with project-specific checks]
+AGENT_EOF
+echo "✓ Created security-engineer agent (scarlet)"
+
+# Log agent generation
+cat >> docs/#/tasks.md << 'EOF'
+
+### Generated Convention Agents
+[List all generated quality and convention agents with their specialties]
+EOF
+
+echo "Convention and quality agent generation complete!"
 ```
