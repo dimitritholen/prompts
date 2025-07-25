@@ -2,7 +2,7 @@
 
 # Hash Prompts Installer
 # This script installs Hash Prompts as Claude commands with /#: prefix
-# Repository: https://github.com/dimitritholen/prompts
+# Repository: https://github.com/dimitritholen/hash-prompts
 #
 # Usage:
 #   bash install.sh                    # Interactive mode (if possible)
@@ -47,7 +47,7 @@ NC='\033[0m' # No Color
 
 # GitHub repository information
 REPO_OWNER="dimitritholen"
-REPO_NAME="prompts"
+REPO_NAME="hash-prompts"
 BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
 

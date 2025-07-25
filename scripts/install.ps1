@@ -1,13 +1,13 @@
 # Hash Prompts Installer for Windows
 # This script installs Hash Prompts as Claude commands with /#: prefix
-# Repository: https://github.com/dimitritholen/prompts
+# Repository: https://github.com/dimitritholen/hash-prompts
 
 # Ensure script stops on errors
 $ErrorActionPreference = "Stop"
 
 # GitHub repository information
 $RepoOwner = "dimitritholen"
-$RepoName = "prompts"
+$RepoName = "hash-prompts"
 $Branch = "main"
 $BaseUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch"
 
