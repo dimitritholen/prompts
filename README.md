@@ -2,8 +2,6 @@
 
 A powerful collection of specialized prompts designed to guide AI assistants into specific operational modes for enhanced productivity and output quality. Named "Hash Prompts" for their distinctive `/#:` command syntax.
 
-![prompts](prompts.gif)
-
 ## Why Hash Prompts?
 
 The name "Hash Prompts" comes from our unique command syntax `/#:` where:
