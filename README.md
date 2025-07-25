@@ -125,6 +125,25 @@ Create a PRD for a task management mobile app
 Break down the e-commerce PRD into implementation tasks
 ```
 
+### 7. **feature.md** - Feature Integration Mode
+
+**Purpose**: Seamlessly integrates new feature requests into existing task systems while maintaining project coherence and avoiding duplication.
+
+**Key Features**:
+
+- Atomic feature integration at task level
+- Enhancement of existing tasks vs creating duplicates
+- Dependency chain maintenance
+- Documentation synchronization
+- Incremental enhancement approach
+
+**How to Use**:
+
+```
+@feature.md
+Add user authentication with OAuth2 support for Google and GitHub providers
+```
+
 ## Usage Guidelines
 
 ### In AI Coding Tools
@@ -163,6 +182,7 @@ Break down the e-commerce PRD into implementation tasks
    - Use `code.md` for actual implementation
    - Use `prd.md` for formal requirement documentation
    - Use `tasks.md` for project management
+   - Use `feature.md` for integrating new features into existing projects
 
 2. **Provide Context**: The more specific context you provide, the better the output quality.
 
@@ -170,6 +190,11 @@ Break down the e-commerce PRD into implementation tasks
    
    ```
    brainstorm → prd → architect → tasks → plan → code
+   ```
+   
+   For adding features to existing projects:
+   ```
+   feature → plan → code
    ```
 
 4. **Leverage Research**: These prompts emphasize research-based approaches. Allow the AI to search for best practices and industry standards.
