@@ -442,13 +442,195 @@ if [ -d ".claude/agents" ] && [ ! -f "docs/#/pipeline.md" ]; then
     echo
 fi
 
-# Generate unique project ID
-PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
-TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+# Check for existing PRD documents
+PRD_FILES=$(find . -maxdepth 3 -type f \( -iname "*prd*.md" -o -iname "*product*requirement*.md" \) -not -path "./docs/#/*" -not -path "./.claude/*" 2>/dev/null | head -10)
 
-# Create pipeline status file
-mkdir -p docs/#
-cat > docs/#/pipeline.md << EOF
+if [ -n "$PRD_FILES" ]; then
+    echo "📋 Found existing PRD document(s):"
+    echo "$PRD_FILES" | while read -r file; do
+        echo "  - $file"
+    done
+    echo ""
+    echo "How would you like to proceed?"
+    echo "1) Research and improve the PRD (recommended)"
+    echo "2) Use the PRD as-is and skip to architecture"
+    echo "3) Start fresh with brainstorming (ignore existing PRD)"
+    echo ""
+    
+    # Check if running interactively
+    if [ -t 0 ]; then
+        read -p "Choose (1/2/3) [1]: " prd_choice
+    else
+        echo "Running in non-interactive mode, defaulting to improve PRD"
+        prd_choice="1"
+    fi
+    
+    # Default to option 1 if empty
+    if [ -z "$prd_choice" ]; then
+        prd_choice="1"
+    fi
+    
+    # Get the first PRD file for processing
+    FIRST_PRD=$(echo "$PRD_FILES" | head -1)
+    
+    # Generate unique project ID
+    PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
+    TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+    
+    # Create pipeline status file
+    mkdir -p docs/#
+    
+    case $prd_choice in
+        1)
+            # Research and improve the PRD
+            echo ""
+            echo "✓ Will research and improve the existing PRD"
+            echo ""
+            
+            # Copy PRD to docs/#/prd.md
+            cp "$FIRST_PRD" docs/#/prd.md
+            
+            # Create pipeline status with brainstorm complete
+            cat > docs/#/pipeline.md << EOF
+# Pipeline Status
+
+## Project: [Project Name]
+## Project ID: ${PROJECT_ID}
+## Started: ${TIMESTAMP}
+
+### Pipeline Configuration
+- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
+- Current Stage: PRD
+- Next Action: Invoke PRD Mode to improve existing document
+
+### Stage Status
+- ✅ Brainstorm: Skipped - existing PRD found ($TIMESTAMP)
+- 🔄 PRD: Ready for improvement - imported from $FIRST_PRD ($TIMESTAMP)
+- ⏳ Architect: Not started
+- ⏳ Tasks: Not started
+- ⏳ Plan: Not started
+- ⏳ Code: Not started
+- ⏳ Test: Not started
+- ⏳ Deploy: Not started
+
+### Project Metadata
+- Project ID: ${PROJECT_ID}
+- Created: ${TIMESTAMP}
+- Last Updated: ${TIMESTAMP}
+- PRD Source: Existing document ($FIRST_PRD)
+
+### Notes
+- Existing PRD imported for research and improvement
+- Original PRD: $FIRST_PRD
+EOF
+            
+            echo "> Pipeline initialized with existing PRD"
+            echo "> Project ID: ${PROJECT_ID}"
+            echo "> PRD imported from: $FIRST_PRD"
+            echo "> Next: /#:prd (to research and improve the existing PRD)"
+            ;;
+            
+        2)
+            # Use PRD as-is and skip to architecture
+            echo ""
+            echo "✓ Using existing PRD as-is"
+            echo ""
+            
+            # Copy PRD to docs/#/prd.md
+            cp "$FIRST_PRD" docs/#/prd.md
+            
+            # Create pipeline status with brainstorm and PRD complete
+            cat > docs/#/pipeline.md << EOF
+# Pipeline Status
+
+## Project: [Project Name]
+## Project ID: ${PROJECT_ID}
+## Started: ${TIMESTAMP}
+
+### Pipeline Configuration
+- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
+- Current Stage: PRD Complete
+- Next Action: Invoke Architect Mode
+
+### Stage Status
+- ✅ Brainstorm: Skipped - existing PRD found ($TIMESTAMP)
+- ✅ PRD: Completed - using existing document as-is ($TIMESTAMP)
+- ⏳ Architect: Not started
+- ⏳ Tasks: Not started
+- ⏳ Plan: Not started
+- ⏳ Code: Not started
+- ⏳ Test: Not started
+- ⏳ Deploy: Not started
+
+### Project Metadata
+- Project ID: ${PROJECT_ID}
+- Created: ${TIMESTAMP}
+- Last Updated: ${TIMESTAMP}
+- PRD Source: Existing document used as-is ($FIRST_PRD)
+
+### Notes
+- Existing PRD accepted without modification
+- Original PRD: $FIRST_PRD
+EOF
+            
+            echo "> Pipeline initialized with existing PRD"
+            echo "> Project ID: ${PROJECT_ID}"
+            echo "> PRD accepted from: $FIRST_PRD"
+            echo "> Next: /#:architect (to design the system architecture)"
+            ;;
+            
+        3)
+            # Start fresh with brainstorming
+            echo ""
+            echo "✓ Starting fresh with brainstorming"
+            echo ""
+            
+            # Standard pipeline initialization
+            cat > docs/#/pipeline.md << EOF
+# Pipeline Status
+
+## Project: [Project Name]
+## Project ID: ${PROJECT_ID}
+## Started: ${TIMESTAMP}
+
+### Pipeline Configuration
+- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
+- Current Stage: Ideation
+- Next Action: Invoke Brainstorm Mode
+
+### Stage Status
+- ⏳ Brainstorm: Not started
+- ⏳ PRD: Not started
+- ⏳ Architect: Not started
+- ⏳ Tasks: Not started
+- ⏳ Plan: Not started
+- ⏳ Code: Not started
+- ⏳ Test: Not started
+- ⏳ Deploy: Not started
+
+### Project Metadata
+- Project ID: ${PROJECT_ID}
+- Created: ${TIMESTAMP}
+- Last Updated: ${TIMESTAMP}
+
+### Notes
+- Existing PRD files found but ignored per user choice
+EOF
+            
+            echo "> Pipeline initialized"
+            echo "> Project ID: ${PROJECT_ID}"
+            echo "> Next: /#:brainstorm [your idea]"
+            ;;
+    esac
+else
+    # No PRD found - standard initialization
+    # Generate unique project ID
+    PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
+    TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+    
+    # Create pipeline status file
+    mkdir -p docs/#
+    cat > docs/#/pipeline.md << EOF
 # Pipeline Status
 
 ## Project: [Project Name]
@@ -475,10 +657,11 @@ cat > docs/#/pipeline.md << EOF
 - Created: ${TIMESTAMP}
 - Last Updated: ${TIMESTAMP}
 EOF
-
-echo "> Pipeline initialized"
-echo "> Project ID: ${PROJECT_ID}"
-echo "> Next: /#:brainstorm [your idea]"
+    
+    echo "> Pipeline initialized"
+    echo "> Project ID: ${PROJECT_ID}"
+    echo "> Next: /#:brainstorm [your idea]"
+fi
 ```
 
 ### Checking Pipeline Status
