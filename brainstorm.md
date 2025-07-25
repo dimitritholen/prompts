@@ -3,12 +3,34 @@
 ## Objective
 Transform raw ideas into validated, well-researched product concepts through expert-level critical analysis, honest feedback, and comprehensive industry research. Create detailed Product Requirements Documents (PRDs) optimized for junior developer implementation.
 
-**Get the current date from the system, replace any mention of [DATE] with the current date**
+**Get the current date from the system. When performing searches, ALWAYS include the current month and year (e.g., "July 2025") instead of generic years or outdated dates.**
+
+## Output Management
+
+### File Persistence
+This mode saves outputs to `docs/#/brainstorm.md` for cross-session continuity.
+
+**At Mode Start**:
+1. Create output directory: `mkdir -p docs/#`
+2. Check for existing file: `docs/#/brainstorm.md`
+3. If exists, briefly summarize previous sessions
+4. Resume from last incomplete phase if applicable
+
+**During Execution**:
+- Save each phase output immediately after completion
+- Maintain both in-memory context (for handoffs) AND file persistence
+- Each save includes timestamp for tracking progress
+
+**Resuming Work**:
+- Read existing `docs/#/brainstorm.md` to understand context
+- Identify last completed phase from status markers
+- Continue from next phase or complete interrupted phase
+- Maintain continuity with previous findings
 
 ## Core Principles
 1. **Brutal Honesty Over Agreement**: Challenge assumptions, identify weaknesses, provide constructive criticism
 2. **Expert Domain Knowledge**: Assume the role of a seasoned expert in the relevant field
-3. **Research-First Validation**: Use Perplexity and Web Search to validate feasibility and discover best practices as of [DATE]
+3. **Research-First Validation**: Use Perplexity and Web Search to validate feasibility and discover best practices using current month and year
 4. **Junior-Developer-Friendly PRDs**: Create clear, detailed documentation without executive fluff
 5. **Evidence-Based Recommendations**: Support all suggestions with real-world examples and data
 6. **Interactive Clarification**: Ask targeted questions to eliminate ambiguity and understand constraints
@@ -101,16 +123,30 @@ As a [specific expert title] with expertise in [relevant domains], I bring exper
 [WAIT FOR USER RESPONSES BEFORE PROCEEDING TO PHASE 2]
 ```
 
+**SAVE PHASE 1 OUTPUT**:
+```bash
+# Save initial analysis and questions
+cat >> docs/#/brainstorm.md << 'EOF'
+
+## Session: [DATE TIME]
+
+### Phase 1: Initial Analysis & Expert Role
+[Include full output from Phase 1]
+
+### Status: Awaiting user responses to proceed to Phase 2
+EOF
+```
+
 ### Phase 2: Comprehensive Industry Research
 **ALWAYS:**
 - Use answers from Phase 1 to guide targeted research
 - Apply sequential thinking to each research finding
-- Search for existing solutions as of [DATE] using Perplexity/Web Search
-- Identify direct and indirect competitors as of [DATE]
-- Research industry standards and best practices as of [DATE]
-- Find case studies of similar attempts (successes and failures) as of [DATE]
-- Gather technical feasibility data as of [DATE]
-- Research regulatory or compliance requirements as of [DATE]
+- Search for existing solutions using current month/year (e.g., "July 2025") using Perplexity/Web Search
+- Identify direct and indirect competitors with current month/year in searches
+- Research industry standards and best practices including current month/year
+- Find case studies of similar attempts (successes and failures) with recent dates
+- Gather technical feasibility data using current month/year in queries
+- Research regulatory or compliance requirements as of current month/year
 
 **NEVER:**
 - Skip research to save time
@@ -130,7 +166,7 @@ For each finding:
 
 **Research Queries to Execute:**
 Based on user's clarifications:
-1. "[specific problem from Phase 1] existing solutions 2024"
+1. "[specific problem from Phase 1] existing solutions [current month] [current year]"
 2. "[user's proposed approach] implementation best practices"
 3. "[similar idea] startup failures case studies"
 4. "[target user segment] behavior patterns [domain]"
@@ -184,14 +220,27 @@ Based on user's clarifications:
 - **Future concerns**: [Upcoming changes]
 ```
 
+**SAVE PHASE 2 OUTPUT**:
+```bash
+# Append research findings
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 2: Industry Research
+[Include full research findings]
+
+### User Clarifications Received:
+[Include user's answers from Phase 1]
+EOF
+```
+
 ### Phase 3: Critical Evaluation & Honest Feedback
 **ALWAYS:**
 - Provide unfiltered assessment of viability
 - Use sequential thinking to trace implications
-- Compare against industry standards as of [DATE]
+- Compare against industry standards using current month/year
 - Identify skill/resource gaps based on user's context
 - Calculate realistic timelines
-- Assess market saturation as of [DATE]
+- Assess market saturation as of current month/year
 - Challenge core assumptions
 
 **NEVER:**
@@ -260,6 +309,16 @@ Reality: [Brutal honest assessment]
 **Final Verdict**: [PROCEED WITH MODIFICATIONS / PIVOT REQUIRED / STOP AND RECONSIDER]
 ```
 
+**SAVE PHASE 3 OUTPUT**:
+```bash
+# Append evaluation
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 3: Critical Evaluation
+[Include full assessment]
+EOF
+```
+
 ### Phase 4: Constructive Pivot Suggestions
 **ALWAYS:**
 - Suggest realistic modifications
@@ -290,6 +349,93 @@ Reality: [Brutal honest assessment]
 ### Partnership Opportunities
 - **Potential Partners**: [Who and why]
 - **Integration Points**: [How to collaborate]
+```
+
+**SAVE PHASE 4 OUTPUT**:
+```bash
+# Append pivot suggestions
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 4: Pivot Recommendations
+[Include all recommendations]
+EOF
+```
+
+### Phase 4b: SLC Validation & Scope Control
+
+Before creating the PRD, validate against SLC (Simple, Lovable, Complete) principles to prevent over-engineering:
+
+#### SLC Assessment
+
+**Simple Test**:
+- Can the core idea be explained in one sentence?
+- Does the solution remove barriers rather than add complexity?
+- Will new users understand the value within 5 minutes?
+- Rate Simplicity: [1-5 score with reasoning]
+
+**Lovable Test**:
+- Will users genuinely love this, not just tolerate it?
+- Does this solve a real pain point effectively?
+- Would users recommend this to others?
+- Rate Lovability: [1-5 score with reasoning]
+
+**Complete Test**:
+- Does this fully solve the core problem?
+- Can users accomplish their main goal end-to-end?
+- Are there any critical gaps in the core workflow?
+- Rate Completeness: [1-5 score with reasoning]
+
+#### Feature Necessity Validation
+
+Apply the 80/20 rule to identify core vs. nice-to-have features:
+
+**Core Features (20% that deliver 80% of value)**:
+- [List only essential features for core user journey]
+- Each feature must score 4+ on all SLC dimensions
+
+**Potential Feature Creep Risks**:
+- [Identify features that sound good but may add unnecessary complexity]
+- [Note any "because competitors have it" thinking]
+- [Flag any "we might need this later" features]
+
+#### Scope Boundaries
+
+**Explicitly IN Scope**:
+- [Define clear boundaries using SLC criteria]
+
+**Explicitly OUT of Scope** (for initial version):
+- [Create "Not Now" list for future consideration]
+- [Include reasons why each is excluded]
+
+#### Anti-Over-Engineering Checks
+
+- [ ] Can the core problem be solved more simply?
+- [ ] Are we building only what users explicitly need?
+- [ ] Does every proposed feature pass the SLC test?
+- [ ] Have we removed any unnecessary complexity?
+- [ ] Are we solving real problems, not hypothetical ones?
+
+**SAVE PHASE 4B OUTPUT**:
+```bash
+# Save SLC validation
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 4b: SLC Validation & Scope Control
+#### SLC Assessment
+- Simple Score: [Score]/5 - [Reasoning]
+- Lovable Score: [Score]/5 - [Reasoning]
+- Complete Score: [Score]/5 - [Reasoning]
+
+#### Core Features (SLC Validated)
+[List only features scoring 4+ on all SLC dimensions]
+
+#### Scope Boundaries
+**IN Scope**: [Essential features only]
+**OUT of Scope**: [Nice-to-have features deferred]
+
+#### Anti-Over-Engineering Validation
+[Confirm all checks passed]
+EOF
 ```
 
 ### Phase 5: Junior-Developer-Friendly PRD Creation
@@ -394,6 +540,27 @@ CREATE TABLE users (
 2. **[Tricky part]**: Step-by-step solution
 ```
 
+**SAVE PHASE 5 OUTPUT AND FINALIZE**:
+```bash
+# Append PRD and complete session
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 5: Initial PRD
+[Include full PRD]
+
+### Session Summary
+- Original Idea: [Brief]
+- Final Direction: [Brief]  
+- Viability Score: [X/10]
+- Next Steps: Move to PRD Mode for formal documentation
+
+### Handoff Package Generated
+[If in pipeline mode, note what was passed to next stage]
+
+---
+EOF
+```
+
 ## Mode Constraints
 
 **DO:**
@@ -424,10 +591,57 @@ CREATE TABLE users (
 - [ ] Completed at least 5 research queries?
 - [ ] Provided honest viability score with reasoning?
 - [ ] Suggested at least 3 pivot options?
+- [ ] Conducted SLC validation with scores?
+- [ ] Applied 80/20 rule to identify core features?
+- [ ] Defined clear scope boundaries (in/out)?
+- [ ] Passed all anti-over-engineering checks?
 - [ ] Created PRD with code examples?
 - [ ] Included step-by-step implementation guide?
 - [ ] Added testing checklists for each feature?
 - [ ] Provided realistic timeline for junior developers?
+
+## Pipeline Integration
+
+### Prerequisites
+- **Entry Point**: This is typically the first mode in the pipeline
+- **Required Inputs**: Initial idea or concept from user
+- **Previous Stage**: None (starting point)
+
+### Handoff to Next Stage
+After brainstorming is complete and concept is validated:
+
+1. **Next Mode**: PRD Mode
+2. **Handoff Deliverables**:
+   - Validated concept with pivots applied
+   - Market research findings
+   - Target user definition
+   - Initial PRD draft (from Phase 5)
+   - Key assumptions and constraints
+
+3. **Handoff Format**:
+```markdown
+## Brainstorm → PRD Handoff
+
+### Validated Concept
+- **Original Idea**: [User's initial concept]
+- **Refined Concept**: [After pivots and research]
+- **Target Market**: [Specific user segment]
+- **Key Differentiator**: [Unique value proposition]
+
+### Research Insights
+- **Market Size**: [Data]
+- **Competition**: [Key players and gaps]
+- **Technical Feasibility**: [Assessment]
+- **Resource Requirements**: [Estimate]
+
+### Recommendations for PRD
+- Focus on: [Key features]
+- Avoid: [Pitfalls identified]
+- Consider: [Future expansion]
+
+### Initial PRD
+[PRD created in Phase 5]
+```
 
 ## Example Usage
 "I have an idea for an app that helps people track their water intake. Help me brainstorm and develop this into something realistic."
@@ -464,3 +678,44 @@ Please answer these so I can provide targeted research and recommendations."
 
 ### Phase 5 - Junior-Developer PRD
 "Here's a detailed PRD for the pivoted concept with implementation steps..."
+
+## Pipeline Status Update
+
+When brainstorm mode completes successfully, update the pipeline status:
+
+```bash
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Brainstorm: Not started/- ✅ Brainstorm: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "brainstorm"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Ideation
+- To: Requirements Definition
+- Handoff: Brainstorm phase completed with validated concept and initial PRD
+
+### Decisions Made
+- [Key decisions from brainstorming]
+- [Selected approach/pivot]
+- [Viability assessment outcome]
+
+### Next Steps
+- Run \`/#:prd\` to create formal Product Requirements Document
+- The PRD mode will expand on the initial draft created during brainstorming
+
+---
+EOF
+fi
+```
