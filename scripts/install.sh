@@ -48,7 +48,7 @@ NC='\033[0m' # No Color
 # GitHub repository information
 REPO_OWNER="dimitritholen"
 REPO_NAME="prompts"
-BRANCH="features/add_pipeline"
+BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
 
 # Prompt files to install

@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 # GitHub repository information
 $RepoOwner = "dimitritholen"
 $RepoName = "prompts"
-$Branch = "features/add_pipeline"
+$Branch = "main"
 $BaseUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch"
 
 # Prompt files to install
