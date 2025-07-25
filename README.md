@@ -45,6 +45,18 @@ cd prompts
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
+### Getting Started
+
+The easiest way to get started is to just run:
+
+```
+/#:pipeline start
+```
+
+This will guide you through the entire development pipeline from idea to deployment, automatically transitioning between the appropriate modes and generating specialized AI agents for your project.
+
+You can always type `/#:help` to see all available commands and their descriptions.
+
 ### What Gets Installed
 
 Hash Prompts installs commands under the `#` namespace, giving you access to:
