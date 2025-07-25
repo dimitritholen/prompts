@@ -681,3 +681,47 @@ After PRD is complete and approved:
 ```
 
 Remember: A good PRD eliminates ambiguity and provides clear direction for implementation.
+
+## Pipeline Status Update
+
+When PRD mode completes successfully, update the pipeline status:
+
+```bash
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ PRD: Not started/- ✅ PRD: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "prd"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Requirements Definition
+- To: Architecture Design
+- Handoff: PRD phase completed with comprehensive requirements and domain agents
+
+### Decisions Made
+- [Key product decisions]
+- [Feature prioritization outcomes]
+- [Success metrics defined]
+
+### Agents Generated
+- [List domain-specific agents created]
+
+### Next Steps
+- Run \`/#:architect\` to design technical architecture and system components
+- Architecture phase will build on PRD requirements for technical implementation
+
+---
+EOF
+fi
+```

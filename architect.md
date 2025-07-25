@@ -747,6 +747,52 @@ After architecture is designed and approved:
 ### Documentation
 - Architecture: `docs/architecture.md`
 - Technical Specs: `docs/technical.md`
+```
+
+## Pipeline Status Update
+
+When architect mode completes successfully, update the pipeline status:
+
+```bash
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Architect: Not started/- ✅ Architect: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "architect"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Architecture Design
+- To: Task Planning
+- Handoff: Architecture phase completed with full technical design and tech agents
+
+### Decisions Made
+- [Architecture pattern selected]
+- [Technology stack decisions]
+- [Infrastructure approach]
+- [Security architecture]
+
+### Agents Generated
+- [List technical agents created]
+
+### Next Steps
+- Run \`/#:tasks\` to break down the architecture into implementation tasks
+- Tasks mode will create atomic work items with clear dependencies
+
+---
+EOF
+fi
+```
 - Diagrams: [Location of architecture diagrams]
 ```
 

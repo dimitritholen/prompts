@@ -773,3 +773,52 @@ echo "⚠️  IMPORTANT: Restart Claude Code to activate the new agents."
 echo "   Exit Claude Code and resume with: claude --resume"
 echo ""
 ```
+
+## Pipeline Status Update
+
+When tasks mode completes successfully, update the pipeline status:
+
+```bash
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Tasks: Not started/- ✅ Tasks: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "tasks"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Task Planning
+- To: Development Planning
+- Handoff: Tasks phase completed with atomic tasks and QA agents
+
+### Decisions Made
+- [Task breakdown approach]
+- [Prioritization strategy]
+- [Dependency management]
+
+### Agents Generated
+- [List QA and convention agents created]
+
+### Task Summary
+- [Total number of tasks]
+- [Priority breakdown]
+- [Estimated timeline]
+
+### Next Steps
+- Run \`/#:plan\` to create development plan with task sequencing
+- Plan mode will organize tasks into sprints and milestones
+
+---
+EOF
+fi
+```

@@ -346,4 +346,45 @@ cat >> docs/#/plan.md << 'EOF'
 
 ---
 EOF
+
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Plan: Not started/- ✅ Plan: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "plan"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Development Planning
+- To: Implementation
+- Handoff: Plan phase completed with sprint breakdown and implementation strategy
+
+### Decisions Made
+- [Development approach selected]
+- [Sprint structure defined]
+- [Key milestones established]
+
+### Sprint Plan
+- [Sprint breakdown summary]
+- [Timeline overview]
+- [Deliverables per sprint]
+
+### Next Steps
+- Run \`/#:code\` to begin implementation
+- Start with first sprint tasks
+- Follow the established plan
+
+---
+EOF
+fi
 ```

@@ -678,3 +678,44 @@ Please answer these so I can provide targeted research and recommendations."
 
 ### Phase 5 - Junior-Developer PRD
 "Here's a detailed PRD for the pivoted concept with implementation steps..."
+
+## Pipeline Status Update
+
+When brainstorm mode completes successfully, update the pipeline status:
+
+```bash
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Brainstorm: Not started/- ✅ Brainstorm: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "brainstorm"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Ideation
+- To: Requirements Definition
+- Handoff: Brainstorm phase completed with validated concept and initial PRD
+
+### Decisions Made
+- [Key decisions from brainstorming]
+- [Selected approach/pivot]
+- [Viability assessment outcome]
+
+### Next Steps
+- Run \`/#:prd\` to create formal Product Requirements Document
+- The PRD mode will expand on the initial draft created during brainstorming
+
+---
+EOF
+fi
+```

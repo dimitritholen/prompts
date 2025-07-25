@@ -376,4 +376,80 @@ cat >> docs/#/code.md << 'EOF'
 
 ---
 EOF
+
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status function
+    update_stage_status() {
+        local stage="$1"
+        local status="$2"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        
+        if [ "$status" = "in_progress" ]; then
+            # Code mode shows "In Progress" when started
+            sed -i "s/- ⏳ Code: Not started/- 🔄 Code: In Progress ($timestamp)/" docs/#/pipeline.md
+        elif [ "$status" = "completed" ]; then
+            # Update to completed when all implementation is done
+            sed -i "s/- 🔄 Code: In Progress.*/- ✅ Code: Completed ($timestamp)/" docs/#/pipeline.md
+            sed -i "s/- ⏳ Code: Not started/- ✅ Code: Completed ($timestamp)/" docs/#/pipeline.md
+        fi
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    # Determine if implementation is complete based on context
+    # If all tasks are done, mark as completed, otherwise in progress
+    implementation_complete="[Check if all tasks completed]"
+    
+    if [ "$implementation_complete" = "true" ]; then
+        update_stage_status "code" "completed"
+        
+        # Append completion update
+        cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Implementation
+- To: Testing
+- Handoff: Code phase completed with all features implemented
+
+### Implementation Summary
+- Total Tasks Completed: [Number]
+- Features Implemented: [List]
+- Code Coverage: [Percentage]
+
+### Next Steps
+- Run \`/#:test\` to begin comprehensive testing
+- All implementation tasks complete
+
+---
+EOF
+    else
+        update_stage_status "code" "in_progress"
+        
+        # Append progress update
+        cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Progress
+- Current Stage: Implementation (Code Mode)
+- Progress: [Percentage complete]
+
+### Completed Tasks
+- [List of completed implementation tasks]
+
+### Implementation Status
+- [Current sprint/phase]
+- [Key features implemented]
+- [Remaining work]
+
+### Next Actions
+- [Continue with remaining tasks]
+- [Or move to Test Mode if implementation complete]
+
+---
+EOF
+    fi
+fi
 ```

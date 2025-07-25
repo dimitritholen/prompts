@@ -431,4 +431,44 @@ cat >> docs/#/test.md << 'EOF'
 
 ---
 EOF
+
+# Update pipeline status if in pipeline mode
+if [ -f "docs/#/pipeline.md" ]; then
+    # Update stage status
+    update_stage_status() {
+        local stage="$1"
+        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        sed -i "s/- ⏳ Test: Not started/- ✅ Test: Completed ($timestamp)/" docs/#/pipeline.md
+        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+    }
+    
+    update_stage_status "test"
+    
+    # Append pipeline update
+    cat >> docs/#/pipeline.md << EOF
+
+## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
+
+### Stage Transition
+- From: Testing
+- To: Deployment
+- Handoff: Test phase completed with comprehensive quality assurance
+
+### Test Results
+- [Coverage achieved]
+- [Test types implemented]
+- [Quality metrics]
+
+### Quality Status
+- All tests passing: [Yes/No]
+- Performance benchmarks met: [Yes/No]
+- Security scan results: [Status]
+
+### Next Steps
+- Run \`/#:deploy\` to prepare for production deployment
+- Ensure all quality gates have been passed
+
+---
+EOF
+fi
 ```

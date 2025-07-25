@@ -1018,6 +1018,50 @@ Feature → Changes Identified → Plan
 
 Remember: The pipeline is a guide, not a straitjacket. Adapt it to your project's needs while maintaining quality and documentation standards.
 
+**UPDATE STAGE STATUS FUNCTION**:
+```bash
+# Function to update stage status in pipeline.md
+update_stage_status() {
+    local stage="$1"
+    local status="$2"
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    
+    # Update the specific stage line in Stage Status section
+    case "$stage" in
+        "brainstorm")
+            sed -i "s/- ⏳ Brainstorm: Not started/- ✅ Brainstorm: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "prd")
+            sed -i "s/- ⏳ PRD: Not started/- ✅ PRD: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "architect")
+            sed -i "s/- ⏳ Architect: Not started/- ✅ Architect: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "tasks")
+            sed -i "s/- ⏳ Tasks: Not started/- ✅ Tasks: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "plan")
+            sed -i "s/- ⏳ Plan: Not started/- ✅ Plan: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "code")
+            sed -i "s/- ⏳ Code: Not started/- 🔄 Code: In Progress ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "test")
+            sed -i "s/- ⏳ Test: Not started/- ✅ Test: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+        "deploy")
+            sed -i "s/- ⏳ Deploy: Not started/- ✅ Deploy: Completed ($timestamp)/" docs/#/pipeline.md
+            ;;
+    esac
+    
+    # Update Last Updated timestamp
+    sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
+}
+
+# Example usage when completing a stage:
+# update_stage_status "brainstorm" "completed"
+```
+
 **SAVE PIPELINE STATUS**:
 ```bash
 # Save current pipeline status
