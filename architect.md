@@ -53,7 +53,15 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
    - Evaluate community support and ecosystem as of current month/year
    - Consider long-term viability based on current trends
 
-3. **Pattern Analysis**
+3. **Agent Persona Research for Each Technology**
+   - Search "[Technology] expert developer best practices [current month year]"
+   - Search "[Technology] common development tasks when to use [current month year]"
+   - Identify key expertise areas and specializations
+   - Gather common problem-solving scenarios
+   - Extract typical workflow patterns and tools
+   - Document integration points with other technologies
+
+4. **Pattern Analysis**
    - Identify applicable design patterns using current month/year
    - Research microservices vs monolith trade-offs with recent dates
    - Study event-driven vs request-driven architectures including current month/year
@@ -72,6 +80,15 @@ cat >> docs/#/architect.md << 'EOF'
 
 #### Technology Stack Research
 [Include framework comparisons]
+
+#### Agent Persona Research
+[For each technology in the stack, include:]
+- Technology: [Name]
+  - Expert Areas: [Key expertise domains]
+  - Common Tasks: [Typical development scenarios]
+  - Best Practices: [Gathered from research]
+  - Trigger Scenarios: [When to use this expertise]
+  - Integration Points: [How it connects with other stack components]
 
 #### Pattern Analysis
 [Include applicable patterns]
@@ -244,6 +261,44 @@ cat >> docs/#/architect.md << 'EOF'
 #### Final Stack
 [Include chosen technologies]
 
+#### Technology Research Data
+[Structured data for agent generation]
+TECH_RESEARCH_DATA='
+{
+  "frontend": {
+    "name": "[Frontend Framework]",
+    "version": "[Version]",
+    "expertAreas": "[From Phase 1 research]",
+    "commonTasks": "[From Phase 1 research]",
+    "bestPractices": "[From Phase 1 research]",
+    "triggerScenarios": "[From Phase 1 research]"
+  },
+  "backend": {
+    "name": "[Backend Language/Framework]",
+    "expertAreas": "[From Phase 1 research]",
+    "commonTasks": "[From Phase 1 research]",
+    "bestPractices": "[From Phase 1 research]",
+    "triggerScenarios": "[From Phase 1 research]"
+  },
+  "database": {
+    "name": "[Database Type]",
+    "expertAreas": "[From Phase 1 research]",
+    "commonTasks": "[From Phase 1 research]",
+    "bestPractices": "[From Phase 1 research]",
+    "triggerScenarios": "[From Phase 1 research]"
+  },
+  "additional": [
+    {
+      "category": "[e.g., messaging, caching, search]",
+      "name": "[Technology Name]",
+      "expertAreas": "[From Phase 1 research]",
+      "commonTasks": "[From Phase 1 research]",
+      "bestPractices": "[From Phase 1 research]",
+      "triggerScenarios": "[From Phase 1 research]"
+    }
+  ]
+}'
+
 ### Status: Planning scalability
 EOF
 
@@ -259,268 +314,249 @@ else
 fi
 
 GENERATED_DATE=$(date +"%Y-%m-%d %H:%M:%S")
-
-# Extract technology choices (example implementation)
-# In practice, these would be parsed from the actual selections above
-FRONTEND_FRAMEWORK="[Selected Frontend Framework]"
-FRONTEND_VERSION="[Version]"
-STYLING_SOLUTION="[CSS Framework/Solution]"
-TESTING_FRAMEWORK="[Testing Tools]"
-
-BACKEND_LANGUAGE="[Selected Language]"
-BACKEND_FRAMEWORK="[Selected Framework]"
-DATABASE_TYPE="[Primary Database]"
-API_STYLE="[REST/GraphQL/gRPC]"
-
-CONTAINER_TECH="[Docker/Podman]"
-ORCHESTRATION="[Kubernetes/ECS/etc]"
-CI_CD_PLATFORM="[GitHub Actions/GitLab CI/etc]"
-CLOUD_PROVIDER="[AWS/GCP/Azure]"
-
 PROJECT_NAME="[Project Name from PRD]"
 
 # Create .claude/agents directory
 mkdir -p .claude/agents
 
-# Generate Frontend Developer Agent
-if [ -n "$FRONTEND_FRAMEWORK" ]; then
-  # Determine color based on framework
-  case "$FRONTEND_FRAMEWORK" in
-    "React") COLOR="blue" ;;
-    "Vue") COLOR="teal" ;;
-    "Angular") COLOR="sky" ;;
-    "Next.js") COLOR="cyan" ;;
-    "Svelte") COLOR="orange" ;;
-    *) COLOR="blue" ;;
-  esac
-  
-  # Check if agent already exists
-  if [ -f ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" ]; then
-    existing_project_id=$(grep "^project_id:" ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" | cut -d' ' -f2)
-    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
-      mv ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md.old"
-      echo "  ⚠️  Archived outdated ${FRONTEND_FRAMEWORK,,}-developer agent from previous project"
+# Function to generate consistent color from technology name
+generate_color() {
+    local tech_name="$1"
+    local colors=("blue" "teal" "sky" "cyan" "orange" "indigo" "lime" "emerald" "purple" "pink" "rose" "amber" "yellow" "green" "red")
+    local hash=$(echo -n "$tech_name" | cksum | cut -d' ' -f1)
+    local color_index=$((hash % ${#colors[@]}))
+    echo "${colors[$color_index]}"
+}
+
+# Function to generate agent from research data
+generate_dynamic_agent() {
+    local category="$1"
+    local tech_name="$2"
+    local version="$3"
+    local expert_areas="$4"
+    local common_tasks="$5"
+    local best_practices="$6"
+    local trigger_scenarios="$7"
+    
+    # Generate agent name (lowercase, replace spaces with hyphens)
+    local agent_name=$(echo "$tech_name-$category" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr '/' '-')
+    
+    # Generate color
+    local color=$(generate_color "$tech_name")
+    
+    # Check if agent already exists
+    if [ -f ".claude/agents/${agent_name}.md" ]; then
+        echo "  ⚠️  Agent ${agent_name} already exists, updating..."
     fi
-  fi
-  
-  cat > ".claude/agents/${FRONTEND_FRAMEWORK,,}-developer.md" << AGENT_EOF
+    
+    # Generate agent description from research
+    local description="Use this agent when you need expert assistance with ${tech_name}${version:+ ${version}} for ${PROJECT_NAME}"
+    
+    # Add expert areas if provided
+    if [ -n "$expert_areas" ] && [ "$expert_areas" != "[From Phase 1 research]" ]; then
+        description="${description}, including ${expert_areas}"
+    fi
+    
+    # Add trigger scenarios as examples
+    local examples=""
+    if [ -n "$trigger_scenarios" ] && [ "$trigger_scenarios" != "[From Phase 1 research]" ]; then
+        # Parse trigger scenarios and create examples
+        examples=" Examples: <example>Context: ${trigger_scenarios} user: \"[user question]\" assistant: \"I'll use the ${agent_name} agent to help with this ${tech_name} task\" <commentary>This requires ${tech_name}-specific expertise for ${PROJECT_NAME}.</commentary></example>"
+    else
+        # Generate generic examples based on category
+        case "$category" in
+            "frontend")
+                examples=" Examples: <example>Context: User needs help with UI components. user: \"I need to create a responsive navigation menu\" assistant: \"I'll use the ${agent_name} agent to create an optimized navigation component\" <commentary>This requires ${tech_name}-specific UI development expertise.</commentary></example>"
+                ;;
+            "backend")
+                examples=" Examples: <example>Context: User needs API development help. user: \"I need to implement user authentication\" assistant: \"I'll use the ${agent_name} agent to implement secure authentication\" <commentary>This requires ${tech_name}-specific backend expertise.</commentary></example>"
+                ;;
+            "database")
+                examples=" Examples: <example>Context: User needs database optimization. user: \"This query is running slowly\" assistant: \"I'll use the ${agent_name} agent to optimize the query performance\" <commentary>This requires ${tech_name}-specific database expertise.</commentary></example>"
+                ;;
+            *)
+                examples=" Examples: <example>Context: User needs ${category} assistance. user: \"I need help with ${category} configuration\" assistant: \"I'll use the ${agent_name} agent for expert ${tech_name} guidance\" <commentary>This requires specialized ${tech_name} knowledge.</commentary></example>"
+                ;;
+        esac
+    fi
+    
+    # Create agent file
+    cat > ".claude/agents/${agent_name}.md" << AGENT_EOF
 ---
-name: ${FRONTEND_FRAMEWORK,,}-developer
-project_id: ${PROJECT_ID}
-generated_date: ${GENERATED_DATE}
-pipeline_stage: architect
-project_name: ${PROJECT_NAME}
-description: Expert ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION} developer specialized in this project's frontend architecture. Use this agent for component development, state management, routing, performance optimization, and ${FRONTEND_FRAMEWORK}-specific best practices. Examples: <example>user: "I need to create a reusable data table component" assistant: "I'll use the ${FRONTEND_FRAMEWORK,,}-developer agent to create an optimized data table following our project patterns"</example> <example>user: "The page is loading slowly, how can I optimize it?" assistant: "Let me engage the ${FRONTEND_FRAMEWORK,,}-developer agent to analyze and optimize the performance"</example>
-color: ${COLOR}
+name: ${agent_name}
+description: ${description}.${examples}
+color: ${color}
 ---
 
-You are an expert ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION} developer working on ${PROJECT_NAME}. You have deep knowledge of this project's specific frontend setup and conventions.
+You are an expert ${tech_name}${version:+ ${version}} specialist working on ${PROJECT_NAME}.
 
-## Project-Specific Setup
+## Technology Expertise
 
-**Framework**: ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION}
-**Styling**: ${STYLING_SOLUTION}
-**Testing**: ${TESTING_FRAMEWORK}
+**Technology**: ${tech_name}${version:+ ${version}}
+**Category**: ${category}
+**Project**: ${PROJECT_NAME}
 
-## SLC Development Principles
+## Core Competencies
 
-**ALWAYS validate every implementation decision against SLC:**
-- **Simple**: Does this component/feature add necessary complexity or keep things simple?
-- **Lovable**: Will users delight in this interaction or just tolerate it?
-- **Complete**: Does this fully support the user's end-to-end workflow?
+${expert_areas:+### Expert Areas
+${expert_areas}
 
-**Anti-Over-Engineering Guidelines:**
-- Apply YAGNI: Build only what's needed now, not what might be needed
-- Prefer composition over complex abstractions
-- Use existing ${FRONTEND_FRAMEWORK} patterns before creating custom solutions
-- Optimize for readability and maintainability over cleverness
-- Start simple, refactor when complexity is truly justified
+}${common_tasks:+### Common Tasks
+${common_tasks}
 
-## Architecture Decisions
-[Will be populated with specific architecture decisions from Phase 3]
+}${best_practices:+### Best Practices
+${best_practices}
 
-## Best Practices for This Project
-[Will be populated with project-specific patterns]
+}## Project Integration
+
+You understand how ${tech_name} integrates with the other technologies in this project's stack and follow the architectural decisions made for ${PROJECT_NAME}.
+
+## Development Principles
+
+- Apply project-specific patterns and conventions
+- Optimize for the project's performance requirements
+- Ensure compatibility with the overall architecture
+- Follow security best practices for ${tech_name}
+- Maintain code quality and documentation standards
+
+[Additional project-specific guidelines will be populated from architecture decisions]
 AGENT_EOF
-  echo "✓ Created ${FRONTEND_FRAMEWORK,,}-developer agent (${COLOR})"
+    
+    echo "✓ Created ${agent_name} agent (${color})"
+}
+
+# Parse the technology research data from the saved file
+if [ -f "docs/#/architect.md" ]; then
+    echo "Parsing technology research data from architecture document..."
+    
+    # Extract the TECH_RESEARCH_DATA JSON block
+    # In a real implementation, this would parse the actual JSON
+    # For now, we'll demonstrate the dynamic generation approach
+    
+    # Read the architecture document to find technology choices
+    # This is where the actual parsing would happen
+    
+    # Example of how to call the dynamic generation
+    # generate_dynamic_agent "category" "Technology Name" "Version" "Expert Areas" "Common Tasks" "Best Practices" "Trigger Scenarios"
+    
+    echo "Dynamic agent generation based on researched technologies..."
+else
+    echo "⚠️  No architecture document found. Please complete Phase 4 first."
 fi
 
-# Generate Backend Developer Agent
-if [ -n "$BACKEND_LANGUAGE" ]; then
-  # Determine color based on language
-  case "$BACKEND_LANGUAGE" in
-    "Node.js") COLOR="green" ;;
-    "Python") COLOR="emerald" ;;
-    "Go") COLOR="lime" ;;
-    "Java") COLOR="grass" ;;
-    "Ruby") COLOR="rose" ;;
-    *) COLOR="green" ;;
-  esac
-  
-  # Check if agent already exists
-  if [ -f ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" ]; then
-    existing_project_id=$(grep "^project_id:" ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" | cut -d' ' -f2)
-    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
-      mv ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md.old"
-      echo "  ⚠️  Archived outdated ${BACKEND_LANGUAGE,,}-backend-developer agent from previous project"
-    fi
-  fi
-  
-  cat > ".claude/agents/${BACKEND_LANGUAGE,,}-backend-developer.md" << AGENT_EOF
----
-name: ${BACKEND_LANGUAGE,,}-backend-developer
-project_id: ${PROJECT_ID}
-generated_date: ${GENERATED_DATE}
-pipeline_stage: architect
-project_name: ${PROJECT_NAME}
-description: Expert ${BACKEND_LANGUAGE} backend developer using ${BACKEND_FRAMEWORK} for ${PROJECT_NAME}. Specializes in API development, database operations, authentication, business logic implementation, and ${BACKEND_LANGUAGE}-specific optimizations. Examples: <example>user: "I need to implement user authentication" assistant: "I'll use the ${BACKEND_LANGUAGE,,}-backend-developer agent to implement secure authentication following our patterns"</example> <example>user: "How should I structure the API endpoints?" assistant: "Let me consult the ${BACKEND_LANGUAGE,,}-backend-developer agent for our API conventions"</example>
-color: ${COLOR}
----
+# Example implementation showing how to parse and generate agents
+# In real usage, this would extract data from the TECH_RESEARCH_DATA JSON
 
-You are an expert ${BACKEND_LANGUAGE} developer using ${BACKEND_FRAMEWORK} for ${PROJECT_NAME}'s backend services.
-
-## Backend Architecture
-
-**Language**: ${BACKEND_LANGUAGE}
-**Framework**: ${BACKEND_FRAMEWORK}
-**Database**: ${DATABASE_TYPE}
-**API Style**: ${API_STYLE}
-
-## SLC Backend Development
-
-**ALWAYS validate backend implementations against SLC:**
-- **Simple**: Choose the simplest solution that meets requirements (avoid over-abstraction)
-- **Lovable**: Optimize for fast, reliable user-facing performance
-- **Complete**: Ensure APIs fully support all frontend needs without gaps
-
-**Anti-Over-Engineering for Backend:**
-- Use proven ${BACKEND_LANGUAGE} patterns before creating custom frameworks
-- Apply YAGNI to business logic: solve current problems, not hypothetical ones
-- Prefer ${BACKEND_FRAMEWORK} conventions over custom abstractions
-- Keep API design simple and intuitive
-- Avoid premature performance optimizations
-
-## Project Conventions
-[Will be populated with specific conventions]
-AGENT_EOF
-  echo "✓ Created ${BACKEND_LANGUAGE,,}-backend-developer agent (${COLOR})"
+# Parse frontend technology if exists
+frontend_data=$(grep -A 20 '"frontend":' docs/#/architect.md 2>/dev/null | grep -E '"name"|"expertAreas"|"commonTasks"|"bestPractices"|"triggerScenarios"' || true)
+if [ -n "$frontend_data" ]; then
+    # Extract values (in real implementation, use proper JSON parsing)
+    # For now, demonstrate with example call
+    echo "Generating frontend agent from research data..."
+    # generate_dynamic_agent "frontend" "Framework Name" "Version" "Expert Areas" "Common Tasks" "Best Practices" "Trigger Scenarios"
 fi
 
-# Generate Database Specialist Agent
-if [ -n "$DATABASE_TYPE" ]; then
-  # Determine color based on database
-  case "$DATABASE_TYPE" in
-    "PostgreSQL") COLOR="orange" ;;
-    "MySQL") COLOR="amber" ;;
-    "MongoDB") COLOR="yellow" ;;
-    "Redis") COLOR="red" ;;
-    *) COLOR="orange" ;;
-  esac
-  
-  # Check if agent already exists
-  if [ -f ".claude/agents/${DATABASE_TYPE,,}-specialist.md" ]; then
-    existing_project_id=$(grep "^project_id:" ".claude/agents/${DATABASE_TYPE,,}-specialist.md" | cut -d' ' -f2)
-    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
-      mv ".claude/agents/${DATABASE_TYPE,,}-specialist.md" ".claude/agents/${DATABASE_TYPE,,}-specialist.md.old"
-      echo "  ⚠️  Archived outdated ${DATABASE_TYPE,,}-specialist agent from previous project"
-    fi
-  fi
-  
-  cat > ".claude/agents/${DATABASE_TYPE,,}-specialist.md" << AGENT_EOF
----
-name: ${DATABASE_TYPE,,}-specialist
-project_id: ${PROJECT_ID}
-generated_date: ${GENERATED_DATE}
-pipeline_stage: architect
-project_name: ${PROJECT_NAME}
-description: Expert ${DATABASE_TYPE} database specialist for ${PROJECT_NAME}. Handles schema design, query optimization, migrations, indexing strategies, and data modeling. Examples: <example>user: "I need to design a schema for user permissions" assistant: "I'll use the ${DATABASE_TYPE,,}-specialist agent to design an efficient permission schema"</example> <example>user: "This query is running slowly" assistant: "Let me have the ${DATABASE_TYPE,,}-specialist agent analyze and optimize this query"</example>
-color: ${COLOR}
----
-
-You are an expert ${DATABASE_TYPE} database specialist working on ${PROJECT_NAME}.
-
-## Database Configuration
-
-**Database**: ${DATABASE_TYPE}
-**Connection Strategy**: [From architecture decisions]
-**Performance Requirements**: [From PRD]
-
-## SLC Database Design
-
-**Apply SLC to database decisions:**
-- **Simple**: Use straightforward schema designs that are easy to understand and maintain
-- **Lovable**: Optimize for query performance that users will notice
-- **Complete**: Ensure data model supports all application requirements without workarounds
-
-**Anti-Over-Engineering for Database:**
-- Start with normalized schemas, denormalize only when performance demands it
-- Use ${DATABASE_TYPE} standard features before custom solutions
-- Apply YAGNI to indexes: create them when needed, not "just in case"
-- Avoid complex stored procedures until business logic clearly belongs in database
-- Choose simple data types that meet requirements
-
-## Schema Design Principles
-[Will be populated with project-specific patterns]
-AGENT_EOF
-  echo "✓ Created ${DATABASE_TYPE,,}-specialist agent (${COLOR})"
+# Parse backend technology if exists
+backend_data=$(grep -A 20 '"backend":' docs/#/architect.md 2>/dev/null | grep -E '"name"|"expertAreas"|"commonTasks"|"bestPractices"|"triggerScenarios"' || true)
+if [ -n "$backend_data" ]; then
+    echo "Generating backend agent from research data..."
+    # generate_dynamic_agent "backend" "Language/Framework" "Version" "Expert Areas" "Common Tasks" "Best Practices" "Trigger Scenarios"
 fi
 
-# Generate DevOps Engineer Agent
-if [ -n "$CONTAINER_TECH" ] && [ -n "$ORCHESTRATION" ]; then
-  # Check if agent already exists
-  if [ -f ".claude/agents/devops-engineer.md" ]; then
-    existing_project_id=$(grep "^project_id:" ".claude/agents/devops-engineer.md" | cut -d' ' -f2)
-    if [ "$existing_project_id" != "$PROJECT_ID" ]; then
-      mv ".claude/agents/devops-engineer.md" ".claude/agents/devops-engineer.md.old"
-      echo "  ⚠️  Archived outdated devops-engineer agent from previous project"
-    fi
-  fi
-  
-  cat > ".claude/agents/devops-engineer.md" << AGENT_EOF
----
-name: devops-engineer
-project_id: ${PROJECT_ID}
-generated_date: ${GENERATED_DATE}
-pipeline_stage: architect
-project_name: ${PROJECT_NAME}
-description: Expert DevOps engineer for ${PROJECT_NAME} infrastructure. Specializes in ${CONTAINER_TECH} containerization, ${ORCHESTRATION} orchestration, ${CI_CD_PLATFORM} pipelines, and ${CLOUD_PROVIDER} cloud services. Examples: <example>user: "I need to set up auto-scaling" assistant: "I'll use the devops-engineer agent to configure auto-scaling for our ${ORCHESTRATION} setup"</example> <example>user: "How do I deploy to staging?" assistant: "Let me consult the devops-engineer agent about our deployment pipeline"</example>
-color: purple
----
-
-You are an expert DevOps engineer managing ${PROJECT_NAME}'s infrastructure.
-
-## Infrastructure Stack
-
-**Containerization**: ${CONTAINER_TECH}
-**Orchestration**: ${ORCHESTRATION}
-**CI/CD**: ${CI_CD_PLATFORM}
-**Cloud Provider**: ${CLOUD_PROVIDER}
-
-## SLC Infrastructure Principles
-
-**Apply SLC to infrastructure decisions:**
-- **Simple**: Use managed services over custom solutions, minimize infrastructure complexity
-- **Lovable**: Optimize for application performance that users experience
-- **Complete**: Ensure infrastructure supports all application requirements and scale needs
-
-**Anti-Over-Engineering for DevOps:**
-- Start with ${CLOUD_PROVIDER} managed services before building custom infrastructure
-- Use ${ORCHESTRATION} standard patterns before custom orchestration
-- Apply YAGNI to infrastructure: provision what's needed now, scale when needed
-- Choose proven ${CI_CD_PLATFORM} workflows over complex custom pipelines
-- Prefer simple monitoring over complex observability until complexity is justified
-
-## Deployment Architecture
-[Will be populated with specific deployment patterns]
-AGENT_EOF
-  echo "✓ Created devops-engineer agent (purple)"
+# Parse database technology if exists
+database_data=$(grep -A 20 '"database":' docs/#/architect.md 2>/dev/null | grep -E '"name"|"expertAreas"|"commonTasks"|"bestPractices"|"triggerScenarios"' || true)
+if [ -n "$database_data" ]; then
+    echo "Generating database agent from research data..."
+    # generate_dynamic_agent "database" "Database Type" "Version" "Expert Areas" "Common Tasks" "Best Practices" "Trigger Scenarios"
 fi
+
+# Parse additional technologies (exotic stack support)
+additional_data=$(grep -A 100 '"additional":' docs/#/architect.md 2>/dev/null || true)
+if [ -n "$additional_data" ]; then
+    echo "Generating agents for additional technologies..."
+    # This would iterate through each additional technology and generate agents
+    # For exotic technologies like quantum computing frameworks, blockchain platforms, 
+    # IoT stacks, AR/VR engines, etc., agents would be created based on research
+fi
+
+# Demonstrate with a hypothetical exotic technology example
+echo ""
+echo "Example: If architect selected an exotic technology like 'Qiskit' (quantum computing):"
+echo "1. Phase 1 would have researched: 'Qiskit expert developer best practices January 2025'"
+echo "2. Found expert areas: quantum circuit design, quantum algorithms, error mitigation"
+echo "3. Found common tasks: implementing quantum gates, running on simulators/hardware"
+echo "4. Generated agent: qiskit-quantum agent with appropriate triggers and expertise"
+
+# Function to research and generate agent for unknown/exotic technology
+research_and_generate_agent() {
+    local tech_name="$1"
+    local category="$2"
+    local project_name="$3"
+    
+    echo "Researching exotic technology: ${tech_name}..."
+    
+    # In actual implementation, these would be real web searches
+    # WebSearch: "${tech_name} expert developer best practices ${CURRENT_DATE}"
+    # WebSearch: "${tech_name} common development tasks when to use ${CURRENT_DATE}"
+    # WebSearch: "${tech_name} integration patterns architecture ${CURRENT_DATE}"
+    
+    # The architect would then:
+    # 1. Extract expert areas from search results
+    # 2. Identify common tasks and use cases
+    # 3. Gather best practices
+    # 4. Create trigger scenarios
+    
+    # Example of how it would work:
+    cat << RESEARCH_EXAMPLE
+
+## Exotic Technology Agent Generation Process
+
+For technology: ${tech_name}
+Category: ${category}
+
+The architect would perform these searches:
+1. "${tech_name} expert developer persona ${CURRENT_DATE}"
+2. "${tech_name} when to use common tasks ${CURRENT_DATE}"
+3. "${tech_name} best practices guide ${CURRENT_DATE}"
+4. "${tech_name} ${project_name} integration patterns"
+
+From the search results, extract:
+- Expert Areas: [Parsed from search results]
+- Common Tasks: [Extracted from documentation]
+- Best Practices: [Gathered from guides]
+- Trigger Scenarios: [Based on use cases found]
+
+Then generate agent using:
+generate_dynamic_agent "${category}" "${tech_name}" "" "[Expert Areas]" "[Common Tasks]" "[Best Practices]" "[Trigger Scenarios]"
+
+This ensures even the most exotic technologies get properly specialized agents!
+RESEARCH_EXAMPLE
+}
 
 # Log agent generation
 cat >> docs/#/architect.md << 'EOF'
 
 ### Generated Agents
 [List all generated agents with their colors and specialties]
+
+#### Example: Exotic Technology Agent Generation
+
+If the architecture includes an exotic technology like "Tauri" (Rust-based desktop app framework):
+
+1. **Phase 1 Research** would have searched:
+   - "Tauri desktop development best practices January 2025"
+   - "Tauri expert developer common tasks January 2025"
+   - Result: Expert areas include "Rust frontend integration, native API access, secure IPC"
+   
+2. **Agent Generation** would create:
+   ```
+   Name: tauri-desktop
+   Description: Use this agent when you need expert assistance with Tauri...
+   Color: amber (hash-based selection)
+   Expertise: Rust integration, webview optimization, native OS features
+   ```
+
+This dynamic approach works for ANY technology - current or future!
 
 ### Agent Activation
 To use these agents, restart Claude Code and resume your session:

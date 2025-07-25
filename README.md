@@ -283,7 +283,30 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>11. <strong>help.md</strong> - Command Reference and Guide</h3></summary>
+<summary><h3>11. <strong>generate-agent.md</strong> - Dynamic Agent Generation</h3></summary>
+
+**Purpose**: Creates specialized expert agents for any technology, framework, or tool through research-based generation.
+
+**Key Features**:
+
+- Research-driven agent creation
+- Works with any technology (current, exotic, or future)
+- Auto-detects technology category
+- Hash-based color assignment
+- Generates trigger scenarios from real use cases
+
+**How to Use**:
+
+```
+/#:generate-agent Qiskit 2026
+/#:generate-agent Tauri 2.0 desktop
+/#:generate-agent "Exotic Framework X"
+```
+
+</details>
+
+<details>
+<summary><h3>12. <strong>help.md</strong> - Command Reference and Guide</h3></summary>
 
 **Purpose**: Provides comprehensive help and guidance for all Hash Prompts commands and workflows.
 
