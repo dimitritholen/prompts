@@ -13,6 +13,13 @@ The name "Hash Prompts" comes from our unique command syntax `/#:` where:
 
 This creates commands like `/#:brainstorm` and `/#:architect` that are easy to type and remember while avoiding conflicts with other command systems.
 
+**Key Features**:
+- 🚀 Complete development pipeline from idea to deployment
+- 🤖 Automatic generation of project-specific AI agents
+- 📁 Persistent file outputs for cross-session continuity
+- 🛡️ Built-in SLC (Simple, Lovable, Complete) framework to prevent over-engineering
+- 🔄 Seamless workflow orchestration with quality gates
+
 ## Quick Installation
 
 ### Option 1: One-Line Install (Recommended)
@@ -56,6 +63,8 @@ Hash Prompts installs commands under the `#` namespace, giving you access to:
 - `/#:help` - Display command reference and workflows
 
 Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
+
+**Additionally**: As you use Hash Prompts, it automatically generates specialized AI agents tailored to your project's technology stack and requirements. These agents are stored in `.claude/agents/` and become experts in your specific project context.
 
 ## Available Prompts
 
@@ -267,6 +276,92 @@ Or for specific command help:
 ```
 /#:help brainstorm
 ```
+
+## 🤖 Automatic Agent Generation
+
+Hash Prompts automatically generates specialized AI agents tailored to your specific project as you progress through the pipeline. These agents become experts in your project's technology stack, conventions, and requirements.
+
+### What Are Project Agents?
+
+Project agents are specialized AI assistants that deeply understand your specific project context. They are automatically generated and stored in `.claude/agents/` as you use Hash Prompts commands.
+
+### When Agents Are Generated
+
+Agents are created at different pipeline stages based on your project's needs:
+
+#### **PRD Stage** - Domain & Business Agents
+- **Domain Expert**: Specialized knowledge for your industry (e.g., e-commerce, healthcare, fintech)
+- **Product Manager**: Product strategy and feature prioritization
+- **UX Designer**: User experience and interface design (for UI-focused projects)
+- **Compliance Officer**: Regulatory and compliance requirements (when applicable)
+
+#### **Architect Stage** - Technology Stack Agents
+- **Frontend Developer**: Expert in your chosen framework (React, Vue, Angular, etc.)
+- **Backend Developer**: Specialist in your backend language and framework
+- **Database Specialist**: Expert in your database technology (PostgreSQL, MongoDB, etc.)
+- **DevOps Engineer**: Infrastructure, CI/CD, and deployment specialist
+
+#### **Tasks Stage** - Quality & Convention Agents
+- **Code Reviewer**: Enforces your project's coding standards and best practices
+- **Test Engineer**: Ensures comprehensive testing with your test frameworks
+- **Documentation Writer**: Maintains consistent, high-quality documentation
+- **Security Engineer**: Reviews code for vulnerabilities and security best practices
+- **Performance Optimizer**: Focuses on speed and efficiency (when performance is critical)
+
+### How Agents Work
+
+1. **Automatic Generation**: Agents are created automatically as you progress through the pipeline
+2. **Project-Specific Knowledge**: Each agent understands your specific:
+   - Technology choices
+   - Coding conventions
+   - Architecture decisions
+   - Business requirements
+   - Performance targets
+
+3. **SLC Principles**: All agents enforce the Simple, Lovable, Complete framework:
+   - Prevent over-engineering
+   - Apply YAGNI (You Aren't Gonna Need It) principles
+   - Focus on user value over technical complexity
+
+4. **Color-Coded**: Each agent has a unique color for easy identification in your IDE
+
+### Example Agent Usage
+
+After running through the pipeline, you might have agents like:
+
+```bash
+.claude/agents/
+├── react-developer.md        # Expert in your React setup (blue)
+├── nodejs-backend-developer.md # Node.js API specialist (green)
+├── postgresql-specialist.md   # Database expert (orange)
+├── code-reviewer.md          # Enforces standards (crimson)
+├── test-engineer.md          # Testing expert (rose)
+└── devops-engineer.md        # Infrastructure specialist (purple)
+```
+
+You can then use these agents in your development:
+```
+"I need to create a new user dashboard component"
+→ The react-developer agent provides component code following your project patterns
+
+"How should I optimize this database query?"
+→ The postgresql-specialist agent suggests optimizations specific to your schema
+
+"Review this pull request"
+→ The code-reviewer agent checks against your project's standards
+```
+
+### Agent Lifecycle Management
+
+Hash Prompts includes commands to manage your agents:
+
+```bash
+/#:pipeline agents          # List all project agents
+/#:pipeline agents clean    # Remove outdated agents
+/#:pipeline agents validate # Check agent consistency
+```
+
+Agents are tied to your project ID and automatically archived when you start a new project, preventing confusion between different projects.
 
 ## Complete Development Pipeline
 
