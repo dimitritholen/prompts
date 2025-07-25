@@ -757,7 +757,16 @@ cat >> docs/#/tasks.md << 'EOF'
 
 ### Generated Convention Agents
 [List all generated quality and convention agents with their specialties]
+
+### Agent Activation
+To use these agents in your current Claude Code session, run:
+```
+/reload
+```
 EOF
 
 echo "Convention and quality agent generation complete!"
+echo ""
+echo "🔄 IMPORTANT: Run '/reload' in Claude Code to activate the new agents in your current session."
+echo ""
 ```

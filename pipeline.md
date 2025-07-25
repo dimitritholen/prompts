@@ -59,12 +59,14 @@ fi
 ## Core Principles
 
 1. **End-to-End Vision**: See the complete journey from idea to production
-2. **Seamless Handoffs**: Ensure smooth transitions between phases
-3. **Context Preservation**: Maintain project knowledge across stages
-4. **Quality Gates**: Enforce standards at each transition
-5. **Adaptive Workflow**: Adjust pipeline based on project needs
-6. **Continuous Feedback**: Learn and improve the pipeline
-7. **Documentation Flow**: Keep documentation current throughout
+2. **Automatic Agent Generation**: Creates specialized AI agents at each stage
+3. **Agent Activation**: Run `/reload` after agent generation to use them immediately
+4. **Seamless Handoffs**: Ensure smooth transitions between phases
+5. **Context Preservation**: Maintain project knowledge across stages
+6. **Quality Gates**: Enforce standards at each transition
+7. **Adaptive Workflow**: Adjust pipeline based on project needs
+8. **Continuous Feedback**: Learn and improve the pipeline
+9. **Documentation Flow**: Keep documentation current throughout
 
 ## Pipeline Overview
 
@@ -160,12 +162,14 @@ flowchart TB
    - Success metrics definition
    - User journey mapping
    - Technical requirements
+   - **Generates domain-specific agents**
 
 **Exit Criteria**:
 - Complete PRD document
 - Acceptance criteria defined
 - Success metrics established
 - Stakeholder alignment
+- Domain agents created (run `/reload` to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -200,12 +204,14 @@ flowchart TB
    - Technology selection
    - Scalability planning
    - Security architecture
+   - **Generates tech stack agents**
 
 **Exit Criteria**:
 - Architecture documentation complete
 - Technology stack defined
 - Component design finalized
 - Risk mitigation planned
+- Tech stack agents created (run `/reload` to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -237,6 +243,7 @@ flowchart TB
 1. **Invoke Tasks Mode**
    - Break down into atomic tasks
    - Define dependencies
+   - **Generates quality & convention agents**
    - Estimate effort
    - Identify required resources
 
@@ -245,6 +252,7 @@ flowchart TB
 - Dependencies mapped
 - Timeline estimated
 - Resources identified
+- Quality & convention agents created (run `/reload` to activate)
 
 **Handoff to Next Stage**:
 ```markdown
@@ -1053,6 +1061,20 @@ if [ -d ".claude/agents" ] && [ "$(ls -A .claude/agents 2>/dev/null)" ]; then
     echo "### Quality Agents" >> docs/#/pipeline.md
     ls .claude/agents/code-reviewer.md .claude/agents/test-engineer.md .claude/agents/documentation-writer.md .claude/agents/security-engineer.md .claude/agents/performance-optimizer.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' >> docs/#/pipeline.md || echo "None yet" >> docs/#/pipeline.md
     
+    echo "" >> docs/#/pipeline.md
+    echo "### 🔄 Agent Activation" >> docs/#/pipeline.md
+    echo "To use these agents in your current Claude Code session, run:" >> docs/#/pipeline.md
+    echo '```' >> docs/#/pipeline.md
+    echo "/reload" >> docs/#/pipeline.md
+    echo '```' >> docs/#/pipeline.md
+    
     echo "---" >> docs/#/pipeline.md
+    
+    # Display reload reminder if new agents were just generated
+    if [ "$AGENTS_GENERATED" = "true" ]; then
+        echo ""
+        echo "🔄 IMPORTANT: New agents have been generated! Run '/reload' in Claude Code to activate them."
+        echo ""
+    fi
 fi
 ```

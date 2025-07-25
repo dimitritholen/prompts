@@ -578,9 +578,18 @@ cat >> docs/#/prd.md << 'EOF'
 
 ### Generated Domain Agents
 [List all generated domain-specific agents with their specialties]
+
+### Agent Activation
+To use these agents in your current Claude Code session, run:
+```
+/reload
+```
 EOF
 
 echo "Domain agent generation complete!"
+echo ""
+echo "🔄 IMPORTANT: Run '/reload' in Claude Code to activate the new agents in your current session."
+echo ""
 ```
 
 ## Key Principles

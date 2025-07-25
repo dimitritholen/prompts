@@ -521,9 +521,18 @@ cat >> docs/#/architect.md << 'EOF'
 
 ### Generated Agents
 [List all generated agents with their colors and specialties]
+
+### Agent Activation
+To use these agents in your current Claude Code session, run:
+```
+/reload
+```
 EOF
 
 echo "Agent generation complete! Run 'ls .claude/agents/' to see all generated agents."
+echo ""
+echo "🔄 IMPORTANT: Run '/reload' in Claude Code to activate the new agents in your current session."
+echo ""
 ```
 
 ### Phase 5: Scalability and Performance
