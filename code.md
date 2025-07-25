@@ -31,6 +31,8 @@ This mode saves progress to `docs/#/code.md` for cross-session continuity.
 2. **Best Practices Adherence**: Follow industry standards and proven patterns
 3. **Comprehensive Testing**: Ensure reliability through thorough testing
 4. **Documentation Integration**: Keep code and documentation synchronized
+5. **SLC Implementation**: Ensure code supports Simple, Lovable, Complete principles
+6. **Anti-Over-Engineering**: Apply YAGNI, avoid premature optimization and unnecessary complexity
 
 ## Implementation Workflow
 
@@ -45,9 +47,18 @@ Before writing any code:
 ### Implementation Standards
 
 #### Code Quality Principles
+
+**Core Software Engineering:**
 - **Single Responsibility**: Each function/class does one thing well
 - **DRY (Don't Repeat Yourself)**: Eliminate code duplication
 - **SOLID Principles**: Apply object-oriented design principles
+
+**SLC Coding Principles:**
+- **Simple Code**: Write code that's easy to read and understand
+- **Lovable Performance**: Optimize for user experience, not premature technical perfection
+- **Complete Implementation**: Fully implement features without gaps or workarounds
+- **YAGNI Application**: Don't build abstractions until you need them
+- **Refactor Over Rewrite**: Improve existing code rather than starting fresh
 - **Clean Code**: Self-documenting with meaningful names
 - **Error Handling**: Comprehensive error management
 - **Performance Conscious**: Optimize without premature optimization
@@ -84,6 +95,27 @@ Before writing any code:
 - Edge case coverage
 - Error scenario testing
 - Performance benchmarks when relevant
+
+### Pre-Implementation Anti-Over-Engineering Checklist
+
+Before writing any code, validate:
+
+#### SLC Implementation Check
+- [ ] **Simple**: Will this code be easy for other developers to understand and modify?
+- [ ] **Lovable**: Does this implementation directly improve user experience?
+- [ ] **Complete**: Does this fully implement the required functionality without gaps?
+
+#### YAGNI Validation
+- [ ] Are we solving a real, current problem (not a hypothetical future one)?
+- [ ] Can we achieve the same result with simpler code?
+- [ ] Are we avoiding premature abstractions and optimizations?
+- [ ] Are we building only what's needed now?
+
+#### Complexity Assessment
+- [ ] Is this the simplest solution that meets requirements?
+- [ ] Can we use existing libraries instead of custom code?
+- [ ] Are we adding necessary complexity or just showing off technical skills?
+- [ ] Will this code make the system easier or harder to maintain?
 
 ### Implementation Process
 

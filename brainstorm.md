@@ -361,6 +361,83 @@ cat >> docs/#/brainstorm.md << 'EOF'
 EOF
 ```
 
+### Phase 4b: SLC Validation & Scope Control
+
+Before creating the PRD, validate against SLC (Simple, Lovable, Complete) principles to prevent over-engineering:
+
+#### SLC Assessment
+
+**Simple Test**:
+- Can the core idea be explained in one sentence?
+- Does the solution remove barriers rather than add complexity?
+- Will new users understand the value within 5 minutes?
+- Rate Simplicity: [1-5 score with reasoning]
+
+**Lovable Test**:
+- Will users genuinely love this, not just tolerate it?
+- Does this solve a real pain point effectively?
+- Would users recommend this to others?
+- Rate Lovability: [1-5 score with reasoning]
+
+**Complete Test**:
+- Does this fully solve the core problem?
+- Can users accomplish their main goal end-to-end?
+- Are there any critical gaps in the core workflow?
+- Rate Completeness: [1-5 score with reasoning]
+
+#### Feature Necessity Validation
+
+Apply the 80/20 rule to identify core vs. nice-to-have features:
+
+**Core Features (20% that deliver 80% of value)**:
+- [List only essential features for core user journey]
+- Each feature must score 4+ on all SLC dimensions
+
+**Potential Feature Creep Risks**:
+- [Identify features that sound good but may add unnecessary complexity]
+- [Note any "because competitors have it" thinking]
+- [Flag any "we might need this later" features]
+
+#### Scope Boundaries
+
+**Explicitly IN Scope**:
+- [Define clear boundaries using SLC criteria]
+
+**Explicitly OUT of Scope** (for initial version):
+- [Create "Not Now" list for future consideration]
+- [Include reasons why each is excluded]
+
+#### Anti-Over-Engineering Checks
+
+- [ ] Can the core problem be solved more simply?
+- [ ] Are we building only what users explicitly need?
+- [ ] Does every proposed feature pass the SLC test?
+- [ ] Have we removed any unnecessary complexity?
+- [ ] Are we solving real problems, not hypothetical ones?
+
+**SAVE PHASE 4B OUTPUT**:
+```bash
+# Save SLC validation
+cat >> docs/#/brainstorm.md << 'EOF'
+
+### Phase 4b: SLC Validation & Scope Control
+#### SLC Assessment
+- Simple Score: [Score]/5 - [Reasoning]
+- Lovable Score: [Score]/5 - [Reasoning]
+- Complete Score: [Score]/5 - [Reasoning]
+
+#### Core Features (SLC Validated)
+[List only features scoring 4+ on all SLC dimensions]
+
+#### Scope Boundaries
+**IN Scope**: [Essential features only]
+**OUT of Scope**: [Nice-to-have features deferred]
+
+#### Anti-Over-Engineering Validation
+[Confirm all checks passed]
+EOF
+```
+
 ### Phase 5: Junior-Developer-Friendly PRD Creation
 **ALWAYS:**
 - Use clear, jargon-free language
@@ -514,6 +591,10 @@ EOF
 - [ ] Completed at least 5 research queries?
 - [ ] Provided honest viability score with reasoning?
 - [ ] Suggested at least 3 pivot options?
+- [ ] Conducted SLC validation with scores?
+- [ ] Applied 80/20 rule to identify core features?
+- [ ] Defined clear scope boundaries (in/out)?
+- [ ] Passed all anti-over-engineering checks?
 - [ ] Created PRD with code examples?
 - [ ] Included step-by-step implementation guide?
 - [ ] Added testing checklists for each feature?

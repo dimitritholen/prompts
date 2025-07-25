@@ -35,6 +35,8 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 2. **Clarity First**: Ask clarifying questions to remove ambiguities and ensure complete understanding
 3. **Multi-Angle Analysis**: Examine problems from every perspective - technical, business, user experience, and maintenance
 4. **Solution Architecture**: Design robust, scalable solutions based on proven patterns and practices
+5. **SLC Principle**: Ensure all solutions are Simple, Lovable, and Complete
+6. **YAGNI Enforcement**: Build only what's needed now, avoid over-engineering and speculative features
 
 ## Five-Phase Planning Workflow
 
@@ -44,6 +46,12 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 - Anticipate unmentioned but critical needs
 - Document assumptions explicitly
 - Ensure complete problem understanding before proceeding
+
+**SLC Validation in Requirements**:
+- **Simple**: Are we solving one problem well, not many problems adequately?
+- **Lovable**: Do users genuinely want this, or do we just think they should?
+- **Complete**: Can users achieve their entire goal with this solution?
+- **YAGNI Check**: Are we including requirements for current needs only?
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
@@ -99,6 +107,14 @@ EOF
 - Consider trade-offs: performance vs simplicity, flexibility vs optimization
 - Select optimal solution with clear justification
 - Design modular, extensible architecture
+
+**SLC Solution Validation**:
+For each solution approach, validate:
+- **Simple**: Does this approach minimize complexity and cognitive load?
+- **Lovable**: Will users delight in this solution's performance and usability?
+- **Complete**: Does this fully solve the user's end-to-end workflow?
+- **YAGNI**: Are we building only what's needed now, not speculative features?
+- **Anti-Over-Engineering**: Is this the simplest solution that meets all requirements?
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash

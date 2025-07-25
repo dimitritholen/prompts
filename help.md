@@ -18,37 +18,49 @@ Hash Prompts is a comprehensive collection of AI prompts that guide you through 
 **/#:brainstorm** - Transform your raw idea into a validated concept
 - Performs market research and competitive analysis
 - Identifies potential pivots and improvements
+- Applies SLC (Simple, Lovable, Complete) validation
+- Prevents feature creep with 80/20 rule analysis
 - Creates a junior-friendly PRD draft
 - Saves output to: `docs/#/brainstorm.md`
 
 **/#:prd** - Create a comprehensive Product Requirements Document
 - Conducts deep research into best practices
+- Applies SLC framework validation to all features
+- Prioritizes core features using anti-over-engineering principles
 - Asks clarifying questions to fill gaps
 - Produces a complete, actionable PRD
 - Saves output to: `docs/#/prd.md`
 
 **/#:architect** - Design robust system architecture
 - Researches industry best practices and patterns
-- Selects optimal technology stack
+- Applies simplicity-first architecture principles
+- Uses SLC-weighted technology selection criteria
+- Validates against over-engineering with complexity checks
 - Creates scalable, maintainable designs
 - Saves output to: `docs/#/architect.md`
 - Generates tech stack agents in `.claude/agents/`
 
 **/#:tasks** - Break down project into actionable tasks
-- Creates atomic, well-defined tasks
+- Creates atomic, well-defined tasks with SLC validation
+- Applies YAGNI principles to task necessity
+- Filters out over-engineering and speculative tasks
 - Identifies dependencies and priorities
 - Estimates time and resources
 - Saves output to: `docs/#/tasks.md`
 - Generates quality assurance agents
 
 **/#:plan** - Create detailed implementation plan
-- Develops sprint structure
+- Validates all solutions against SLC principles
+- Applies YAGNI enforcement to prevent over-engineering
+- Develops sprint structure with anti-complexity checks
 - Assigns priorities and timelines
 - Identifies risks and mitigation strategies
 - Saves output to: `docs/#/plan.md`
 
 **/#:code** - Implement features with best practices
-- Follows established patterns and conventions
+- Applies SLC coding principles (Simple, Lovable, Complete)
+- Uses anti-over-engineering checklist before implementation
+- Follows YAGNI to avoid premature optimization
 - Writes clean, maintainable code
 - Includes tests and documentation
 - Updates task status in `tasks/active_context.md`

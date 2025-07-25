@@ -116,11 +116,20 @@ EOF
 ### Phase 3: Architecture Design
 
 #### Design Principles
+
+**Core Software Engineering Principles:**
 1. **Separation of Concerns**: Clear boundaries between components
 2. **Loose Coupling**: Minimize dependencies
 3. **High Cohesion**: Related functionality together
 4. **Interface Segregation**: Focused, specific interfaces
 5. **Dependency Inversion**: Depend on abstractions
+
+**SLC Architecture Principles:**
+6. **Simple First**: Start with the simplest architecture that could work
+7. **Lovable Performance**: Optimize for user delight, not technical perfection
+8. **Complete Solutions**: Architecture must support end-to-end user workflows
+9. **YAGNI Architecture**: Don't build abstractions until you need them
+10. **Complexity Budget**: Track and limit architectural complexity
 
 #### Architecture Components
 
@@ -148,9 +157,31 @@ EOF
 - Monitoring and observability
 - Deployment architecture
 
+#### Architecture Anti-Over-Engineering Checks
+
+Before finalizing the architecture design, validate against complexity:
+
+**Simplicity Validation:**
+- [ ] Can the architecture be explained to a junior developer in 15 minutes?
+- [ ] Are we using the minimum number of components needed?
+- [ ] Can we remove any layers without losing essential functionality?
+- [ ] Is each component's purpose crystal clear?
+
+**Necessity Validation:**
+- [ ] Is every architectural component solving a real, current problem?
+- [ ] Are we avoiding "just in case" architectural decisions?
+- [ ] Can we start with a simpler version and add complexity later?
+- [ ] Are we following YAGNI for architectural abstractions?
+
+**User Value Alignment:**
+- [ ] Does this architecture directly support user-facing features?
+- [ ] Will users notice and appreciate the benefits of this complexity?
+- [ ] Does this architecture enable the SLC principles?
+- [ ] Are we optimizing for user experience over technical elegance?
+
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Save architecture design
+# Save architecture design with SLC validation
 cat >> docs/#/architect.md << 'EOF'
 
 ### Phase 3: Architecture Design
@@ -160,20 +191,39 @@ cat >> docs/#/architect.md << 'EOF'
 #### Key Design Decisions
 [Include all architectural decisions]
 
+#### SLC Architecture Validation
+- Simplicity Checks: [Results of simplicity validation]
+- Necessity Checks: [Results of necessity validation]  
+- User Value Alignment: [Results of user value validation]
+
 ### Status: Selecting technology stack
 EOF
 ```
 
 ### Phase 4: Technology Selection
 
-#### Selection Criteria Matrix
-| Factor | Weight | Option A | Option B | Option C |
-|--------|--------|----------|----------|----------|
-| Performance | 30% | Score | Score | Score |
-| Scalability | 25% | Score | Score | Score |
-| Developer Experience | 20% | Score | Score | Score |
-| Community Support | 15% | Score | Score | Score |
-| Cost | 10% | Score | Score | Score |
+#### Selection Criteria Matrix (SLC-Weighted)
+
+**SLC-Aligned Technology Selection:**
+| Factor | Weight | Option A | Option B | Option C | SLC Alignment |
+|--------|--------|----------|----------|----------|---------------|
+| **Simple Criteria (40% total)** | | | | | |
+| Learning Curve | 15% | Score | Score | Score | Simple |
+| Setup Complexity | 10% | Score | Score | Score | Simple |
+| Maintenance Effort | 15% | Score | Score | Score | Simple |
+| **Lovable Criteria (35% total)** | | | | | |
+| Developer Experience | 20% | Score | Score | Score | Lovable |
+| Performance (User-Facing) | 15% | Score | Score | Score | Lovable |
+| **Complete Criteria (25% total)** | | | | | |
+| Feature Completeness | 15% | Score | Score | Score | Complete |
+| Ecosystem Support | 10% | Score | Score | Score | Complete |
+
+**Anti-Over-Engineering Technology Filters:**
+- [ ] Does this technology solve a real, current problem?
+- [ ] Is this the simplest technology that meets our needs?
+- [ ] Will the team be productive with this immediately?
+- [ ] Does this avoid unnecessary complexity?
+- [ ] Can we start simple and scale up if needed?
 
 #### Stack Components
 - **Frontend**: Framework, state management, UI library
@@ -272,6 +322,20 @@ You are an expert ${FRONTEND_FRAMEWORK} ${FRONTEND_VERSION} developer working on
 **Styling**: ${STYLING_SOLUTION}
 **Testing**: ${TESTING_FRAMEWORK}
 
+## SLC Development Principles
+
+**ALWAYS validate every implementation decision against SLC:**
+- **Simple**: Does this component/feature add necessary complexity or keep things simple?
+- **Lovable**: Will users delight in this interaction or just tolerate it?
+- **Complete**: Does this fully support the user's end-to-end workflow?
+
+**Anti-Over-Engineering Guidelines:**
+- Apply YAGNI: Build only what's needed now, not what might be needed
+- Prefer composition over complex abstractions
+- Use existing ${FRONTEND_FRAMEWORK} patterns before creating custom solutions
+- Optimize for readability and maintainability over cleverness
+- Start simple, refactor when complexity is truly justified
+
 ## Architecture Decisions
 [Will be populated with specific architecture decisions from Phase 3]
 
@@ -322,6 +386,20 @@ You are an expert ${BACKEND_LANGUAGE} developer using ${BACKEND_FRAMEWORK} for $
 **Database**: ${DATABASE_TYPE}
 **API Style**: ${API_STYLE}
 
+## SLC Backend Development
+
+**ALWAYS validate backend implementations against SLC:**
+- **Simple**: Choose the simplest solution that meets requirements (avoid over-abstraction)
+- **Lovable**: Optimize for fast, reliable user-facing performance
+- **Complete**: Ensure APIs fully support all frontend needs without gaps
+
+**Anti-Over-Engineering for Backend:**
+- Use proven ${BACKEND_LANGUAGE} patterns before creating custom frameworks
+- Apply YAGNI to business logic: solve current problems, not hypothetical ones
+- Prefer ${BACKEND_FRAMEWORK} conventions over custom abstractions
+- Keep API design simple and intuitive
+- Avoid premature performance optimizations
+
 ## Project Conventions
 [Will be populated with specific conventions]
 AGENT_EOF
@@ -367,6 +445,20 @@ You are an expert ${DATABASE_TYPE} database specialist working on ${PROJECT_NAME
 **Connection Strategy**: [From architecture decisions]
 **Performance Requirements**: [From PRD]
 
+## SLC Database Design
+
+**Apply SLC to database decisions:**
+- **Simple**: Use straightforward schema designs that are easy to understand and maintain
+- **Lovable**: Optimize for query performance that users will notice
+- **Complete**: Ensure data model supports all application requirements without workarounds
+
+**Anti-Over-Engineering for Database:**
+- Start with normalized schemas, denormalize only when performance demands it
+- Use ${DATABASE_TYPE} standard features before custom solutions
+- Apply YAGNI to indexes: create them when needed, not "just in case"
+- Avoid complex stored procedures until business logic clearly belongs in database
+- Choose simple data types that meet requirements
+
 ## Schema Design Principles
 [Will be populated with project-specific patterns]
 AGENT_EOF
@@ -403,6 +495,20 @@ You are an expert DevOps engineer managing ${PROJECT_NAME}'s infrastructure.
 **Orchestration**: ${ORCHESTRATION}
 **CI/CD**: ${CI_CD_PLATFORM}
 **Cloud Provider**: ${CLOUD_PROVIDER}
+
+## SLC Infrastructure Principles
+
+**Apply SLC to infrastructure decisions:**
+- **Simple**: Use managed services over custom solutions, minimize infrastructure complexity
+- **Lovable**: Optimize for application performance that users experience
+- **Complete**: Ensure infrastructure supports all application requirements and scale needs
+
+**Anti-Over-Engineering for DevOps:**
+- Start with ${CLOUD_PROVIDER} managed services before building custom infrastructure
+- Use ${ORCHESTRATION} standard patterns before custom orchestration
+- Apply YAGNI to infrastructure: provision what's needed now, scale when needed
+- Choose proven ${CI_CD_PLATFORM} workflows over complex custom pipelines
+- Prefer simple monitoring over complex observability until complexity is justified
 
 ## Deployment Architecture
 [Will be populated with specific deployment patterns]

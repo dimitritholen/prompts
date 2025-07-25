@@ -109,9 +109,77 @@ cat >> docs/#/prd.md << 'EOF'
 EOF
 ```
 
+### Phase 2b: SLC Validation & Feature Prioritization
+
+Before creating the comprehensive PRD, validate all requirements against SLC principles:
+
+#### SLC Framework Validation
+
+**Simple Assessment**:
+- Can users accomplish their main goal with minimal steps?
+- Is the core functionality immediately obvious?
+- Does the product solve one problem extremely well vs. many problems adequately?
+- Rate Simplicity: [1-5 score with detailed reasoning]
+
+**Lovable Assessment**:
+- Will users genuinely delight in using this product?
+- Does this solve a real pain point that users actively complain about?
+- Would users voluntarily recommend this to friends/colleagues?
+- Rate Lovability: [1-5 score with detailed reasoning]
+
+**Complete Assessment**:
+- Can users fully accomplish their intended workflow end-to-end?
+- Are there any critical gaps that would require external tools?
+- Does this deliver on the core promise without major limitations?
+- Rate Completeness: [1-5 score with detailed reasoning]
+
+#### Feature Prioritization Using SLC
+
+**Core Features (Must pass ALL SLC criteria with 4+/5)**:
+- [List only features that score 4+ on Simple, Lovable, AND Complete]
+- Each feature must serve the primary user journey
+- Total core features should not exceed 5-7 items
+
+**Deferred Features (Nice-to-have but don't meet SLC threshold)**:
+- [Features that are good ideas but add complexity]
+- [Features that only some users would love]
+- [Features that don't complete the core promise]
+
+#### Anti-Over-Engineering Checks
+
+Before proceeding, validate:
+- [ ] Every core feature passes the SLC test (4+/5 on all dimensions)
+- [ ] Product can be explained in one clear sentence
+- [ ] Core user journey has minimal friction points
+- [ ] No features included "because competitors have them"
+- [ ] No "we might need this later" features included
+- [ ] Total feature count promotes focus, not feature bloat
+
+**SAVE PHASE 2B OUTPUT**:
+```bash
+# Save SLC validation
+cat >> docs/#/prd.md << 'EOF'
+
+### Phase 2b: SLC Validation & Feature Prioritization
+#### SLC Assessment
+- Simple Score: [Score]/5 - [Detailed reasoning]
+- Lovable Score: [Score]/5 - [Detailed reasoning]  
+- Complete Score: [Score]/5 - [Detailed reasoning]
+
+#### Core Features (SLC Validated)
+[List only features scoring 4+ on all SLC dimensions]
+
+#### Deferred Features
+[Features that don't meet SLC threshold for initial version]
+
+#### Anti-Over-Engineering Validation
+[Confirm all checks passed]
+EOF
+```
+
 ### Phase 3: PRD Document Creation
 
-Create a comprehensive PRD with the following structure:
+Create a comprehensive PRD with the following structure, ensuring all features align with SLC validation:
 
 ```markdown
 # Product Requirements Document: [Project Name]
@@ -151,15 +219,22 @@ Create a comprehensive PRD with the following structure:
 [What makes this solution unique or better]
 
 ## Functional Requirements
-### Core Features (MVP)
+### Core Features (SLC - Simple, Lovable, Complete)
+
+**SLC Validation Note**: All features listed here have been validated against SLC principles and scored 4+/5 on Simple, Lovable, and Complete dimensions.
+
 1. **[Feature Name]**
    - Description: [What it does]
    - User Story: As a [user], I want to [action] so that [benefit]
+   - SLC Justification:
+     - Simple: [How this maintains/improves simplicity]
+     - Lovable: [Why users will love this specific feature]
+     - Complete: [How this contributes to completing the core promise]
    - Acceptance Criteria:
-     - [ ] [Specific testable criteria]
-   - Priority: P0 (Must Have)
+     - [ ] [Specific testable criteria aligned with SLC]
+   - Priority: P0 (Must Have for SLC completion)
 
-### Extended Features (Post-MVP)
+### Extended Features (Post-SLC)
 [Features for future iterations]
 
 ## Non-Functional Requirements
@@ -206,7 +281,7 @@ Create a comprehensive PRD with the following structure:
 
 ## Implementation Approach
 ### Development Phases
-1. **Phase 1**: [MVP features]
+1. **Phase 1**: [SLC core features]
 2. **Phase 2**: [Enhanced features]
 3. **Phase 3**: [Advanced features]
 
@@ -235,14 +310,14 @@ Create a comprehensive PRD with the following structure:
 ## Timeline and Milestones
 ### Estimated Timeline
 - **Planning**: [Duration]
-- **MVP Development**: [Duration]
+- **SLC Development**: [Duration]
 - **Testing & Launch**: [Duration]
 - **Post-Launch Iterations**: [Duration]
 
 ### Key Milestones
 - [ ] Requirements Finalized
 - [ ] Design Completed
-- [ ] MVP Development Complete
+- [ ] SLC Development Complete
 - [ ] Testing Complete
 - [ ] Launch
 - [ ] Post-Launch Review
@@ -567,7 +642,7 @@ After PRD is complete and approved:
 
 ### Requirements Summary
 - **Product Vision**: [One-line vision]
-- **Core Features**: [MVP feature list]
+- **Core Features**: [SLC feature list]
 - **Target Users**: [Primary and secondary]
 - **Success Metrics**: [Key KPIs]
 
