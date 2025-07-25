@@ -67,6 +67,16 @@ PROMPTS=(
     "help.md"
 )
 
+# Module files to install
+MODULES=(
+    "modules/common.md"
+    "modules/research.md"
+    "modules/slc-validation.md"
+    "modules/agent-generation.md"
+    "modules/handoffs.md"
+    "modules/README.md"
+)
+
 # Function to print colored output
 print_color() {
     color=$1
@@ -167,7 +177,8 @@ get_install_location() {
 create_directories() {
     print_color "$BLUE" "Creating directory structure..."
     mkdir -p "$INSTALL_DIR/#"
-    print_color "$GREEN" "✓ Directory created"
+    mkdir -p "$INSTALL_DIR/#/modules"
+    print_color "$GREEN" "✓ Directories created"
 }
 
 # Function to download and install a prompt
@@ -220,6 +231,35 @@ install_prompt() {
     return 0
 }
 
+# Function to download and install a module
+install_module() {
+    local module_file=$1
+    local module_name=$(basename "$module_file")
+    local source_url="${BASE_URL}/${module_file}"
+    local dest_file="${INSTALL_DIR}/#/${module_file}"
+    
+    print_color "$BLUE" "Installing module: ${module_name}..."
+    
+    # Download the module file
+    if command -v curl &> /dev/null; then
+        if ! curl -sSL "$source_url" -o "$dest_file"; then
+            print_color "$RED" "❌ Failed to download ${module_file}"
+            return 1
+        fi
+    elif command -v wget &> /dev/null; then
+        if ! wget -q "$source_url" -O "$dest_file"; then
+            print_color "$RED" "❌ Failed to download ${module_file}"
+            return 1
+        fi
+    else
+        print_color "$RED" "❌ Neither curl nor wget is available"
+        exit 1
+    fi
+    
+    print_color "$GREEN" "✓ Installed module: ${module_name}"
+    return 0
+}
+
 # Function to install all prompts
 install_all_prompts() {
     print_color "$BLUE" "\nInstalling Hash Prompts commands..."
@@ -243,6 +283,29 @@ install_all_prompts() {
     fi
 }
 
+# Function to install all modules
+install_all_modules() {
+    print_color "$BLUE" "\nInstalling modules..."
+    
+    local installed=0
+    local failed=0
+    
+    for module in "${MODULES[@]}"; do
+        if install_module "$module"; then
+            installed=$((installed + 1))
+        else
+            failed=$((failed + 1))
+            print_color "$RED" "Failed to install: $module"
+        fi
+    done
+    
+    echo
+    print_color "$GREEN" "✓ Successfully installed: $installed modules"
+    if [ $failed -gt 0 ]; then
+        print_color "$YELLOW" "⚠ Failed to install: $failed modules"
+    fi
+}
+
 # Function to show usage instructions
 show_usage() {
     echo
@@ -261,6 +324,9 @@ show_usage() {
     echo "  /#:architect Design a microservices architecture"
     echo "  /#:generate-agent Qiskit 2026 quantum"
     echo "  /#:pipeline start"
+    echo
+    print_color "$GREEN" "✓ Modular Architecture:"
+    echo "  Shared patterns are now in modules/ for better maintainability"
     echo
     if [ "$INSTALL_TYPE" = "local" ]; then
         print_color "$BLUE" "Note: These commands are only available in this project."
@@ -286,6 +352,7 @@ main() {
     get_install_location
     create_directories
     install_all_prompts
+    install_all_modules
     show_usage
 }
 

@@ -177,9 +177,11 @@ fi
 # Step 3: Generate the agent
 echo "✨ Generating ${TECHNOLOGY} expert agent..."
 
-# Source the generate_dynamic_agent function from architect.md
-source <(grep -A 50 'generate_dynamic_agent()' /home/dimitri/dev/ai/prompts/architect.md)
-source <(grep -A 10 'generate_color()' /home/dimitri/dev/ai/prompts/architect.md)
+# Source the agent generation functions from modules
+# See: modules/agent-generation.md for:
+#   - generate_color() function  
+#   - generate_dynamic_agent() function
+# In actual implementation, these would be sourced from the module
 
 # Call the function with researched data
 generate_dynamic_agent "$CATEGORY" "$TECHNOLOGY" "$VERSION" \

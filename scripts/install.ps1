@@ -23,7 +23,18 @@ $Prompts = @(
     "test.md",
     "deploy.md",
     "pipeline.md",
+    "generate-agent.md",
     "help.md"
+)
+
+# Module files to install
+$Modules = @(
+    "modules/common.md",
+    "modules/research.md",
+    "modules/slc-validation.md",
+    "modules/agent-generation.md",
+    "modules/handoffs.md",
+    "modules/README.md"
 )
 
 # Function to print colored output
@@ -105,7 +116,12 @@ function New-Directories {
         New-Item -ItemType Directory -Path $namespaceDir -Force | Out-Null
     }
     
-    Write-ColorOutput "✓ Directory created" -ForegroundColor Green
+    $modulesDir = Join-Path $namespaceDir "modules"
+    if (!(Test-Path -Path $modulesDir)) {
+        New-Item -ItemType Directory -Path $modulesDir -Force | Out-Null
+    }
+    
+    Write-ColorOutput "✓ Directories created" -ForegroundColor Green
 }
 
 # Function to download and install a prompt
@@ -178,6 +194,53 @@ function Install-AllPrompts {
     }
 }
 
+# Function to download and install a module
+function Install-Module {
+    param(
+        [string]$ModuleFile
+    )
+    
+    $moduleName = Split-Path -Leaf $ModuleFile
+    $sourceUrl = "$BaseUrl/$ModuleFile"
+    $destFile = Join-Path $InstallDir "#" $ModuleFile
+    
+    Write-ColorOutput "Installing module: $moduleName..." -ForegroundColor Blue
+    
+    try {
+        # Download the module file
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($sourceUrl, $destFile)
+        Write-ColorOutput "✓ Installed module: $moduleName" -ForegroundColor Green
+        return $true
+    } catch {
+        Write-ColorOutput "❌ Failed to download $ModuleFile" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Function to install all modules
+function Install-AllModules {
+    Write-Host ""
+    Write-ColorOutput "Installing modules..." -ForegroundColor Blue
+    
+    $installed = 0
+    $failed = 0
+    
+    foreach ($module in $Modules) {
+        if (Install-Module -ModuleFile $module) {
+            $installed++
+        } else {
+            $failed++
+        }
+    }
+    
+    Write-Host ""
+    Write-ColorOutput "✓ Successfully installed: $installed modules" -ForegroundColor Green
+    if ($failed -gt 0) {
+        Write-ColorOutput "⚠ Failed to install: $failed modules" -ForegroundColor Yellow
+    }
+}
+
 # Function to show usage instructions
 function Show-Usage {
     Write-Host ""
@@ -196,7 +259,12 @@ function Show-Usage {
     Write-ColorOutput "Usage Examples:" -ForegroundColor Yellow
     Write-Host "  /#:brainstorm I want to build a task management app"
     Write-Host "  /#:architect Design a microservices architecture"
+    Write-Host "  /#:generate-agent Qiskit 2026 quantum"
     Write-Host "  /#:pipeline start"
+    Write-Host ""
+    
+    Write-ColorOutput "✓ Modular Architecture:" -ForegroundColor Green
+    Write-Host "  Shared patterns are now in modules/ for better maintainability"
     Write-Host ""
     
     if ($InstallType -eq "local") {
@@ -235,6 +303,7 @@ function Start-Installation {
     Get-InstallLocation
     New-Directories
     Install-AllPrompts
+    Install-AllModules
     Show-Usage
 }
 

@@ -19,6 +19,7 @@ This creates commands like `/#:brainstorm` and `/#:architect` that are easy to t
 - 📁 Persistent file outputs for cross-session continuity
 - 🛡️ Built-in SLC (Simple, Lovable, Complete) framework to prevent over-engineering
 - 🔄 Seamless workflow orchestration with quality gates
+- 📦 Modular architecture with reusable components
 
 ## Quick Installation
 
@@ -81,6 +82,26 @@ Hash Prompts installs commands under the `#` namespace, giving you access to:
 Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
 
 **Additionally**: As you use Hash Prompts, it automatically generates specialized AI agents tailored to your project's technology stack and requirements. These agents are stored in `.claude/agents/` and become experts in your specific project context.
+
+## Modular Architecture
+
+Hash Prompts uses a modular architecture for better maintainability and reusability. Common patterns and functions are extracted into modules that all modes can reference:
+
+### Core Modules
+
+- **`modules/common.md`** - Output management, file persistence, session handling
+- **`modules/research.md`** - Parallel search patterns, query templates, caching
+- **`modules/slc-validation.md`** - Complete SLC framework and validation checklists
+- **`modules/agent-generation.md`** - Agent creation functions and color palettes
+- **`modules/handoffs.md`** - Stage transitions, quality gates, handoff templates
+- **`modules/README.md`** - Module usage guide
+
+### Benefits
+
+- **Single Source of Truth**: Update once, applies everywhere
+- **Smaller Mode Files**: Each mode focuses on its unique logic
+- **Better Maintainability**: Common patterns are centralized
+- **Easier Updates**: Changes propagate automatically
 
 ## Available Prompts
 
