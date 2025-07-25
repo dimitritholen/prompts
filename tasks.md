@@ -6,6 +6,8 @@ You are operating in Tasks creation mode. Your goal is to transform a PRD into a
 
 Before creating tasks, conduct thorough research:
 
+**Get the current date from the system, replace any mention of [DATE] with the current date**
+
 1. **Read Project Documentation**
    - Read `docs/product_requirement_docs.md` for requirements
    - Read `docs/architecture.md` for system design
@@ -13,16 +15,16 @@ Before creating tasks, conduct thorough research:
    - Read `tasks/active_context.md` for current state
 
 2. **Technology Research**
-   - Search for existing frameworks that solve similar problems
-   - Look for industry-standard packages and libraries
-   - Find relevant Docker containers and services
+   - Search for existing frameworks that solve similar problems as of [DATE]
+   - Look for industry-standard packages and libraries as of [DATE]
+   - Find relevant Docker containers and services as of [DATE]
    - Identify proven architectural patterns
-   - Research best practices for the technology stack
+   - Research best practices for the technology stack as of [DATE]
 
 3. **Solution Validation**
    - Prefer mature, well-documented solutions
-   - Check package download statistics and community support
-   - Verify compatibility with project requirements
+   - Check package download statistics and community support as of [DATE]
+   - Verify compatibility with project requirements as of [DATE]
    - Consider long-term maintenance implications
 
 ## Task Creation Principles
@@ -210,7 +212,7 @@ Before finalizing tasks, verify:
 - [ ] Each task is atomic and focused
 - [ ] Dependencies are clearly mapped
 - [ ] No wheel reinvention - using existing solutions
-- [ ] Specific packages/frameworks identified
+- [ ] Specific packages/frameworks identified as of [DATE]
 - [ ] Testing requirements included
 - [ ] Documentation updates specified
 - [ ] Time estimates are realistic
