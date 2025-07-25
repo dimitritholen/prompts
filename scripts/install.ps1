@@ -1,5 +1,5 @@
-# Claude Prompts Collection Installer for Windows
-# This script installs AI prompts as Claude commands
+# Hash Prompts Installer for Windows
+# This script installs Hash Prompts as Claude commands with /#: prefix
 # Repository: https://github.com/dimitritholen/prompts
 
 # Ensure script stops on errors
@@ -38,7 +38,7 @@ function Write-ColorOutput {
 function Show-Header {
     Write-Host ""
     Write-ColorOutput "════════════════════════════════════════════════════" -ForegroundColor Blue
-    Write-ColorOutput "    Claude Prompts Collection Installer" -ForegroundColor Blue
+    Write-ColorOutput "       Hash Prompts (#) Installer" -ForegroundColor Blue
     Write-ColorOutput "════════════════════════════════════════════════════" -ForegroundColor Blue
     Write-Host ""
 }
@@ -157,7 +157,7 @@ $promptContent
 
 # Function to install all prompts
 function Install-AllPrompts {
-    Write-ColorOutput "`nInstalling prompts as Claude commands..." -ForegroundColor Blue
+    Write-ColorOutput "`nInstalling Hash Prompts commands..." -ForegroundColor Blue
     
     $installed = 0
     $failed = 0

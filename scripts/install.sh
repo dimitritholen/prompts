@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Claude Prompts Collection Installer
-# This script installs AI prompts as Claude commands
+# Hash Prompts Installer
+# This script installs Hash Prompts as Claude commands with /#: prefix
 # Repository: https://github.com/dimitritholen/prompts
 
 set -e
@@ -44,7 +44,7 @@ print_color() {
 print_header() {
     echo
     print_color "$BLUE" "════════════════════════════════════════════════════"
-    print_color "$BLUE" "    Claude Prompts Collection Installer"
+    print_color "$BLUE" "       Hash Prompts (#) Installer"
     print_color "$BLUE" "════════════════════════════════════════════════════"
     echo
 }
@@ -158,18 +158,14 @@ install_prompt() {
 
 # Function to install all prompts
 install_all_prompts() {
-    print_color "$BLUE" "\nInstalling prompts as Claude commands..."
+    print_color "$BLUE" "\nInstalling Hash Prompts commands..."
     
     local installed=0
     local failed=0
     
-    print_color "$YELLOW" "Total prompts to install: ${#PROMPTS[@]}"
-    
     for prompt in "${PROMPTS[@]}"; do
-        print_color "$YELLOW" "Processing: $prompt"
         if install_prompt "$prompt"; then
             installed=$((installed + 1))
-            print_color "$GREEN" "Success count: $installed"
         else
             failed=$((failed + 1))
             print_color "$RED" "Failed to install: $prompt"

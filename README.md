@@ -1,8 +1,17 @@
-# AI Prompts Collection
+# Hash Prompts - AI Command Collection
 
-This folder contains specialized prompts designed to guide AI assistants into specific operational modes for enhanced productivity and output quality.
+A powerful collection of specialized prompts designed to guide AI assistants into specific operational modes for enhanced productivity and output quality. Named "Hash Prompts" for their distinctive `/#:` command syntax.
 
 ![prompts](prompts.gif)
+
+## Why Hash Prompts?
+
+The name "Hash Prompts" comes from our unique command syntax `/#:` where:
+- `/` starts a Claude command
+- `#` provides a short, memorable namespace
+- `:` separates namespace from command name
+
+This creates commands like `/#:brainstorm` and `/#:architect` that are easy to type and remember while avoiding conflicts with other command systems.
 
 ## Quick Installation
 
@@ -33,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 
 ### What Gets Installed
 
-The installer creates Claude commands under the `#` namespace:
+Hash Prompts installs commands under the `#` namespace, giving you access to:
 - `/#:brainstorm` - Idea validation and development
 - `/#:prd` - Product requirements documentation
 - `/#:architect` - System architecture design
@@ -305,9 +314,9 @@ flowchart TB
 
 ## Usage Guidelines
 
-### Using Claude Commands
+### Using Hash Prompts Commands
 
-After installation, you can use the commands directly in Claude:
+After installation, you can use Hash Prompts commands directly in Claude:
 
 ```
 /#:brainstorm I want to build a fitness tracking app
@@ -316,6 +325,8 @@ After installation, you can use the commands directly in Claude:
 
 /#:pipeline start
 ```
+
+The `/#:` prefix identifies these as Hash Prompts, providing a clean namespace that won't conflict with other commands.
 
 ### Using Prompt Files Directly
 
