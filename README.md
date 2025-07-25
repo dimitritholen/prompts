@@ -85,7 +85,7 @@ Commands are installed globally by default (~/.claude/commands) but can be insta
 ## Available Prompts
 
 <details>
-<summary><h3>1. <strong>architect.md</strong> - System Architecture Mode</h3></summary>
+<summary>1. <strong>architect.md</strong> - System Architecture Mode</summary>
 
 **Purpose**: Transforms the AI into an expert system architect focused on designing robust, scalable architectures.
 
@@ -113,7 +113,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>2. <strong>brainstorm.md</strong> - Expert Idea Development & Critical Analysis</h3></summary>
+<summary>2. <strong>brainstorm.md</strong> - Expert Idea Development & Critical Analysis</summary>
 
 **Purpose**: Enables brutally honest idea evaluation, research-based validation, and PRD creation optimized for junior developers.
 
@@ -134,7 +134,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>3. <strong>code.md</strong> - Coding Implementation Mode</h3></summary>
+<summary>3. <strong>code.md</strong> - Coding Implementation Mode</summary>
 
 **Purpose**: Focuses on writing clean, efficient, and maintainable code following industry best practices.
 
@@ -155,7 +155,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>4. <strong>plan.md</strong> - Planning Mode</h3></summary>
+<summary>4. <strong>plan.md</strong> - Planning Mode</summary>
 
 **Purpose**: Research, analyze, and formulate comprehensive solutions before any implementation.
 
@@ -176,7 +176,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>5. <strong>prd.md</strong> - Product Requirements Document Creation</h3></summary>
+<summary>5. <strong>prd.md</strong> - Product Requirements Document Creation</summary>
 
 **Purpose**: Transforms ideas into comprehensive, actionable PRDs following the SLC principle (Simple, Lovable, Complete).
 
@@ -197,7 +197,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>6. <strong>tasks.md</strong> - Task Breakdown Mode</h3></summary>
+<summary>6. <strong>tasks.md</strong> - Task Breakdown Mode</summary>
 
 **Purpose**: Converts PRDs into atomic, actionable tasks with clear implementation paths.
 
@@ -218,7 +218,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>7. <strong>feature.md</strong> - Feature Integration Mode</h3></summary>
+<summary>7. <strong>feature.md</strong> - Feature Integration Mode</summary>
 
 **Purpose**: Seamlessly integrates new feature requests into existing task systems while maintaining project coherence and avoiding duplication.
 
@@ -239,7 +239,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>8. <strong>test.md</strong> - Comprehensive Testing Strategy</h3></summary>
+<summary>8. <strong>test.md</strong> - Comprehensive Testing Strategy</summary>
 
 **Purpose**: Ensures robust, reliable code through systematic testing approaches that catch bugs early and prevent regressions.
 
@@ -260,7 +260,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>9. <strong>deploy.md</strong> - Deployment & DevOps Mode</h3></summary>
+<summary>9. <strong>deploy.md</strong> - Deployment & DevOps Mode</summary>
 
 **Purpose**: Ensures smooth, reliable deployments and robust production operations through infrastructure as code and automation.
 
@@ -281,7 +281,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>10. <strong>pipeline.md</strong> - Pipeline Orchestration</h3></summary>
+<summary>10. <strong>pipeline.md</strong> - Pipeline Orchestration</summary>
 
 **Purpose**: Guides projects through the complete journey from ideation to production, ensuring smooth handoffs between phases.
 
@@ -302,7 +302,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>11. <strong>generate-agent.md</strong> - Dynamic Agent Generation</h3></summary>
+<summary>11. <strong>generate-agent.md</strong> - Dynamic Agent Generation</summary>
 
 **Purpose**: Creates specialized expert agents for any technology, framework, or tool through research-based generation.
 
@@ -325,7 +325,7 @@ Process @my_project_prd file.
 </details>
 
 <details>
-<summary><h3>12. <strong>help.md</strong> - Command Reference and Guide</h3></summary>
+<summary>12. <strong>help.md</strong> - Command Reference and Guide</summary>
 
 **Purpose**: Provides comprehensive help and guidance for all Hash Prompts commands and workflows.
 
@@ -351,7 +351,7 @@ Or for specific command help:
 
 </details>
 
-## 🤖 Automatic Agent Generation
+## Automatic Agent Generation
 
 Hash Prompts automatically generates specialized AI agents tailored to your specific project as you progress through the pipeline. These agents become experts in your project's technology stack, conventions, and requirements.
 
@@ -361,29 +361,7 @@ Project agents are specialized AI assistants that deeply understand your specifi
 
 ### When Agents Are Generated
 
-Agents are created at different pipeline stages based on your project's needs:
-
-#### **PRD Stage** - Domain & Business Agents
-
-- **Domain Expert**: Specialized knowledge for your industry (e.g., e-commerce, healthcare, fintech)
-- **Product Manager**: Product strategy and feature prioritization
-- **UX Designer**: User experience and interface design (for UI-focused projects)
-- **Compliance Officer**: Regulatory and compliance requirements (when applicable)
-
-#### **Architect Stage** - Technology Stack Agents
-
-- **Frontend Developer**: Expert in your chosen framework (React, Vue, Angular, etc.)
-- **Backend Developer**: Specialist in your backend language and framework
-- **Database Specialist**: Expert in your database technology (PostgreSQL, MongoDB, etc.)
-- **DevOps Engineer**: Infrastructure, CI/CD, and deployment specialist
-
-#### **Tasks Stage** - Quality & Convention Agents
-
-- **Code Reviewer**: Enforces your project's coding standards and best practices
-- **Test Engineer**: Ensures comprehensive testing with your test frameworks
-- **Documentation Writer**: Maintains consistent, high-quality documentation
-- **Security Engineer**: Reviews code for vulnerabilities and security best practices
-- **Performance Optimizer**: Focuses on speed and efficiency (when performance is critical)
+Agents are created at different pipeline stages based on your project's needs.
 
 ### How Agents Work
 
