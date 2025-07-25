@@ -31,6 +31,7 @@ PROMPTS=(
     "test.md"
     "deploy.md"
     "pipeline.md"
+    "generate-agent.md"
     "help.md"
 )
 
@@ -68,11 +69,13 @@ get_install_location() {
     echo "2) Local (current project only) - ./.claude/commands"
     echo
     
-    # Check if running interactively
-    if [ -t 0 ]; then
-        read -p "Enter your choice (1 or 2) [1]: " choice
+    # Check if we can read user input
+    # When piped from curl, we can't interact with the user
+    if [ -t 0 ] && [ -t 1 ]; then
+        # Interactive mode - wait for user input
+        read -p "Enter your choice (1 or 2) [1]: " choice < /dev/tty
     else
-        # Non-interactive mode - default to global
+        # Non-interactive mode (piped from curl) - default to global
         print_color "$BLUE" "Running in non-interactive mode, defaulting to global installation"
         choice="1"
     fi
@@ -196,6 +199,7 @@ show_usage() {
     print_color "$YELLOW" "Usage Examples:"
     echo "  /#:brainstorm I want to build a task management app"
     echo "  /#:architect Design a microservices architecture"
+    echo "  /#:generate-agent Qiskit 2026 quantum"
     echo "  /#:pipeline start"
     echo
     if [ "$INSTALL_TYPE" = "local" ]; then
