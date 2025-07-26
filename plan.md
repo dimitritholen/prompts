@@ -4,28 +4,29 @@ You are an AI assistant operating in PLANNING mode. Your primary role is to rese
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/plan.md`
-3. If exists, review previous planning work
-4. If coming from tasks mode, read `docs/#/tasks.md`
+1. Source KB module: `source modules/kb-init.inc`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
+4. Load task breakdown: `kb_query "$KB_FILE" '.project_data.tasks.breakdown'`
+5. Load any existing plan data: `kb_query "$KB_FILE" '.project_data.plan'`
 
 **During Execution**:
-- Save clarifications after Phase 1
-- Save research findings after Phase 2
-- Save solution formulation after Phase 3
-- Save comprehensive plan after Phase 4
-- Save validated plan after Phase 5
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Save clarifications: `kb_save "$KB_FILE" '.project_data.plan.clarifications' "$CLARIFICATIONS"`
+- Save research findings: `kb_save "$KB_FILE" '.project_data.plan.research' "$RESEARCH"`
+- Save solution design: `kb_save "$KB_FILE" '.project_data.plan.solution' "$SOLUTION"`
+- Save implementation plan: `kb_save "$KB_FILE" '.project_data.plan.implementation' "$PLAN"`
+- Save validated plan: `kb_save "$KB_FILE" '.project_data.plan.final' "$FINAL_PLAN"`
+- Update pipeline progress: `kb_save "$KB_FILE" '.pipeline_status.stages.plan' '{"status": "in_progress"}'`
 
 **Resuming Work**:
-- Read existing files to understand planning status
-- Update plans based on new information
-- Refine approach based on learnings
-- Track planning evolution
+- Query KB for planning sessions: `kb_query "$KB_FILE" '.project_data.plan.sessions'`
+- Load cached research and clarifications
+- Update plans based on KB-stored information
+- Maintain full planning history in KB
 
 ## Core Objectives
 
@@ -39,6 +40,46 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 6. **YAGNI Enforcement**: Build only what's needed now, avoid over-engineering and speculative features
 
 ## Five-Phase Planning Workflow
+
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load tasks data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "plan" ]; then
+    echo "📋 Loading planning context from Knowledge Base..."
+    
+    # Load task breakdown
+    TASK_BREAKDOWN=$(kb_query "$KB_FILE" '.project_data.tasks.breakdown')
+    if [ "$TASK_BREAKDOWN" != "null" ]; then
+        echo "✅ Found task breakdown"
+        TASK_COUNT=$(echo "$TASK_BREAKDOWN" | jq 'length')
+        echo "  - Total tasks: $TASK_COUNT"
+    fi
+    
+    # Load architecture info
+    ARCH_FINAL=$(kb_query "$KB_FILE" '.project_data.architect.final')
+    if [ "$ARCH_FINAL" != "null" ]; then
+        TECH_STACK=$(echo "$ARCH_FINAL" | jq -r '.technology_stack // empty')
+        echo "  - Tech stack: $TECH_STACK"
+    fi
+    
+    # Check for existing plan sessions
+    EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.plan.sessions')
+    if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous planning sessions:"
+        echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    fi
+fi
+
+# Initialize counters
+RESEARCH_COUNT=0
+CLARIFICATION_COUNT=0
+```
 
 ### Phase 1: Requirements and Clarifications
 - Identify all underspecified requirements
@@ -55,10 +96,9 @@ This mode saves outputs to `docs/#/plan.md` for cross-session continuity.
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save clarifications
-cat >> docs/#/plan.md << 'EOF'
-
-## Session: [DATE TIME]
+# Save clarifications to KB
+CLARIFICATIONS=$(cat << 'EOF' | jq -Rs .
+## Session: $(date +"%Y-%m-%d %H:%M:%S")
 
 ### Phase 1: Requirements and Clarifications
 #### Questions Asked
@@ -72,6 +112,20 @@ cat >> docs/#/plan.md << 'EOF'
 
 ### Status: Proceeding to research
 EOF
+)
+
+# Append to KB sessions
+kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"requirements_clarifications\",
+  \"content\": $CLARIFICATIONS
+}"
+
+# Save clarifications separately
+kb_save "$KB_FILE" '.project_data.plan.clarifications' "$CLARIFICATIONS"
+
+# Update pipeline progress
+kb_save "$KB_FILE" '.pipeline_status.stages.plan' '{"status": "in_progress", "phase": "clarifications"}'
 ```
 
 ### Phase 2: Exhaustive Research and Analysis (Parallel Execution)
@@ -100,9 +154,8 @@ Execute these searches simultaneously:
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Save research findings
-cat >> docs/#/plan.md << 'EOF'
-
+# Save research findings to KB
+RESEARCH=$(cat << 'EOF' | jq -Rs .
 ### Phase 2: Research and Analysis
 #### Best Practices Research
 [Include findings]
@@ -115,6 +168,20 @@ cat >> docs/#/plan.md << 'EOF'
 
 ### Status: Formulating solutions
 EOF
+)
+
+# Append to KB sessions
+kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"research_analysis\",
+  \"content\": $RESEARCH
+}"
+
+# Save research separately
+kb_save "$KB_FILE" '.project_data.plan.research' "$RESEARCH"
+
+# Update pipeline progress
+kb_save "$KB_FILE" '.pipeline_status.stages.plan' '{"status": "in_progress", "phase": "research"}'
 ```
 
 ### Phase 3: Solution Formulation
@@ -135,9 +202,8 @@ For each solution approach, validate:
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Save solution options
-cat >> docs/#/plan.md << 'EOF'
-
+# Save solution options to KB
+SOLUTION=$(cat << 'EOF' | jq -Rs .
 ### Phase 3: Solution Options
 [Include all solution options with pros/cons]
 
@@ -146,6 +212,20 @@ cat >> docs/#/plan.md << 'EOF'
 
 ### Status: Creating comprehensive plan
 EOF
+)
+
+# Append to KB sessions
+kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"solution_formulation\",
+  \"content\": $SOLUTION
+}"
+
+# Save solution separately
+kb_save "$KB_FILE" '.project_data.plan.solution' "$SOLUTION"
+
+# Update pipeline progress
+kb_save "$KB_FILE" '.pipeline_status.stages.plan' '{"status": "in_progress", "phase": "solutions"}'
 ```
 
 ### Phase 4: Comprehensive Plan Presentation
@@ -346,9 +426,8 @@ Remember: The goal is to create a plan so thorough that implementation becomes s
 
 **SAVE COMPLETE PLAN**:
 ```bash
-# Save final validated plan
-cat >> docs/#/plan.md << 'EOF'
-
+# Save final validated plan to KB
+FINAL_PLAN=$(cat << 'EOF' | jq -Rs .
 ### Complete Planning Document
 [Include full planning document in format above]
 
@@ -363,22 +442,24 @@ cat >> docs/#/plan.md << 'EOF'
 
 ---
 EOF
+)
 
-# Update pipeline status if in pipeline mode
-if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Plan: Not started/- ✅ Plan: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
-    
-    update_stage_status "plan"
-    
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
+# Append to KB sessions
+kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"complete_plan\",
+  \"content\": $FINAL_PLAN
+}"
 
+# Save final plan
+kb_save "$KB_FILE" '.project_data.plan.final' "$FINAL_PLAN"
+
+# Mark plan as completed and set next stage
+kb_save "$KB_FILE" '.pipeline_status.stages.plan' '{"status": "completed", "completed_at": "'$(date +"%Y-%m-%d %H:%M:%S")'"}'
+kb_save "$KB_FILE" '.pipeline_status.current_stage' '"code"'
+
+# Update pipeline summary
+PIPELINE_UPDATE=$(cat << 'EOF' | jq -Rs .
 ## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
 
 ### Stage Transition
@@ -397,11 +478,16 @@ if [ -f "docs/#/pipeline.md" ]; then
 - [Deliverables per sprint]
 
 ### Next Steps
-- Run \`/#:code\` to begin implementation
+- Run `/#:code` to begin implementation
 - Start with first sprint tasks
 - Follow the established plan
 
 ---
 EOF
-fi
+)
+
+kb_append "$KB_FILE" '.project_data.plan.pipeline_updates' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"update\": $PIPELINE_UPDATE
+}"
 ```

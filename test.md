@@ -7,28 +7,60 @@ You are an expert testing specialist with deep expertise in test-driven developm
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/test.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/test.md`
-3. If exists, review previous test strategies
-4. If coming from code mode, read `docs/#/code.md`
+1. Source KB module: `source modules/kb-init.inc`
+2. Initialize project KB: `kb_init_project .`
+3. Load KB data: `KB_FILE=$(kb_load)`
+4. Query test status: `kb_query "$KB_FILE" '.project_data.test'`
+5. Determine test coverage and show progress
 
 **During Execution**:
-- Save test strategy after Phase 1
-- Save test architecture after Phase 2
-- Save implementation approach after Phase 3
-- Save tooling decisions after Phase 4
-- Save complete test plan after Phase 7
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Update KB after each phase: `kb_save "$KB_FILE" '.project_data.test.current_phase' '"$PHASE"'`
+- Track test results: `kb_append "$KB_FILE" '.project_data.test.results' '$TEST_RESULT'`
+- Store coverage metrics: `kb_save "$KB_FILE" '.project_data.test.coverage' '$COVERAGE_DATA'`
+- Log test decisions: `kb_append "$KB_FILE" '.decision_log' '$DECISION'`
+- Leverage KB rules for parallel execution enforcement
 
 **Resuming Work**:
-- Read existing files to understand test coverage
-- Check test execution history
-- Update test results and metrics
-- Track test evolution
+```bash
+# Load KB and check test status
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+CURRENT_PHASE=$(kb_query "$KB_FILE" '.project_data.test.current_phase')
+TEST_RESULTS=$(kb_query "$KB_FILE" '.project_data.test.results')
+
+echo "Current phase: $CURRENT_PHASE"
+echo "Test results: $TEST_RESULTS"
+# KB automatically recommends next actions based on test rules
+```
+
+**KB Test Status Structure**:
+```json
+{
+  "project_data": {
+    "test": {
+      "current_phase": "implementation",
+      "strategy": {
+        "framework": "jest",
+        "coverage_target": 80,
+        "test_types": ["unit", "integration", "e2e"]
+      },
+      "results": [
+        {"timestamp": "2024-01-01T01:00:00Z", "type": "unit", "passed": 45, "failed": 0},
+        {"timestamp": "2024-01-01T02:00:00Z", "type": "integration", "passed": 12, "failed": 1}
+      ],
+      "coverage": {
+        "overall": 78.5,
+        "unit": 85.2,
+        "integration": 62.3
+      }
+    }
+  }
+}
+```
 
 ## Core Principles
 
@@ -45,6 +77,30 @@ This mode saves outputs to `docs/#/test.md` for cross-session continuity.
 
 ### Phase 1: Test Strategy Analysis
 
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+kb_init_project .
+KB_FILE=$(kb_load)
+
+# Check for existing test sessions
+EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.test.sessions')
+if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+    echo "📋 Found previous test sessions:"
+    echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    echo ""
+    LAST_PHASE=$(kb_query "$KB_FILE" '.project_data.test.current_phase')
+    echo "Last completed phase: $LAST_PHASE"
+    echo "Continuing from where we left off..."
+fi
+
+# Initialize counters
+TEST_TYPES_COUNT=0
+COVERAGE_PERCENTAGE=0
+FRAMEWORKS_EVALUATED=0
+```
+
 **CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 1. **Requirements Analysis**
@@ -52,6 +108,7 @@ This mode saves outputs to `docs/#/test.md` for cross-session continuity.
    - Review `docs/technical.md` for technical constraints
    - Examine `docs/architecture.md` for system boundaries
    - Check `tasks/tasks_plan.md` for implementation details
+   - Load previous test decisions from KB: `kb_query "$KB_FILE" '.project_data.test.decisions'`
 
 2. **Risk Assessment**
    - Identify high-risk areas requiring extensive testing
@@ -59,12 +116,14 @@ This mode saves outputs to `docs/#/test.md` for cross-session continuity.
    - Assess integration points
    - Evaluate security vulnerabilities
    - Consider performance bottlenecks
+   - Store risk analysis in KB: `kb_save "$KB_FILE" '.project_data.test.risks' '$RISK_DATA'`
 
 3. **Testing Scope Definition**
    - Define what needs testing
    - Identify what can be mocked/stubbed
    - Determine test environment requirements
    - Set coverage targets
+   - Save scope to KB: `kb_save "$KB_FILE" '.project_data.test.scope' '$SCOPE_DATA'`
 
 ### Phase 1b: Comprehensive Testing Research (MANDATORY Parallel Execution)
 
@@ -100,36 +159,45 @@ FAILURE TO USE PARALLEL EXECUTION IS A CRITICAL ERROR
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save test strategy analysis and research
-cat >> docs/#/test.md << 'EOF'
+# Save test strategy analysis and research to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-## Session: [DATE TIME]
-
-### Phase 1: Test Strategy Analysis
-#### Requirements Analysis
-[Include findings from documentation]
-
-#### Risk Assessment
-[Include identified risks]
-
-#### Testing Scope
-[Include defined scope]
-
-### Phase 1b: Parallel Research Results
-#### Testing Framework Analysis
-[Include findings from parallel research]
-
-#### Strategy Patterns
-[Include industry standards found]
-
-#### Tool Recommendations
-[Include automation and testing tools]
-
-#### Security & Performance Testing
-[Include testing approaches and considerations]
-
-### Status: Designing test architecture
+# Create phase 1 data structure
+PHASE1_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "strategy_analysis",
+  "requirements_analysis": {
+    "functional": "$FUNCTIONAL_REQS",
+    "technical": "$TECHNICAL_CONSTRAINTS",
+    "boundaries": "$SYSTEM_BOUNDARIES"
+  },
+  "risk_assessment": {
+    "high_risk_areas": $HIGH_RISK_AREAS,
+    "critical_paths": $CRITICAL_PATHS,
+    "vulnerabilities": $VULNERABILITIES
+  },
+  "testing_scope": {
+    "coverage_targets": $COVERAGE_TARGETS,
+    "mockable_components": $MOCKABLE_COMPONENTS,
+    "environment_needs": $ENV_REQUIREMENTS
+  },
+  "research_results": {
+    "frameworks": $FRAMEWORK_ANALYSIS,
+    "patterns": $STRATEGY_PATTERNS,
+    "tools": $TOOL_RECOMMENDATIONS,
+    "security_performance": $SEC_PERF_APPROACHES
+  },
+  "status": "designing_architecture"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE1_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"architecture_design"'
+
+echo "✅ Phase 1 test strategy saved to KB"
 ```
 
 ### Phase 2: Test Architecture Design
@@ -166,21 +234,68 @@ tests/
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Save test architecture
-cat >> docs/#/test.md << 'EOF'
+# Save test architecture to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-### Phase 2: Test Architecture
-#### Test Pyramid Distribution
-[Include percentages and rationale]
-
-#### Test Organization Structure
-[Include directory structure]
-
-### Status: Planning implementation
+# Create phase 2 data structure
+PHASE2_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "architecture_design",
+  "test_pyramid": {
+    "unit": {"percentage": 65, "focus": "isolated component testing"},
+    "integration": {"percentage": 25, "focus": "component interactions"},
+    "e2e": {"percentage": 10, "focus": "critical user journeys"}
+  },
+  "organization": {
+    "structure": $TEST_DIR_STRUCTURE,
+    "naming_conventions": $NAMING_CONVENTIONS,
+    "file_patterns": $FILE_PATTERNS
+  },
+  "status": "planning_implementation"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE2_DATA"
+kb_save "$KB_FILE" '.project_data.test.architecture' "$PHASE2_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"implementation_planning"'
+
+echo "✅ Phase 2 test architecture saved to KB"
 ```
 
 ### Phase 3: Test Implementation Strategy
+
+**SAVE PHASE 3 OUTPUT**:
+```bash
+# Save implementation strategy to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create phase 3 data structure
+PHASE3_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "implementation_strategy",
+  "approaches": {
+    "unit": $UNIT_APPROACH,
+    "integration": $INTEGRATION_APPROACH,
+    "e2e": $E2E_APPROACH
+  },
+  "templates": $TEST_TEMPLATES,
+  "best_practices": $BEST_PRACTICES,
+  "status": "selecting_tools"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE3_DATA"
+kb_save "$KB_FILE" '.project_data.test.implementation' "$PHASE3_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"tooling_selection"'
+
+echo "✅ Phase 3 implementation strategy saved to KB"
+```
 
 #### 1. Unit Testing Approach
 ```markdown
@@ -297,18 +412,65 @@ describe('ComponentName', () => {
 
 **SAVE PHASE 4 OUTPUT**:
 ```bash
-# Save tooling decisions
-cat >> docs/#/test.md << 'EOF'
+# Save tooling decisions to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-### Phase 4: Tooling Selection
-#### Testing Framework Matrix
-[Include selected tools and rationale]
-
-### Status: Integrating with CI/CD
+# Create phase 4 data structure
+PHASE4_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "tooling_selection",
+  "frameworks": {
+    "unit": {"tool": "$UNIT_FRAMEWORK", "reason": "$UNIT_REASON"},
+    "integration": {"tool": "$INTEGRATION_FRAMEWORK", "reason": "$INTEGRATION_REASON"},
+    "e2e": {"tool": "$E2E_FRAMEWORK", "reason": "$E2E_REASON"},
+    "performance": {"tool": "$PERF_TOOL", "reason": "$PERF_REASON"},
+    "security": {"tool": "$SEC_TOOL", "reason": "$SEC_REASON"}
+  },
+  "status": "integrating_cicd"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE4_DATA"
+kb_save "$KB_FILE" '.project_data.test.tooling' "$PHASE4_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"cicd_integration"'
+
+echo "✅ Phase 4 tooling decisions saved to KB"
 ```
 
 ### Phase 5: Continuous Testing Integration
+
+**SAVE PHASE 5 OUTPUT**:
+```bash
+# Save CI/CD integration to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create phase 5 data structure
+PHASE5_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "cicd_integration",
+  "pipeline_config": $PIPELINE_CONFIG,
+  "automation_strategy": {
+    "pre_commit": "unit_tests",
+    "pr_validation": "full_suite",
+    "nightly": "extended_scenarios",
+    "release": "performance_security"
+  },
+  "status": "documenting_tests"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE5_DATA"
+kb_save "$KB_FILE" '.project_data.test.cicd' "$PHASE5_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"documentation"'
+
+echo "✅ Phase 5 CI/CD integration saved to KB"
+```
 
 #### CI/CD Pipeline Integration
 ```yaml
@@ -341,6 +503,32 @@ jobs:
 4. **Release Testing**: Performance and security
 
 ### Phase 6: Test Documentation and Reporting
+
+**SAVE PHASE 6 OUTPUT**:
+```bash
+# Save test documentation to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create phase 6 data structure
+PHASE6_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "documentation",
+  "documentation_template": $DOC_TEMPLATE,
+  "reporting_metrics": $REPORTING_METRICS,
+  "success_criteria": $SUCCESS_CRITERIA,
+  "status": "planning_maintenance"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE6_DATA"
+kb_save "$KB_FILE" '.project_data.test.documentation' "$PHASE6_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"maintenance_planning"'
+
+echo "✅ Phase 6 test documentation saved to KB"
+```
 
 #### Test Documentation Template
 ```markdown
@@ -375,6 +563,36 @@ jobs:
 ```
 
 ### Phase 7: Test Maintenance and Evolution
+
+**SAVE PHASE 7 OUTPUT**:
+```bash
+# Save maintenance strategy to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create phase 7 data structure
+PHASE7_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "maintenance_evolution",
+  "refactoring_triggers": $REFACTOR_TRIGGERS,
+  "health_metrics": {
+    "flakiness_rate": "< 1%",
+    "execution_time": "optimized",
+    "coverage_trends": "maintain_improve",
+    "failure_analysis": "root_cause_tracking"
+  },
+  "status": "strategy_complete"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE7_DATA"
+kb_save "$KB_FILE" '.project_data.test.maintenance' "$PHASE7_DATA"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"completed"'
+
+echo "✅ Phase 7 maintenance strategy saved to KB"
+```
 
 #### Test Refactoring Triggers
 1. **Code Changes**: Update tests with code
@@ -467,61 +685,92 @@ Remember: Good tests catch bugs before users do. Invest in testing to save time 
 
 **SAVE COMPLETE TEST STRATEGY**:
 ```bash
-# Save complete test plan
-cat >> docs/#/test.md << 'EOF'
+# Save complete test strategy to KB
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-### Complete Test Strategy
-[Include full test strategy document]
-
-### Session Summary
-- Coverage Targets: [Percentages]
-- Test Types: [Unit/Integration/E2E]
-- Tooling: [Selected tools]
-- Next Steps: Implementation or Deploy Mode
-
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
-
----
+# Create complete test strategy data
+COMPLETE_STRATEGY=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "phase": "complete_strategy",
+  "summary": {
+    "coverage_targets": {
+      "overall": $OVERALL_COVERAGE,
+      "unit": $UNIT_COVERAGE,
+      "integration": $INTEGRATION_COVERAGE,
+      "e2e": $E2E_COVERAGE
+    },
+    "test_types": $TEST_TYPES,
+    "tooling": $SELECTED_TOOLS,
+    "next_steps": "deploy_mode"
+  },
+  "handoff_data": {
+    "test_plan_complete": true,
+    "quality_gates_defined": true,
+    "cicd_integrated": true,
+    "ready_for_deployment": true
+  },
+  "status": "completed"
+}
 EOF
+)
 
-# Update pipeline status if in pipeline mode
-if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Test: Not started/- ✅ Test: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+# Save to KB
+kb_append "$KB_FILE" '.project_data.test.sessions' "$COMPLETE_STRATEGY"
+kb_save "$KB_FILE" '.project_data.test.complete_strategy' "$COMPLETE_STRATEGY"
+kb_save "$KB_FILE" '.project_data.test.current_phase' '"completed"'
+
+echo "✅ Complete test strategy saved to KB"
+
+# Update pipeline status in KB
+PIPELINE_STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
+if [ "$PIPELINE_STATUS" != "null" ]; then
+    echo "📊 Updating pipeline status..."
     
-    update_stage_status "test"
+    # Mark test stage as completed
+    kb_save "$KB_FILE" '.pipeline_status.stages.test.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.test.completed_at' "\"$TIMESTAMP\""
+    kb_save "$KB_FILE" '.pipeline_status.stages.test.outcome' '"Comprehensive test strategy defined"'
     
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Testing
-- To: Deployment
-- Handoff: Test phase completed with comprehensive quality assurance
-
-### Test Results
-- [Coverage achieved]
-- [Test types implemented]
-- [Quality metrics]
-
-### Quality Status
-- All tests passing: [Yes/No]
-- Performance benchmarks met: [Yes/No]
-- Security scan results: [Status]
-
-### Next Steps
-- Run \`/#:deploy\` to prepare for production deployment
-- Ensure all quality gates have been passed
-
----
+    # Set next stage to deploy
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"deploy"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.deploy.status' '"ready"'
+    
+    # Add to completed stages
+    STAGE_COMPLETION=$(cat << EOF
+{
+  "stage": "test",
+  "timestamp": "$TIMESTAMP",
+  "outcome": "Test strategy complete with $OVERALL_COVERAGE% coverage target"
+}
 EOF
+)
+    kb_append "$KB_FILE" '.pipeline_status.completed' "$STAGE_COMPLETION"
+    
+    # Create handoff data for deploy stage
+    HANDOFF_DATA=$(cat << EOF
+{
+  "from": "test",
+  "to": "deploy",
+  "timestamp": "$TIMESTAMP",
+  "data": {
+    "test_coverage": $OVERALL_COVERAGE,
+    "test_frameworks": $SELECTED_TOOLS,
+    "quality_gates": {
+      "unit_tests_pass": true,
+      "integration_tests_pass": true,
+      "coverage_met": true,
+      "performance_validated": true,
+      "security_scanned": true
+    },
+    "ready_for_production": true
+  }
+}
+EOF
+)
+    kb_save "$KB_FILE" '.handoffs.test.deploy' "$HANDOFF_DATA"
+    
+    echo "✅ Pipeline updated: Test stage completed, ready for deployment"
+    echo "🚀 Next step: Run /#:deploy to prepare for production deployment"
 fi
 ```

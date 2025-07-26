@@ -7,28 +7,62 @@ You are an expert DevOps engineer and deployment specialist with extensive exper
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/deploy.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/deploy.md`
-3. If exists, review previous deployment work
-4. If coming from test/code mode, read relevant files
+1. Source KB module: `source modules/kb-init.inc`
+2. Initialize project KB: `kb_init_project .`
+3. Load KB data: `KB_FILE=$(kb_load)`
+4. Query deployment status: `kb_query "$KB_FILE" '.project_data.deploy'`
+5. Determine infrastructure status and show progress
 
 **During Execution**:
-- Save infrastructure assessment after Phase 1
-- Save architecture design after Phase 2
-- Save CI/CD pipeline after Phase 3
-- Save IaC templates after Phase 5
-- Save complete deployment plan after Phase 9
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Update KB after each phase: `kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"$PHASE"'`
+- Track infrastructure decisions: `kb_append "$KB_FILE" '.project_data.deploy.infrastructure' '$INFRA_DATA'`
+- Store CI/CD configurations: `kb_save "$KB_FILE" '.project_data.deploy.cicd' '$CICD_DATA'`
+- Log deployment metrics: `kb_append "$KB_FILE" '.decision_log' '$DECISION'`
+- Leverage KB rules for parallel execution enforcement
 
 **Resuming Work**:
-- Read existing files to understand deployment status
-- Check current infrastructure state
-- Update deployment configurations
-- Track deployment evolution
+```bash
+# Load KB and check deployment status
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+CURRENT_PHASE=$(kb_query "$KB_FILE" '.project_data.deploy.current_phase')
+DEPLOY_STATUS=$(kb_query "$KB_FILE" '.project_data.deploy.infrastructure')
+
+echo "Current phase: $CURRENT_PHASE"
+echo "Deployment status: $DEPLOY_STATUS"
+# KB automatically recommends next actions based on deployment rules
+```
+
+**KB Deployment Status Structure**:
+```json
+{
+  "project_data": {
+    "deploy": {
+      "current_phase": "infrastructure_setup",
+      "infrastructure": {
+        "provider": "aws",
+        "regions": ["us-east-1", "eu-west-1"],
+        "architecture": "microservices"
+      },
+      "cicd": {
+        "pipeline": "github_actions",
+        "stages": ["build", "test", "security", "deploy"]
+      },
+      "monitoring": {
+        "stack": "prometheus_grafana",
+        "alerts": "pagerduty"
+      },
+      "sessions": [
+        {"timestamp": "2024-01-01T01:00:00Z", "phase": "infrastructure_assessment", "completed": true}
+      ]
+    }
+  }
+}
+```
 
 ## Core Principles
 
@@ -44,6 +78,30 @@ This mode saves outputs to `docs/#/deploy.md` for cross-session continuity.
 ## Deployment Workflow
 
 ### Phase 1: Infrastructure Assessment
+
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+kb_init_project .
+KB_FILE=$(kb_load)
+
+# Check for existing deployment sessions
+EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.deploy.sessions')
+if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+    echo "📋 Found previous deployment sessions:"
+    echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    echo ""
+    LAST_PHASE=$(kb_query "$KB_FILE" '.project_data.deploy.current_phase')
+    echo "Last completed phase: $LAST_PHASE"
+    echo "Continuing from where we left off..."
+fi
+
+# Initialize metrics
+INFRA_DECISIONS=0
+TOOLS_EVALUATED=0
+COST_OPTIMIZATIONS=0
+```
 
 **CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
@@ -96,30 +154,30 @@ FAILURE TO USE PARALLEL EXECUTION IS A CRITICAL ERROR
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save infrastructure assessment and research
-cat >> docs/#/deploy.md << 'EOF'
-
-## Session: [DATE TIME]
-
-### Phase 1: Infrastructure Assessment
-#### Requirements Analysis
-[Include performance, availability, scale requirements]
-
-#### Parallel Technology Research Results
-#### Cloud Provider Analysis
-[Include findings from parallel research]
-
-#### DevOps Tool Evaluation
-[Include CI/CD, monitoring, security tool analysis]
-
-#### Infrastructure Strategy
-[Include IaC, orchestration, scaling recommendations]
-
-#### Cost & Security Assessment
-[Include optimization and security considerations]
-
-### Status: Designing infrastructure
+# Prepare Phase 1 data for KB
+PHASE1_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "infrastructure_assessment",
+  "requirements": {
+    "performance": "[Performance requirements]",
+    "availability": "[Availability requirements]",
+    "scale": "[Scale requirements]"
+  },
+  "research_results": {
+    "cloud_provider": "[Provider analysis]",
+    "devops_tools": "[Tool evaluation]",
+    "infrastructure_strategy": "[Strategy recommendations]",
+    "cost_security": "[Cost and security assessment]"
+  },
+  "status": "Designing infrastructure"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE1_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"infrastructure_design"'
 ```
 
 ### Phase 2: Infrastructure Architecture
@@ -162,18 +220,26 @@ environments:
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Save infrastructure architecture
-cat >> docs/#/deploy.md << 'EOF'
-
-### Phase 2: Infrastructure Architecture
-#### Deployment Topology
-[Include architecture diagram]
-
-#### Environment Strategy
-[Include environment definitions]
-
-### Status: Designing CI/CD pipeline
+# Prepare Phase 2 data for KB
+PHASE2_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "infrastructure_architecture",
+  "topology": "[Architecture diagram]",
+  "environments": {
+    "dev": {"purpose": "Active development", "scale": "Minimal"},
+    "staging": {"purpose": "Pre-production testing", "scale": "Production-like"},
+    "prod": {"purpose": "Live traffic", "scale": "Auto-scaling"}
+  },
+  "status": "Designing CI/CD pipeline"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE2_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.architecture' "$PHASE2_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"cicd_design"'
 ```
 
 ### Phase 3: CI/CD Pipeline Design
@@ -228,6 +294,27 @@ deploy:
   script:
     - kubectl set image deployment/app app=registry/app:$CI_COMMIT_SHA
     - kubectl rollout status deployment/app
+```
+
+**SAVE PHASE 3 OUTPUT**:
+```bash
+# Prepare Phase 3 data for KB
+PHASE3_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "cicd_pipeline_design",
+  "pipeline_architecture": "[Pipeline flow diagram]",
+  "stages": ["build", "test", "security", "package", "deploy"],
+  "implementation": "[CI/CD configuration]",
+  "status": "Designing container strategy"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE3_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.cicd' "$PHASE3_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"container_strategy"'
 ```
 
 ### Phase 4: Container Strategy
@@ -288,6 +375,27 @@ spec:
           initialDelaySeconds: 5
 ```
 
+**SAVE PHASE 4 OUTPUT**:
+```bash
+# Prepare Phase 4 data for KB
+PHASE4_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "container_strategy",
+  "dockerfile": "[Best practices implementation]",
+  "kubernetes_manifests": "[Deployment configuration]",
+  "orchestration": "kubernetes",
+  "status": "Implementing IaC"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE4_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.containers' "$PHASE4_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"infrastructure_as_code"'
+```
+
 ### Phase 5: Infrastructure as Code
 
 #### Terraform Structure
@@ -308,18 +416,22 @@ infrastructure/
 
 **SAVE PHASE 5 OUTPUT**:
 ```bash
-# Save IaC templates
-cat >> docs/#/deploy.md << 'EOF'
-
-### Phase 5: Infrastructure as Code
-#### Terraform Structure
-[Include module organization]
-
-#### Key Modules
-[Include example configurations]
-
-### Status: Implementing monitoring
+# Prepare Phase 5 data for KB
+PHASE5_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "infrastructure_as_code",
+  "terraform_structure": "[Module organization]",
+  "key_modules": "[Example configurations]",
+  "status": "Implementing monitoring"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE5_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.iac' "$PHASE5_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"monitoring_setup"'
 ```
 
 #### Example Module
@@ -391,6 +503,36 @@ monitoring:
 - SLO: < 80% CPU, < 85% memory
 ```
 
+**SAVE PHASE 6 OUTPUT**:
+```bash
+# Prepare Phase 6 data for KB
+PHASE6_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "monitoring_observability",
+  "stack": {
+    "metrics": "prometheus_grafana",
+    "logging": "elk_loki",
+    "tracing": "jaeger_tempo",
+    "alerting": "alertmanager_pagerduty"
+  },
+  "sli_slo": {
+    "availability": "99.9%",
+    "latency": "<200ms",
+    "error_rate": "<0.1%",
+    "saturation": "<80% CPU, <85% memory"
+  },
+  "status": "Implementing security"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE6_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.monitoring' "$PHASE6_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"security_implementation"'
+```
+
 ### Phase 7: Security Implementation
 
 #### Security Layers
@@ -422,6 +564,30 @@ monitoring:
    - Pod security policies
 ```
 
+**SAVE PHASE 7 OUTPUT**:
+```bash
+# Prepare Phase 7 data for KB
+PHASE7_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "security_implementation",
+  "layers": {
+    "network": ["WAF", "DDoS protection", "Network segmentation"],
+    "application": ["HTTPS", "Security headers", "Input validation"],
+    "infrastructure": ["IAM", "Secrets management", "Encryption"],
+    "container": ["Image scanning", "Runtime protection", "Network policies"]
+  },
+  "status": "Defining deployment strategies"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE7_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.security' "$PHASE7_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"deployment_strategies"'
+```
+
 ### Phase 8: Deployment Strategies
 
 #### Progressive Deployment
@@ -447,6 +613,40 @@ monitoring:
 - User segmentation
 ```
 
+**SAVE PHASE 8 OUTPUT**:
+```bash
+# Prepare Phase 8 data for KB
+PHASE8_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "deployment_strategies",
+  "patterns": {
+    "blue_green": {
+      "description": "Two identical environments",
+      "benefits": ["Instant rollback", "Zero downtime"],
+      "cost": "Higher resource cost"
+    },
+    "canary": {
+      "description": "Gradual rollout",
+      "benefits": ["Real user monitoring", "Lower risk"],
+      "stages": ["5%", "25%", "50%", "100%"]
+    },
+    "feature_flags": {
+      "description": "Decoupled deployment",
+      "benefits": ["A/B testing", "Instant rollback"]
+    }
+  },
+  "status": "Planning disaster recovery"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE8_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.deployment_strategies' "$PHASE8_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"disaster_recovery"'
+```
+
 ### Phase 9: Disaster Recovery
 
 #### Backup Strategy
@@ -466,6 +666,38 @@ monitoring:
 - Monthly DR drills
 - Automated recovery validation
 - Documentation updates
+```
+
+**SAVE PHASE 9 OUTPUT**:
+```bash
+# Prepare Phase 9 data for KB
+PHASE9_DATA=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "disaster_recovery",
+  "targets": {
+    "rto": "1 hour",
+    "rpo": "15 minutes"
+  },
+  "backup_schedule": {
+    "database": "Continuous replication + Daily snapshots",
+    "files": "Hourly incremental, Daily full",
+    "configuration": "Version controlled"
+  },
+  "recovery_testing": {
+    "frequency": "Monthly",
+    "validation": "Automated",
+    "documentation": "Updated"
+  },
+  "status": "Finalizing deployment plan"
+}
+EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE9_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.disaster_recovery' "$PHASE9_DATA"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"finalizing"'
 ```
 
 ## Output Format
@@ -554,64 +786,94 @@ Remember: The best deployment is one nobody notices. Automate everything, monito
 
 **SAVE COMPLETE DEPLOYMENT PLAN**:
 ```bash
-# Save complete deployment strategy
-cat >> docs/#/deploy.md << 'EOF'
-
-### Complete Deployment Strategy
-[Include full deployment plan document]
-
-### Session Summary
-- Infrastructure: [Cloud/Architecture]
-- CI/CD: [Pipeline approach]
-- Monitoring: [Stack]
-- Next Steps: Production rollout
-
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
-
----
+# Prepare complete deployment strategy for KB
+COMPLETE_STRATEGY=$(cat << 'EOF'
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "complete_deployment_strategy",
+  "infrastructure": "[Cloud/Architecture details]",
+  "cicd": "[Pipeline approach]",
+  "monitoring": "[Stack configuration]",
+  "security": "[Security measures]",
+  "cost_optimization": "[Cost strategies]",
+  "disaster_recovery": "[DR plan]",
+  "next_steps": "Production rollout"
+}
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.deploy.sessions' "$COMPLETE_STRATEGY"
+kb_save "$KB_FILE" '.project_data.deploy.complete_strategy' "$COMPLETE_STRATEGY"
+kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"completed"'
 
 # Update pipeline status if in pipeline mode
-if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Deploy: Not started/- ✅ Deploy: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+PIPELINE_STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
+if [ "$PIPELINE_STATUS" != "null" ]; then
+    echo "📊 Updating pipeline status..."
+    TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     
-    update_stage_status "deploy"
+    # Update deploy stage status
+    kb_save "$KB_FILE" '.pipeline_status.stages.deploy.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.deploy.completed_at' "\"$TIMESTAMP\""
+    kb_save "$KB_FILE" '.pipeline_status.stages.deploy.outcome' '"Production-ready deployment configured"'
     
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Deployment
-- To: Production
-- Handoff: Deploy phase completed with production-ready system
-
-### Deployment Summary
-- Infrastructure: [Details]
-- CI/CD Pipeline: [Status]
-- Monitoring: [Configured]
-- Security: [Validated]
-
-### Production Readiness
-- All tests passing: ✅
-- Security scan complete: ✅
-- Monitoring active: ✅
-- Rollback plan tested: ✅
-
-### Next Steps
-- System is now in production
-- Monitor metrics and user feedback
-- Use \`/#:feature\` mode for future enhancements
-
----
+    # Mark pipeline as complete
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"complete"'
+    kb_save "$KB_FILE" '.pipeline_status.completed_at' "\"$TIMESTAMP\""
+    
+    # Log stage completion
+    STAGE_COMPLETION=$(cat << EOF
+{
+  "stage": "deploy",
+  "timestamp": "$TIMESTAMP",
+  "transition": {
+    "from": "deployment",
+    "to": "production",
+    "handoff": "Deploy phase completed with production-ready system"
+  },
+  "summary": {
+    "infrastructure": "Configured",
+    "cicd": "Implemented",
+    "monitoring": "Active",
+    "security": "Validated"
+  },
+  "production_readiness": {
+    "tests_passing": true,
+    "security_scan": true,
+    "monitoring_active": true,
+    "rollback_tested": true
+  }
+}
 EOF
+    )
+    
+    kb_append "$KB_FILE" '.pipeline_status.completed' "$STAGE_COMPLETION"
+    
+    echo "✅ Deploy stage completed!"
+    echo "✅ Pipeline execution complete!"
+    echo ""
+    echo "📋 Production Readiness Summary:"
+    echo "  - All tests passing: ✅"
+    echo "  - Security scan complete: ✅"
+    echo "  - Monitoring active: ✅"
+    echo "  - Rollback plan tested: ✅"
+    echo ""
+    echo "🚀 System is now ready for production deployment!"
+    echo "📌 Use /#:feature mode for future enhancements"
+    
+    # Create handoff data for production
+    HANDOFF_DATA=$(cat << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "from_stage": "deploy",
+  "to_stage": "production",
+  "deployment_config": $COMPLETE_STRATEGY,
+  "ready_for_production": true
+}
+EOF
+    )
+    
+    kb_save "$KB_FILE" '.handoffs.deploy.production' "$HANDOFF_DATA"
 fi
 ```

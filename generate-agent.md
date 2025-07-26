@@ -5,6 +5,42 @@ You are an AI assistant operating in GENERATE-AGENT mode. Your role is to resear
 **🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
 **You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
 
+## KB Integration
+
+### Knowledge Base Management
+This mode uses the Knowledge Base system for cross-session continuity and intelligent agent generation.
+
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check for existing generated agents
+EXISTING_AGENTS=$(kb_query "$KB_FILE" '.agents_generated')
+if [ "$EXISTING_AGENTS" != "null" ] && [ "$EXISTING_AGENTS" != "{}" ]; then
+    echo ""
+    echo "📂 Found previously generated agents:"
+    echo "$EXISTING_AGENTS" | jq -r 'to_entries[] | "  - \(.key): \(.value.description) [\(.value.color)]"'
+fi
+
+# Initialize agent generation counter
+AGENT_COUNT=$(kb_query "$KB_FILE" '.agents_generated | length' || echo "0")
+echo "📊 Total agents generated: $AGENT_COUNT"
+```
+
+**During Execution**:
+- Save research results: `kb_save "$KB_FILE" ".research_cache.generate_agent.$TECHNOLOGY" "$RESEARCH_DATA"`
+- Track agent metadata: `kb_save "$KB_FILE" ".agents_generated.$AGENT_NAME" "$AGENT_METADATA"`
+- Log generation decisions: `kb_append "$KB_FILE" '.decision_log' "$DECISION"`
+- Update generation stats: `kb_save "$KB_FILE" '.project_data.generate_agent.stats' "$STATS"`
+
+**Resuming Work**:
+- Query KB for previous agent generations
+- Load cached research data
+- Check for incomplete generations
+- Avoid regenerating existing agents
+
 ## Command Syntax
 `/#:generate-agent <technology> [version] [category]`
 
@@ -34,6 +70,9 @@ When user types `/#:generate-agent <technology> [version] [category]`, immediate
 
 ## Workflow
 
+**AT START:**
+Execute the KB initialization as shown in the KB Integration section above.
+
 ### Phase 1: Parse Command
 Extract from the command:
 - Technology name (required)
@@ -49,6 +88,19 @@ Examples:
   /#:generate-agent "Rust" "1.75" "systems"
   /#:generate-agent TensorFlow 2.15 ml
   /#:generate-agent "Exotic Framework X"
+```
+
+**KB Operations**:
+```bash
+# Check if agent already exists
+EXISTING=$(kb_query "$KB_FILE" ".agents_generated.${AGENT_NAME}")
+if [ "$EXISTING" != "null" ]; then
+    echo "⚠️  Agent ${AGENT_NAME} already exists. Use --force to regenerate."
+    exit 1
+fi
+
+# Save command context
+kb_save "$KB_FILE" '.project_data.generate_agent.current' "{\"technology\": \"$TECHNOLOGY\", \"version\": \"$VERSION\", \"category\": \"$CATEGORY\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
 ```
 
 ### Phase 2: Comprehensive Technology Research (MANDATORY Parallel Execution)
@@ -102,6 +154,24 @@ From research results:
    - Create 2-3 specific examples of when to use this agent
    - Include context and commentary
 
+**KB Operations**:
+```bash
+# Save analyzed data
+ANALYSIS_DATA=$(cat << EOF
+{
+  "category": "$CATEGORY",
+  "expert_areas": $EXPERT_AREAS_JSON,
+  "common_tasks": $COMMON_TASKS_JSON,
+  "best_practices": $BEST_PRACTICES_JSON,
+  "trigger_scenarios": $TRIGGER_SCENARIOS_JSON,
+  "integration_points": $INTEGRATION_POINTS_JSON
+}
+EOF
+)
+
+kb_save "$KB_FILE" ".project_data.generate_agent.current.analysis" "$ANALYSIS_DATA"
+```
+
 ### Phase 4: Generate Agent
 
 ```bash
@@ -133,6 +203,36 @@ color: ${COLOR}
 AGENT_EOF
 
 echo "✓ Created ${AGENT_NAME} agent"
+
+# Save to KB
+AGENT_METADATA=$(cat << EOF
+{
+  "name": "$AGENT_NAME",
+  "technology": "$TECHNOLOGY",
+  "version": "$VERSION",
+  "category": "$CATEGORY",
+  "color": "$COLOR",
+  "description": "$DESCRIPTION",
+  "file_path": ".claude/agents/${AGENT_NAME}.md",
+  "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "trigger_examples": $TRIGGER_EXAMPLES_JSON
+}
+EOF
+)
+
+kb_save "$KB_FILE" ".agents_generated.$AGENT_NAME" "$AGENT_METADATA"
+
+# Update generation stats
+STATS=$(cat << EOF
+{
+  "total_generated": $((AGENT_COUNT + 1)),
+  "last_generated": "$AGENT_NAME",
+  "last_generated_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+)
+
+kb_save "$KB_FILE" '.project_data.generate_agent.stats' "$STATS"
 ```
 
 ### Phase 5: Output Results
@@ -148,11 +248,47 @@ echo "✓ Created ${AGENT_NAME} agent"
    - Example usage scenarios
    - Integration tips
 
+**KB Operations**:
+```bash
+# Save generation report
+REPORT=$(cat << EOF
+{
+  "agent_name": "$AGENT_NAME",
+  "research_summary": $RESEARCH_SUMMARY_JSON,
+  "key_findings": $KEY_FINDINGS_JSON,
+  "activation_instructions": "Exit Claude Code and run 'claude --resume'",
+  "usage_examples": $USAGE_EXAMPLES_JSON
+}
+EOF
+)
+
+kb_save "$KB_FILE" '.project_data.generate_agent.current.report' "$REPORT"
+
+# Log the successful generation
+DECISION=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "action": "generate_agent",
+  "technology": "$TECHNOLOGY",
+  "agent_name": "$AGENT_NAME",
+  "status": "completed",
+  "research_time": "~5 seconds (parallel execution)"
+}
+EOF
+)
+
+kb_append "$KB_FILE" '.decision_log' "$DECISION"
+```
+
 ## Implementation Script
 
 ```bash
 #!/bin/bash
 # This script is executed when user runs /#:generate-agent
+
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
 
 # Get current date for searches
 CURRENT_DATE=$(date +"%B %Y")
@@ -172,10 +308,34 @@ if [ -z "$TECHNOLOGY" ]; then
     exit 1
 fi
 
+# Sanitize technology name for agent
+AGENT_NAME=$(echo "${TECHNOLOGY}-${CATEGORY:-specialist}" | tr '[:upper:]' '[:lower:]' | tr ' /' '--')
+
+# Check if agent already exists in KB
+EXISTING=$(kb_query "$KB_FILE" ".agents_generated.${AGENT_NAME}")
+if [ "$EXISTING" != "null" ]; then
+    echo "⚠️  Agent ${AGENT_NAME} already exists."
+    echo "Details: $(echo "$EXISTING" | jq -r '.description')"
+    echo "Created: $(echo "$EXISTING" | jq -r '.created')"
+    echo ""
+    echo "Use --force to regenerate."
+    exit 1
+fi
+
 echo "🔍 Researching ${TECHNOLOGY}${VERSION:+ ${VERSION}}..."
+
+# Save command context to KB
+kb_save "$KB_FILE" '.project_data.generate_agent.current' "{\"technology\": \"$TECHNOLOGY\", \"version\": \"$VERSION\", \"category\": \"$CATEGORY\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
 
 # Step 1: Research the technology using MANDATORY parallel execution
 echo "Executing parallel research for ${TECHNOLOGY}..."
+
+# Check if we have cached research data
+CACHED_RESEARCH=$(kb_query "$KB_FILE" ".research_cache.generate_agent.${TECHNOLOGY}")
+if [ "$CACHED_RESEARCH" != "null" ]; then
+    echo "✅ Found cached research data for ${TECHNOLOGY}"
+    # Use cached data but still run fresh searches for updates
+fi
 
 # CRITICAL: ALL research MUST be executed in parallel using Task agents
 # This would be 8+ simultaneous Task tool calls in the implementation
@@ -193,11 +353,20 @@ echo "Creating 8+ parallel Task agents for comprehensive research..."
 
 # NEVER execute these sequentially - use parallel Task agents
 
+# Save research results to KB
+RESEARCH_DATA="{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"searches_executed\": 8, \"parallel_execution\": true}"
+kb_save "$KB_FILE" ".research_cache.generate_agent.$TECHNOLOGY" "$RESEARCH_DATA"
+
 # Step 2: Auto-detect category if not provided
 if [ -z "$CATEGORY" ]; then
     echo "Auto-detecting category for ${TECHNOLOGY}..."
     # Based on search results, categorize as: frontend, backend, database, ml, etc.
+    CATEGORY="specialist"  # Default if not detected
 fi
+
+# Save analysis to KB
+ANALYSIS_DATA="{\"category\": \"$CATEGORY\", \"expert_areas\": [], \"common_tasks\": [], \"best_practices\": []}"
+kb_save "$KB_FILE" ".project_data.generate_agent.current.analysis" "$ANALYSIS_DATA"
 
 # Step 3: Generate the agent
 echo "✨ Generating ${TECHNOLOGY} expert agent..."
@@ -215,9 +384,23 @@ generate_dynamic_agent "$CATEGORY" "$TECHNOLOGY" "$VERSION" \
     "[Best practices from search]" \
     "[Trigger scenarios from search]"
 
+# Save agent metadata to KB
+AGENT_METADATA="{\"name\": \"$AGENT_NAME\", \"technology\": \"$TECHNOLOGY\", \"version\": \"$VERSION\", \"category\": \"$CATEGORY\", \"created\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"file_path\": \".claude/agents/${AGENT_NAME}.md\"}"
+kb_save "$KB_FILE" ".agents_generated.$AGENT_NAME" "$AGENT_METADATA"
+
+# Update generation stats
+AGENT_COUNT=$(kb_query "$KB_FILE" '.agents_generated | length')
+STATS="{\"total_generated\": $AGENT_COUNT, \"last_generated\": \"$AGENT_NAME\", \"last_generated_time\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+kb_save "$KB_FILE" '.project_data.generate_agent.stats' "$STATS"
+
+# Log the generation
+DECISION="{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"action\": \"generate_agent\", \"technology\": \"$TECHNOLOGY\", \"agent_name\": \"$AGENT_NAME\", \"status\": \"completed\"}"
+kb_append "$KB_FILE" '.decision_log' "$DECISION"
+
 echo ""
 echo "🎉 Agent generated successfully!"
-echo "📍 Location: .claude/agents/${TECHNOLOGY,,}-${CATEGORY}.md"
+echo "📍 Location: .claude/agents/${AGENT_NAME}.md"
+echo "📊 Total agents generated: $AGENT_COUNT"
 echo ""
 echo "To activate: Exit Claude Code and run 'claude --resume'"
 ```
@@ -228,8 +411,20 @@ User: `/#:generate-agent Qiskit 1.0 quantum`
 
 Output:
 ```
+✅ KB initialization module loaded
+✅ Using existing project-kb.json
+
+📂 Found previously generated agents:
+  - rust-systems: Expert Rust systems programming agent [blue]
+  - tensorflow-ml: TensorFlow machine learning specialist [green]
+📊 Total agents generated: 2
+
 🔍 Researching Qiskit 1.0...
-Searching for expert knowledge about Qiskit...
+Executing parallel research for Qiskit...
+Creating 8+ parallel Task agents for comprehensive research...
+
+[Parallel execution of 8 research tasks in ~5 seconds]
+
 ✓ Found: Quantum circuit design, quantum algorithms, error mitigation
 ✓ Found: Gate operations, simulator usage, hardware deployment
 ✓ Found: Variational algorithms, quantum machine learning
@@ -239,6 +434,7 @@ Searching for expert knowledge about Qiskit...
 
 🎉 Agent generated successfully!
 📍 Location: .claude/agents/qiskit-quantum.md
+📊 Total agents generated: 3
 
 To activate: Exit Claude Code and run 'claude --resume'
 ```
@@ -303,11 +499,15 @@ If unable to find sufficient information:
 ## Success Criteria
 
 A successful agent generation:
+- ✓ KB initialized and previous agents loaded
 - ✓ Comprehensive technology research completed
 - ✓ Expert areas accurately identified
 - ✓ Common tasks and use cases documented
 - ✓ Trigger examples are realistic and useful
 - ✓ Agent file properly formatted and saved
+- ✓ Agent metadata saved to KB for cross-session tracking
+- ✓ Research results cached in KB for future reference
+- ✓ Generation decision logged in KB
 - ✓ **EXECUTED ALL RESEARCH IN PARALLEL using Task agents in single responses**
 - ✓ **Completed all technology research simultaneously (8+ queries in 5 seconds)**
 

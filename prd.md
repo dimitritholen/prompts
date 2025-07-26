@@ -30,6 +30,42 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
 
 ## Workflow Phases
 
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load handoff data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "prd" ]; then
+    echo "📋 Loading PRD context from Knowledge Base..."
+    
+    # Load brainstorm handoff data if available
+    HANDOFF_DATA=$(kb_query "$KB_FILE" '.handoffs.brainstorm.prd')
+    if [ "$HANDOFF_DATA" != "null" ]; then
+        echo "✅ Found brainstorm handoff data"
+        ORIGINAL_IDEA=$(echo "$HANDOFF_DATA" | jq -r '.original_idea')
+        FINAL_DIRECTION=$(echo "$HANDOFF_DATA" | jq -r '.final_direction')
+        VIABILITY_SCORE=$(echo "$HANDOFF_DATA" | jq -r '.viability_score')
+        echo "  - Original idea: $ORIGINAL_IDEA"
+        echo "  - Final direction: $FINAL_DIRECTION"
+        echo "  - Viability score: $VIABILITY_SCORE"
+    fi
+    
+    # Check for existing PRD sessions
+    EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.prd.sessions')
+    if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous PRD sessions:"
+        echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    fi
+fi
+
+# Initialize research counter
+RESEARCH_COUNT=0
+```
+
 **CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 ### Phase 1: Discovery and Research (Parallel Execution)
@@ -60,14 +96,13 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
 3. **Research Consolidation**
    - Assess technical complexity from findings
    - Consider scalability and maintenance implications
-   - Check shared research document for existing insights
-   - Update cache with new findings
+   - Check KB research cache for existing insights
+   - Update KB with new findings
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
 # Save research findings
-cat >> docs/#/prd.md << 'EOF'
-
+kb_append .project_data.sessions[] "$(jq -Rs . << 'EOF'
 ## Session: [DATE TIME]
 
 ### Phase 1: Discovery and Research
@@ -82,6 +117,13 @@ cat >> docs/#/prd.md << 'EOF'
 
 ### Status: Proceeding to Phase 2
 EOF
+)"
+
+# Update pipeline status if in pipeline mode
+if kb_exists .project_data.pipeline; then
+    kb_set .project_data.pipeline.stages.prd.phase "1_complete"
+    kb_set .project_data.pipeline.stages.prd.status "in_progress"
+fi
 ```
 
 ### Phase 2: Clarification and Gap Analysis
@@ -109,8 +151,7 @@ EOF
 **SAVE PHASE 2 OUTPUT**:
 ```bash
 # Save clarifications and gap analysis
-cat >> docs/#/prd.md << 'EOF'
-
+kb_append .project_data.sessions[] "$(jq -Rs . << 'EOF'
 ### Phase 2: Clarification and Gap Analysis
 #### User Clarifications
 [Include Q&A from user]
@@ -123,6 +164,12 @@ cat >> docs/#/prd.md << 'EOF'
 
 ### Status: Creating comprehensive PRD
 EOF
+)"
+
+# Update pipeline status if in pipeline mode
+if kb_exists .project_data.pipeline; then
+    kb_set .project_data.pipeline.stages.prd.phase "2_complete"
+fi
 ```
 
 ### Phase 2b: SLC Validation & Feature Prioritization
@@ -174,8 +221,7 @@ Before proceeding, validate:
 **SAVE PHASE 2B OUTPUT**:
 ```bash
 # Save SLC validation
-cat >> docs/#/prd.md << 'EOF'
-
+kb_append .project_data.sessions[] "$(jq -Rs . << 'EOF'
 ### Phase 2b: SLC Validation & Feature Prioritization
 #### SLC Assessment
 - Simple Score: [Score]/5 - [Detailed reasoning]
@@ -191,6 +237,12 @@ cat >> docs/#/prd.md << 'EOF'
 #### Anti-Over-Engineering Validation
 [Confirm all checks passed]
 EOF
+)"
+
+# Update pipeline status if in pipeline mode
+if kb_exists .project_data.pipeline; then
+    kb_set .project_data.pipeline.stages.prd.phase "2b_complete"
+fi
 ```
 
 ### Phase 3: PRD Document Creation
@@ -377,8 +429,7 @@ Create a comprehensive PRD with the following structure, ensuring all features a
 **SAVE PHASE 3 OUTPUT**:
 ```bash
 # Save complete PRD and generate domain agents
-cat >> docs/#/prd.md << 'EOF'
-
+kb_append .project_data.sessions[] "$(jq -Rs . << 'EOF'
 ### Phase 3: Complete PRD
 [Include entire PRD document above]
 
@@ -393,6 +444,21 @@ cat >> docs/#/prd.md << 'EOF'
 
 ---
 EOF
+)"
+
+# Save the complete PRD to final location
+kb_set .project_data.prd.final "$(jq -Rs . << 'EOF'
+[Include entire PRD document above]
+EOF
+)"
+
+# Update pipeline status if in pipeline mode
+if kb_exists .project_data.pipeline; then
+    kb_set .project_data.pipeline.stages.prd.status "completed"
+    kb_set .project_data.pipeline.stages.prd.completed_at "$(date +"%Y-%m-%d %H:%M:%S")"
+    kb_set .project_data.pipeline.current_stage "architect"
+    kb_set .project_data.pipeline.stages.architect.status "ready"
+fi
 
 # Generate domain-specific agents based on PRD analysis
 echo "Generating domain and business logic agents..."
@@ -592,8 +658,7 @@ AGENT_EOF
 fi
 
 # Log agent generation
-cat >> docs/#/prd.md << 'EOF'
-
+kb_append .project_data.sessions[] "$(jq -Rs . << 'EOF'
 ### Generated Domain Agents
 [List all generated domain-specific agents with their specialties]
 
@@ -605,6 +670,7 @@ To use these agents, restart Claude Code and resume your session:
 claude --resume
 ```
 EOF
+)"
 
 echo "Domain agent generation complete!"
 echo ""

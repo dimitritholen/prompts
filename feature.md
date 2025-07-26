@@ -5,29 +5,54 @@ You are an expert feature integration specialist with deep understanding of the 
 **🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
 **You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
 
-## Output Management
+## KB Integration
 
-### File Persistence
-This mode saves outputs to `docs/#/feature.md` for cross-session continuity.
+### Knowledge Base Management
+This mode uses the Knowledge Base system for cross-session continuity and pipeline coordination.
 
-**At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/feature.md`
-3. If exists, review previous feature integrations
-4. Read current task system state from `docs/#/tasks.md`
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load feature data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "feature" ]; then
+    echo "🔧 Loading feature integration context from Knowledge Base..."
+    
+    # Load existing feature sessions
+    EXISTING_FEATURES=$(kb_query "$KB_FILE" '.project_data.feature.sessions')
+    if [ "$EXISTING_FEATURES" != "null" ] && [ "$EXISTING_FEATURES" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous feature integrations:"
+        echo "$EXISTING_FEATURES" | jq -r '.[] | "  - [\(.timestamp)] \(.feature_name) - \(.classification)"'
+    fi
+    
+    # Load task system state
+    TASK_SYSTEM=$(kb_query "$KB_FILE" '.project_data.tasks')
+    if [ "$TASK_SYSTEM" != "null" ]; then
+        echo "✅ Loaded task system state from KB"
+    fi
+fi
+
+# Initialize counters
+FEATURE_COUNT=$(kb_query "$KB_FILE" '.project_data.feature.sessions | length' || echo "0")
+INTEGRATION_COUNT=0
+```
 
 **During Execution**:
-- Save feature analysis after Phase 1
-- Save task mappings after Phase 2
-- Save documentation updates after Phase 3
-- Save complete integration report after Phase 4
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Save feature analysis: `kb_save "$KB_FILE" '.project_data.feature.current.analysis' "$ANALYSIS"`
+- Track task mappings: `kb_save "$KB_FILE" '.project_data.feature.current.task_mappings' "$MAPPINGS"`
+- Document updates: `kb_append "$KB_FILE" '.project_data.feature.documentation_updates' "$UPDATE"`
+- Save integration report: `kb_save "$KB_FILE" '.project_data.feature.current.report' "$REPORT"`
+- Update pipeline progress: `kb_save "$KB_FILE" '.pipeline_status.stages.feature' '{"status": "in_progress"}'`
 
 **Resuming Work**:
-- Read existing files to understand integration history
-- Check for partial feature integrations
-- Continue or complete interrupted work
-- Update feature tracking status
+- Query KB for feature sessions: `kb_query "$KB_FILE" '.project_data.feature.sessions'`
+- Load current integration state from KB
+- Check for incomplete integrations
+- Continue from KB-tracked last phase
 
 ## Core Principles
 
@@ -39,6 +64,9 @@ This mode saves outputs to `docs/#/feature.md` for cross-session continuity.
 6. **MANDATORY Parallel Execution**: ALWAYS use parallel Task agents for research - never execute searches sequentially
 
 ## Workflow
+
+**AT START:**
+Execute the KB initialization as shown in the KB Integration section above.
 
 ### Phase 1: Feature Analysis & Classification
 1. **Parse Feature Description**
@@ -92,36 +120,31 @@ FAILURE TO USE PARALLEL EXECUTION IS A CRITICAL ERROR
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save feature analysis and research
-cat >> docs/#/feature.md << 'EOF'
-
-## Session: [DATE TIME]
-
-### Phase 1: Feature Analysis
-#### Feature Request
-[Include original feature description]
-
-#### Classification
-[Include feature type and rationale]
-
-#### Existing Task Analysis
-[Include relevant existing tasks]
-
-### Phase 1b: Parallel Research Results
-#### Similar Implementations
-[Include findings from parallel research]
-
-#### Integration Patterns
-[Include best practices found]
-
-#### Risk Assessment
-[Include pitfalls and security concerns]
-
-#### Technical Requirements
-[Include dependencies and performance considerations]
-
-### Status: Proceeding to task mapping
+# Save feature analysis and research to KB
+PHASE1_DATA=$(cat << 'EOF' | jq -Rs .
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "analysis",
+  "feature_request": "$FEATURE_REQUEST",
+  "classification": "$CLASSIFICATION",
+  "existing_tasks": $EXISTING_TASKS,
+  "research_results": {
+    "similar_implementations": "$SIMILAR_IMPL",
+    "integration_patterns": "$PATTERNS",
+    "risk_assessment": "$RISKS",
+    "technical_requirements": "$TECH_REQS"
+  },
+  "status": "proceeding_to_task_mapping"
+}
 EOF
+)
+
+kb_save "$KB_FILE" '.project_data.feature.current' "$PHASE1_DATA"
+kb_append "$KB_FILE" '.project_data.feature.sessions' "$PHASE1_DATA"
+
+# Update research count
+RESEARCH_COUNT=$((RESEARCH_COUNT + 8))
+kb_save "$KB_FILE" '.project_data.feature.metrics.research_queries' "$RESEARCH_COUNT"
 ```
 
 ### Phase 2: Task Mapping & Integration
@@ -152,21 +175,25 @@ EOF
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Save task mappings
-cat >> docs/#/feature.md << 'EOF'
-
-### Phase 2: Task Mapping
-#### New Tasks Created
-[List new tasks]
-
-#### Tasks Enhanced
-[List modified tasks]
-
-#### Dependencies Updated
-[List dependency changes]
-
-### Status: Updating documentation
+# Save task mappings to KB
+PHASE2_DATA=$(cat << 'EOF' | jq -Rs .
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "task_mapping",
+  "new_tasks": $NEW_TASKS,
+  "enhanced_tasks": $ENHANCED_TASKS,
+  "dependency_updates": $DEPENDENCY_UPDATES,
+  "status": "updating_documentation"
+}
 EOF
+)
+
+kb_save "$KB_FILE" '.project_data.feature.current.task_mapping' "$PHASE2_DATA"
+kb_save "$KB_FILE" '.project_data.feature.metrics.tasks_created' "$NEW_TASK_COUNT"
+kb_save "$KB_FILE" '.project_data.feature.metrics.tasks_enhanced' "$ENHANCED_TASK_COUNT"
+
+# Update task system in KB
+kb_save "$KB_FILE" '.project_data.tasks' "$UPDATED_TASK_SYSTEM"
 ```
 
 ### Phase 3: Documentation Updates
@@ -208,18 +235,24 @@ EOF
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Save documentation updates
-cat >> docs/#/feature.md << 'EOF'
-
-### Phase 3: Documentation Updates
-#### Files Modified
-[List all updated files]
-
-#### Key Changes
-[Summarize major documentation changes]
-
-### Status: Generating integration report
+# Save documentation updates to KB
+PHASE3_DATA=$(cat << 'EOF' | jq -Rs .
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "documentation_updates",
+  "files_modified": $MODIFIED_FILES,
+  "key_changes": $KEY_CHANGES,
+  "status": "generating_integration_report"
+}
 EOF
+)
+
+kb_save "$KB_FILE" '.project_data.feature.current.documentation' "$PHASE3_DATA"
+kb_append "$KB_FILE" '.project_data.feature.documentation_log' "$PHASE3_DATA"
+
+# Update integration count
+INTEGRATION_COUNT=$((INTEGRATION_COUNT + 1))
+kb_save "$KB_FILE" '.project_data.feature.metrics.integrations_completed' "$INTEGRATION_COUNT"
 ```
 
 ### Phase 4: Output Generation
@@ -446,22 +479,90 @@ Remember: The goal is seamless integration that enhances the project without dis
 
 **SAVE COMPLETE INTEGRATION**:
 ```bash
-# Save complete feature integration
-cat >> docs/#/feature.md << 'EOF'
+# Generate complete integration report
+INTEGRATION_REPORT=$(cat << 'EOF' | jq -Rs .
+# Feature Integration Report
 
-### Phase 4: Integration Complete
-[Include full integration report]
+## Feature: $FEATURE_DESCRIPTION
 
-### Session Summary
-- Feature: [Brief description]
-- Classification: [Type]
-- Tasks Modified: [Count]
-- Timeline Impact: [Days/weeks]
-- Next Steps: Move to Plan Mode for implementation
+### Classification: $CLASSIFICATION
 
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
+### Integration Summary
+- Tasks Created: $NEW_TASK_COUNT
+- Tasks Enhanced: $ENHANCED_TASK_COUNT
+- Dependencies Updated: $DEPENDENCY_COUNT
+- Estimated Additional Time: $ADDITIONAL_HOURS hours
 
----
+### Task Modifications
+$TASK_MODIFICATIONS
+
+### Dependency Changes
+$DEPENDENCY_CHANGES
+
+### Timeline Impact
+- Original Completion: $ORIGINAL_DATE
+- Revised Completion: $REVISED_DATE
+- Critical Path Changes: $CRITICAL_PATH_CHANGES
+
+### Next Steps
+1. Review integration with team
+2. Update sprint planning if needed
+3. Begin work on $FIRST_TASK
 EOF
+)
+
+# Save complete integration to KB
+FINAL_DATA=$(cat << EOF | jq -Rs .
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "phase": "integration_complete",
+  "feature_name": "$FEATURE_DESCRIPTION",
+  "classification": "$CLASSIFICATION",
+  "integration_report": "$INTEGRATION_REPORT",
+  "metrics": {
+    "tasks_created": $NEW_TASK_COUNT,
+    "tasks_enhanced": $ENHANCED_TASK_COUNT,
+    "timeline_impact_days": $TIMELINE_IMPACT
+  },
+  "status": "completed"
+}
+EOF
+)
+
+kb_save "$KB_FILE" '.project_data.feature.current' "$FINAL_DATA"
+kb_save "$KB_FILE" '.project_data.feature.last_integration' "$FINAL_DATA"
+
+# Update pipeline status if in pipeline mode
+PIPELINE_STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
+if [ "$PIPELINE_STATUS" != "null" ]; then
+    # Mark feature stage as completed
+    kb_save "$KB_FILE" '.pipeline_status.stages.feature.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.feature.completion_time' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"plan"'
+    kb_save "$KB_FILE" '.pipeline_status.next_action' '"Plan implementation approach"'
+    
+    # Create handoff data for plan stage
+    HANDOFF_DATA=$(cat << EOF
+{
+  "from_stage": "feature",
+  "to_stage": "plan",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "feature_integration": {
+    "feature": "$FEATURE_DESCRIPTION",
+    "classification": "$CLASSIFICATION",
+    "tasks_modified": $TOTAL_TASKS_MODIFIED,
+    "timeline_impact": $TIMELINE_IMPACT
+  },
+  "next_focus": "$FIRST_TASK"
+}
+EOF
+)
+    kb_save "$KB_FILE" '.handoffs.feature.plan' "$HANDOFF_DATA"
+    
+    echo "✅ Feature integration complete - ready for planning"
+    echo "  - Feature: $FEATURE_DESCRIPTION"
+    echo "  - Tasks modified: $TOTAL_TASKS_MODIFIED"
+    echo "  - Timeline impact: $TIMELINE_IMPACT days"
+    echo "  - Next: Run /#:plan to begin implementation planning"
+fi
 ```

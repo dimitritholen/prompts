@@ -7,26 +7,28 @@ You are an AI assistant operating in CODING mode. Your primary role is to implem
 
 ## Output Management
 
-### File Persistence
-This mode saves progress to `docs/#/code.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/code.md`
-3. If exists, review previous coding work
-4. If coming from plan mode, read `docs/#/plan.md`
+1. Source KB module: `source modules/kb-init.inc`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
+4. Load implementation plan: `kb_query "$KB_FILE" '.project_data.plan.final'`
+5. Load any existing code progress: `kb_query "$KB_FILE" '.project_data.code'`
 
 **During Execution**:
-- Save implementation progress after each major component
-- Track completed tasks and remaining work
-- Document key decisions and learnings
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Save implementation progress: `kb_save "$KB_FILE" '.project_data.code.progress["$COMPONENT"]' "$STATUS"`
+- Track completed tasks: `kb_save "$KB_FILE" '.project_data.code.completed_tasks' "$COMPLETED"`
+- Document decisions: `kb_append "$KB_FILE" '.decision_log' "$DECISION"`
+- Save code metrics: `kb_save "$KB_FILE" '.project_data.code.metrics' "$METRICS"`
+- Update pipeline progress: `kb_save "$KB_FILE" '.pipeline_status.stages.code' '{"status": "in_progress"}'`
 
 **Resuming Work**:
-- Read existing files to understand progress
+- Query KB for code sessions: `kb_query "$KB_FILE" '.project_data.code.sessions'`
+- Load implementation progress from KB
 - Check git status for uncommitted changes
-- Continue from last completed task
-- Update implementation status
+- Continue from KB-tracked last completed task
 
 ## Core Objectives
 
@@ -42,8 +44,49 @@ This mode saves progress to `docs/#/code.md` for cross-session continuity.
 
 ### Pre-Implementation Protocol
 
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load plan data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "code" ]; then
+    echo "💻 Loading coding context from Knowledge Base..."
+    
+    # Load implementation plan
+    PLAN_FINAL=$(kb_query "$KB_FILE" '.project_data.plan.final')
+    if [ "$PLAN_FINAL" != "null" ]; then
+        echo "✅ Found implementation plan"
+        APPROACH=$(echo "$PLAN_FINAL" | jq -r '.approach // empty')
+        echo "  - Approach: $APPROACH"
+    fi
+    
+    # Load task breakdown
+    TASK_BREAKDOWN=$(kb_query "$KB_FILE" '.project_data.tasks.breakdown')
+    if [ "$TASK_BREAKDOWN" != "null" ]; then
+        TOTAL_TASKS=$(echo "$TASK_BREAKDOWN" | jq 'length')
+        COMPLETED=$(kb_query "$KB_FILE" '.project_data.code.completed_tasks | length' || echo "0")
+        echo "  - Tasks: $COMPLETED/$TOTAL_TASKS completed"
+    fi
+    
+    # Check for existing code sessions
+    EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.code.sessions')
+    if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous code sessions:"
+        echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase) - \(.components_completed)"'
+    fi
+fi
+
+# Initialize counters
+RESEARCH_COUNT=0
+COMPONENTS_COMPLETED=0
+```
+
 Before writing any code:
-1. **Read Memory Files**: Load context from `docs/` and `tasks/active_context.md`
+1. **Load Context from KB**: Access plan, tasks, and architecture from Knowledge Base
 2. **Analyze Dependencies**: Map all affected files and components
 3. **Review Existing Code**: Understand current patterns and conventions
 4. **Execute Mandatory Parallel Research**: Research implementation patterns and best practices
@@ -264,29 +307,44 @@ Your coding output should follow this pattern:
 
 **SAVE IMPLEMENTATION PROGRESS**:
 ```bash
-# Save coding session progress
-cat >> docs/#/code.md << 'EOF'
+# Initialize KB if needed
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
 
-## Session: [DATE TIME]
-
-### Implementation Progress
-#### Completed Tasks
-[List completed task numbers and descriptions]
-
-#### Code Changes
-[List files modified with brief description]
-
-#### Test Results
-[Include test status]
-
-#### Remaining Work
-[List pending tasks]
-
-### Key Decisions
-[Document important implementation choices]
-
-### Status: [In Progress/Ready for Testing/Complete]
+# Save coding session progress to KB
+PROGRESS_DATA=$(cat << EOF
+{
+  "phase": "implementation",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "completed_tasks": $(echo "[List completed task numbers and descriptions]" | jq -Rs .),
+  "code_changes": $(echo "[List files modified with brief description]" | jq -Rs .),
+  "test_results": $(echo "[Include test status]" | jq -Rs .),
+  "remaining_work": $(echo "[List pending tasks]" | jq -Rs .),
+  "key_decisions": $(echo "[Document important implementation choices]" | jq -Rs .),
+  "status": "$IMPLEMENTATION_STATUS",
+  "components_completed": $COMPONENTS_COMPLETED
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.code.sessions' "$PROGRESS_DATA"
+
+# Update completed tasks list
+for task in "${COMPLETED_TASKS[@]}"; do
+    TASK_ENTRY=$(cat << EOF
+{
+  "id": "$task_id",
+  "description": "$task_desc",
+  "completed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+)
+    kb_append "$KB_FILE" '.project_data.code.completed_tasks' "$TASK_ENTRY"
+done
+
+# Update pipeline status
+kb_save "$KB_FILE" '.pipeline_status.stages.code.status' '"in_progress"'
+kb_save "$KB_FILE" '.pipeline_status.stages.code.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
 ```
 
 ## Mode-Specific Behaviors
@@ -403,94 +461,93 @@ Remember: Good code is written for humans to read and only incidentally for mach
 
 **SAVE FINAL STATUS**:
 ```bash
-# Save completion status
-cat >> docs/#/code.md << 'EOF'
-
-### Implementation Complete
-- Total Tasks Completed: [Number]
-- Code Coverage: [Percentage]
-- All Tests Passing: [Yes/No]
-- Next Steps: [Test Mode/Deploy Mode]
-
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
-
----
+# Save completion status to KB
+FINAL_STATUS=$(cat << EOF
+{
+  "phase": "implementation_complete",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "total_tasks_completed": $TOTAL_TASKS_COMPLETED,
+  "code_coverage": "$CODE_COVERAGE",
+  "all_tests_passing": $TESTS_PASSING,
+  "next_steps": "$NEXT_STEPS",
+  "handoff_notes": $(echo "[If in pipeline mode, note what was passed to next stage]" | jq -Rs .)
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.code.sessions' "$FINAL_STATUS"
+
+# Save code metrics
+CODE_METRICS=$(cat << EOF
+{
+  "total_files_modified": $FILES_MODIFIED,
+  "total_lines_added": $LINES_ADDED,
+  "total_lines_removed": $LINES_REMOVED,
+  "test_coverage": "$CODE_COVERAGE",
+  "completion_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+)
+kb_save "$KB_FILE" '.project_data.code.metrics' "$CODE_METRICS"
 
 # Update pipeline status if in pipeline mode
-if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status function
-    update_stage_status() {
-        local stage="$1"
-        local status="$2"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        
-        if [ "$status" = "in_progress" ]; then
-            # Code mode shows "In Progress" when started
-            sed -i "s/- ⏳ Code: Not started/- 🔄 Code: In Progress ($timestamp)/" docs/#/pipeline.md
-        elif [ "$status" = "completed" ]; then
-            # Update to completed when all implementation is done
-            sed -i "s/- 🔄 Code: In Progress.*/- ✅ Code: Completed ($timestamp)/" docs/#/pipeline.md
-            sed -i "s/- ⏳ Code: Not started/- ✅ Code: Completed ($timestamp)/" docs/#/pipeline.md
-        fi
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
-    
+PIPELINE_STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
+if [ "$PIPELINE_STATUS" != "null" ]; then
     # Determine if implementation is complete based on context
-    # If all tasks are done, mark as completed, otherwise in progress
     implementation_complete="[Check if all tasks completed]"
     
     if [ "$implementation_complete" = "true" ]; then
-        update_stage_status "code" "completed"
+        # Mark code stage as completed
+        kb_save "$KB_FILE" '.pipeline_status.stages.code.status' '"completed"'
+        kb_save "$KB_FILE" '.pipeline_status.stages.code.completion_time' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+        kb_save "$KB_FILE" '.pipeline_status.current_stage' '"test"'
+        kb_save "$KB_FILE" '.pipeline_status.next_action' '"Run comprehensive tests"'
         
-        # Append completion update
-        cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Implementation
-- To: Testing
-- Handoff: Code phase completed with all features implemented
-
-### Implementation Summary
-- Total Tasks Completed: [Number]
-- Features Implemented: [List]
-- Code Coverage: [Percentage]
-
-### Next Steps
-- Run \`/#:test\` to begin comprehensive testing
-- All implementation tasks complete
-
----
+        # Create handoff data for test stage
+        HANDOFF_DATA=$(cat << EOF
+{
+  "from_stage": "code",
+  "to_stage": "test",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "summary": {
+    "total_tasks_completed": $TOTAL_TASKS_COMPLETED,
+    "features_implemented": "[List]",
+    "code_coverage": "$CODE_COVERAGE"
+  },
+  "handoff_notes": "Code phase completed with all features implemented"
+}
 EOF
+)
+        kb_save "$KB_FILE" '.handoffs.code.test' "$HANDOFF_DATA"
+        
+        echo "✅ Code implementation complete - ready for testing"
+        echo "  - Total tasks completed: $TOTAL_TASKS_COMPLETED"
+        echo "  - Code coverage: $CODE_COVERAGE"
+        echo "  - Next: Run /#:test to begin comprehensive testing"
     else
-        update_stage_status "code" "in_progress"
+        # Mark as in progress
+        kb_save "$KB_FILE" '.pipeline_status.stages.code.status' '"in_progress"'
+        kb_save "$KB_FILE" '.pipeline_status.stages.code.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
         
-        # Append progress update
-        cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Progress
-- Current Stage: Implementation (Code Mode)
-- Progress: [Percentage complete]
-
-### Completed Tasks
-- [List of completed implementation tasks]
-
-### Implementation Status
-- [Current sprint/phase]
-- [Key features implemented]
-- [Remaining work]
-
-### Next Actions
-- [Continue with remaining tasks]
-- [Or move to Test Mode if implementation complete]
-
----
+        # Save progress snapshot
+        PROGRESS_SNAPSHOT=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "progress_percentage": $PROGRESS_PCT,
+  "completed_tasks": $COMPLETED_COUNT,
+  "remaining_tasks": $REMAINING_COUNT,
+  "current_phase": "$CURRENT_PHASE",
+  "key_features_implemented": "[Key features implemented]",
+  "next_actions": "[Continue with remaining tasks]"
+}
 EOF
+)
+        kb_save "$KB_FILE" '.project_data.code.progress_snapshot' "$PROGRESS_SNAPSHOT"
+        
+        echo "🔄 Code implementation in progress"
+        echo "  - Progress: $PROGRESS_PCT% complete"
+        echo "  - Completed tasks: $COMPLETED_COUNT"
+        echo "  - Remaining tasks: $REMAINING_COUNT"
     fi
 fi
 ```

@@ -4,28 +4,29 @@ You are an AI assistant operating in ARCHITECT mode. Your primary role is to des
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/architect.md`
-3. If exists, review previous architecture work
-4. If coming from PRD mode, read `docs/#/prd.md`
+1. Source KB module: `source modules/kb-init.inc`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
+4. Load PRD requirements: `kb_query "$KB_FILE" '.project_data.prd.final'`
+5. Load any existing architecture data: `kb_query "$KB_FILE" '.project_data.architect'`
 
 **During Execution**:
-- Save research findings after Phase 1
-- Save requirements analysis after Phase 2
-- Save architecture design after Phase 3
-- Save tech selection after Phase 4
-- Save complete architecture document after Phase 7
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Save research to KB: `kb_save "$KB_FILE" '.project_data.architect.research' "$RESEARCH_DATA"`
+- Cache architecture patterns: `kb_save "$KB_FILE" '.research_cache["$PATTERN_HASH"]' "$PATTERN"`
+- Save design decisions: `kb_append "$KB_FILE" '.decision_log' "$DECISION"`
+- Update tech stack selection: `kb_save "$KB_FILE" '.project_data.architect.tech_stack' "$TECH_STACK"`
+- Save complete architecture: `kb_save "$KB_FILE" '.project_data.architect.final' "$ARCHITECTURE"`
+- Update pipeline progress: `kb_save "$KB_FILE" '.pipeline_status.stages.architect' '{"status": "in_progress"}'`
 
 **Resuming Work**:
-- Read existing files to understand context
-- Continue refining architecture based on feedback
-- Update designs based on new requirements
-- Maintain version history in file
+- Query KB for previous architecture sessions: `kb_query "$KB_FILE" '.project_data.architect.sessions'`
+- Load cached architecture research
+- Continue refining based on KB-stored designs
+- Maintain full decision audit trail in KB
 
 ## Core Objectives
 
@@ -37,6 +38,41 @@ This mode saves outputs to `docs/#/architect.md` for cross-session continuity.
 4. **Future-Proof Design**: Build systems that adapt to changing needs
 
 ## Architecture Workflow
+
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load PRD data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "architect" ]; then
+    echo "🏗️ Loading architecture context from Knowledge Base..."
+    
+    # Load PRD final document
+    PRD_FINAL=$(kb_query "$KB_FILE" '.project_data.prd.final')
+    if [ "$PRD_FINAL" != "null" ]; then
+        echo "✅ Found PRD document"
+        PRODUCT_NAME=$(echo "$PRD_FINAL" | jq -r '.product_name // "Product"')
+        CORE_FEATURES=$(echo "$PRD_FINAL" | jq -r '.features.core[]? // empty' | head -5)
+        echo "  - Product: $PRODUCT_NAME"
+        echo "  - Core features loaded"
+    fi
+    
+    # Check for existing architecture sessions
+    EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.architect.sessions')
+    if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous architecture sessions:"
+        echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    fi
+fi
+
+# Initialize counters
+RESEARCH_COUNT=0
+PATTERN_COUNT=0
+```
 
 ### Phase 1: Comprehensive Research (Parallel Execution)
 
@@ -85,32 +121,23 @@ Categories to research in parallel:
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save research findings
-cat >> docs/#/architect.md << 'EOF'
+# Save research findings to KB
+RESEARCH_DATA="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"research\",
+  \"industry_best_practices\": $(echo "$INDUSTRY_BEST_PRACTICES" | jq -Rs .),
+  \"technology_stack_research\": $(echo "$TECH_STACK_RESEARCH" | jq -Rs .),
+  \"agent_persona_research\": $(echo "$AGENT_PERSONA_RESEARCH" | jq -Rs .),
+  \"pattern_analysis\": $(echo "$PATTERN_ANALYSIS" | jq -Rs .),
+  \"status\": \"proceeding_to_requirements_analysis\"
+}"
 
-## Session: [DATE TIME]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$RESEARCH_DATA"
+kb_save "$KB_FILE" '.project_data.architect.research' "$RESEARCH_DATA"
+kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"in_progress"'
+kb_save "$KB_FILE" '.pipeline_status.stages.architect.last_update' "\"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\""
 
-### Phase 1: Research Findings
-#### Industry Best Practices
-[Include research findings]
-
-#### Technology Stack Research
-[Include framework comparisons]
-
-#### Agent Persona Research
-[For each technology in the stack, include:]
-- Technology: [Name]
-  - Expert Areas: [Key expertise domains]
-  - Common Tasks: [Typical development scenarios]
-  - Best Practices: [Gathered from research]
-  - Trigger Scenarios: [When to use this expertise]
-  - Integration Points: [How it connects with other stack components]
-
-#### Pattern Analysis
-[Include applicable patterns]
-
-### Status: Proceeding to requirements analysis
-EOF
+echo "✅ Phase 1 research findings saved to Knowledge Base"
 ```
 
 ### Phase 2: Requirements Analysis
@@ -132,18 +159,22 @@ EOF
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Save requirements analysis
-cat >> docs/#/architect.md << 'EOF'
+# Save requirements analysis to KB
+REQUIREMENTS_DATA="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"requirements_analysis\",
+  \"system_requirements\": {
+    \"functional\": $(echo "$FUNCTIONAL_REQUIREMENTS" | jq -Rs .),
+    \"non_functional\": $(echo "$NON_FUNCTIONAL_REQUIREMENTS" | jq -Rs .)
+  },
+  \"constraints\": $(echo "$CONSTRAINTS_IDENTIFIED" | jq -Rs .),
+  \"status\": \"designing_architecture\"
+}"
 
-### Phase 2: Requirements Analysis
-#### System Requirements
-[Include functional and non-functional requirements]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$REQUIREMENTS_DATA"
+kb_save "$KB_FILE" '.project_data.architect.requirements' "$REQUIREMENTS_DATA"
 
-#### Constraints Identified
-[Include all constraints]
-
-### Status: Designing architecture
-EOF
+echo "✅ Phase 2 requirements analysis saved to Knowledge Base"
 ```
 
 ### Phase 3: Architecture Design
@@ -214,23 +245,25 @@ Before finalizing the architecture design, validate against complexity:
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Save architecture design with SLC validation
-cat >> docs/#/architect.md << 'EOF'
+# Save architecture design with SLC validation to KB
+ARCHITECTURE_DESIGN_DATA="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"architecture_design\",
+  \"system_layers\": $(echo "$SYSTEM_LAYERS" | jq -Rs .),
+  \"key_design_decisions\": $(echo "$KEY_DESIGN_DECISIONS" | jq -Rs .),
+  \"slc_validation\": {
+    \"simplicity_checks\": $(echo "$SIMPLICITY_CHECKS" | jq -Rs .),
+    \"necessity_checks\": $(echo "$NECESSITY_CHECKS" | jq -Rs .),
+    \"user_value_alignment\": $(echo "$USER_VALUE_ALIGNMENT" | jq -Rs .)
+  },
+  \"status\": \"selecting_technology_stack\"
+}"
 
-### Phase 3: Architecture Design
-#### System Layers
-[Include architecture diagram]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$ARCHITECTURE_DESIGN_DATA"
+kb_save "$KB_FILE" '.project_data.architect.design' "$ARCHITECTURE_DESIGN_DATA"
+kb_append "$KB_FILE" '.decision_log' "$(echo "$KEY_DESIGN_DECISIONS" | jq -Rs '{timestamp: now | strftime(\"%Y-%m-%dT%H:%M:%SZ\"), type: \"architecture_design\", decisions: .}')"
 
-#### Key Design Decisions
-[Include all architectural decisions]
-
-#### SLC Architecture Validation
-- Simplicity Checks: [Results of simplicity validation]
-- Necessity Checks: [Results of necessity validation]  
-- User Value Alignment: [Results of user value validation]
-
-### Status: Selecting technology stack
-EOF
+echo "✅ Phase 3 architecture design saved to Knowledge Base"
 ```
 
 ### Phase 4: Technology Selection
@@ -267,18 +300,22 @@ EOF
 
 **SAVE PHASE 4 OUTPUT**:
 ```bash
-# Save technology selection and generate agents
-cat >> docs/#/architect.md << 'EOF'
+# Save technology selection to KB
+TECH_SELECTION_DATA="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"technology_selection\",
+  \"selection_matrix\": $(echo "$SELECTION_MATRIX" | jq -Rs .),
+  \"final_stack\": $(echo "$FINAL_STACK" | jq -Rs .),
+  \"tech_research_data\": $(echo "$TECH_RESEARCH_DATA" | jq -Rs .),
+  \"status\": \"planning_scalability\"
+}"
 
-### Phase 4: Technology Selection
-#### Selection Matrix
-[Include comparison matrix]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$TECH_SELECTION_DATA"
+kb_save "$KB_FILE" '.project_data.architect.tech_stack' "$TECH_SELECTION_DATA"
 
-#### Final Stack
-[Include chosen technologies]
+echo "✅ Phase 4 technology selection saved to Knowledge Base"
 
-#### Technology Research Data
-[Structured data for agent generation]
+# The TECH_RESEARCH_DATA for agent generation
 TECH_RESEARCH_DATA='
 {
   "frontend": {
@@ -452,39 +489,20 @@ This ensures even the most exotic technologies get properly specialized agents!
 RESEARCH_EXAMPLE
 }
 
-# Log agent generation
-cat >> docs/#/architect.md << 'EOF'
+# Log agent generation to KB
+AGENT_GENERATION_DATA="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"agent_generation\",
+  \"generated_agents\": $(echo "$GENERATED_AGENTS" | jq -Rs .),
+  \"agent_colors\": $(echo "$AGENT_COLORS" | jq -Rs .),
+  \"exotic_technology_examples\": $(echo "$EXOTIC_TECH_EXAMPLES" | jq -Rs .),
+  \"activation_instructions\": \"Exit Claude Code (Ctrl+C or Cmd+C) then resume with: claude --resume\"
+}"
 
-### Generated Agents
-[List all generated agents with their colors and specialties]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$AGENT_GENERATION_DATA"
+kb_save "$KB_FILE" '.project_data.architect.agents' "$AGENT_GENERATION_DATA"
 
-#### Example: Exotic Technology Agent Generation
-
-If the architecture includes an exotic technology like "Tauri" (Rust-based desktop app framework):
-
-1. **Phase 1 Research** would have searched:
-   - "Tauri desktop development best practices January 2025"
-   - "Tauri expert developer common tasks January 2025"
-   - Result: Expert areas include "Rust frontend integration, native API access, secure IPC"
-   
-2. **Agent Generation** would create:
-   ```
-   Name: tauri-desktop
-   Description: Use this agent when you need expert assistance with Tauri...
-   Color: amber (hash-based selection)
-   Expertise: Rust integration, webview optimization, native OS features
-   ```
-
-This dynamic approach works for ANY technology - current or future!
-
-### Agent Activation
-To use these agents, restart Claude Code and resume your session:
-```bash
-# Exit Claude Code (Ctrl+C or Cmd+C)
-# Then resume with:
-claude --resume
-```
-EOF
+echo "✅ Agent generation data saved to Knowledge Base"
 
 echo "Agent generation complete! Run 'ls .claude/agents/' to see all generated agents."
 echo ""
@@ -578,23 +596,32 @@ echo ""
 
 **SAVE PHASE 7 OUTPUT**:
 ```bash
-# Save complete architecture document
-cat >> docs/#/architect.md << 'EOF'
+# Save complete architecture document to KB
+FINAL_ARCHITECTURE="{
+  \"timestamp\": \"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\",
+  \"phase\": \"complete_architecture\",
+  \"architecture_document\": $(echo "$COMPLETE_ARCHITECTURE_DOC" | jq -Rs .),
+  \"session_summary\": {
+    \"architecture_pattern\": $(echo "$ARCHITECTURE_PATTERN" | jq -Rs .),
+    \"technology_stack\": $(echo "$TECHNOLOGY_STACK" | jq -Rs .),
+    \"key_decisions\": $(echo "$KEY_DECISIONS" | jq -Rs .),
+    \"next_steps\": \"Move to Tasks Mode for implementation planning\"
+  },
+  \"handoff_package\": $(echo "$HANDOFF_PACKAGE" | jq -Rs .),
+  \"status\": \"completed\"
+}"
 
-### Phase 7: Complete Architecture Document
-[Include entire architecture document]
+kb_append "$KB_FILE" '.project_data.architect.sessions' "$FINAL_ARCHITECTURE"
+kb_save "$KB_FILE" '.project_data.architect.final' "$FINAL_ARCHITECTURE"
 
-### Session Summary
-- Architecture Pattern: [Pattern]
-- Technology Stack: [Stack]
-- Key Decisions: [List]
-- Next Steps: Move to Tasks Mode for implementation planning
+# Update pipeline status
+kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"completed"'
+kb_save "$KB_FILE" '.pipeline_status.stages.architect.completed_at' "\"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\""
+kb_save "$KB_FILE" '.pipeline_status.current_stage' '"tasks"'
+kb_save "$KB_FILE" '.pipeline_status.stages.tasks.status' '"pending"'
 
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
-
----
-EOF
+echo "✅ Complete architecture document saved to Knowledge Base"
+echo "✅ Pipeline advanced to Tasks stage"
 ```
 
 ## Output Format

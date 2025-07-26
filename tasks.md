@@ -4,39 +4,80 @@ You are operating in Tasks creation mode. Your goal is to transform a PRD into a
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/tasks.md` for cross-session continuity.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/tasks.md`
-3. If exists, review previous task planning
-4. If coming from architect mode, read `docs/#/architect.md`
+1. Source KB module: `source modules/kb-init.inc`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
+4. Load architecture document: `kb_query "$KB_FILE" '.project_data.architect.final'`
+5. Load any existing tasks data: `kb_query "$KB_FILE" '.project_data.tasks'`
 
 **During Execution**:
-- Save research findings after pre-task research
-- Save task breakdown progressively
-- Update task status as work progresses
-- Maintain both in-memory context (for handoffs) AND file persistence
+- Save research to KB: `kb_save "$KB_FILE" '.project_data.tasks.research' "$RESEARCH_DATA"`
+- Save task breakdown: `kb_save "$KB_FILE" '.project_data.tasks.breakdown' "$TASKS"`
+- Update task status: `kb_save "$KB_FILE" '.project_data.tasks.status["$TASK_ID"]' "$STATUS"`
+- Track dependencies: `kb_save "$KB_FILE" '.project_data.tasks.dependencies' "$DEPS"`
+- Update pipeline progress: `kb_save "$KB_FILE" '.pipeline_status.stages.tasks' '{"status": "in_progress"}'`
 
 **Resuming Work**:
-- Read existing files to understand task status
-- Update task completion status
-- Add new tasks as requirements evolve
-- Track dependencies and blockers
+- Query KB for task status: `kb_query "$KB_FILE" '.project_data.tasks.status'`
+- Load task dependencies from KB
+- Add new tasks to existing breakdown
+- Maintain full task history in KB
 
 ## Pre-Task Research Phase (Parallel Execution)
+
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+# Check pipeline status and load architecture data
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+if [ "$CURRENT_STAGE" = "tasks" ]; then
+    echo "📋 Loading tasks context from Knowledge Base..."
+    
+    # Load architecture document
+    ARCH_FINAL=$(kb_query "$KB_FILE" '.project_data.architect.final')
+    if [ "$ARCH_FINAL" != "null" ]; then
+        echo "✅ Found architecture document"
+        TECH_STACK=$(echo "$ARCH_FINAL" | jq -r '.technology_stack // empty')
+        PATTERN=$(echo "$ARCH_FINAL" | jq -r '.architecture_pattern // empty')
+        echo "  - Tech stack: $TECH_STACK"
+        echo "  - Pattern: $PATTERN"
+    fi
+    
+    # Check cached research
+    CACHED_RESEARCH=$(kb_query "$KB_FILE" '.research_cache | keys | length')
+    echo "  - Cached research entries: $CACHED_RESEARCH"
+    
+    # Check for existing task sessions
+    EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.tasks.sessions')
+    if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+        echo ""
+        echo "📂 Found previous task sessions:"
+        echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    fi
+fi
+
+# Initialize counters
+RESEARCH_COUNT=0
+TASK_COUNT=0
+```
 
 Before creating tasks, conduct thorough research:
 
 **CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
-1. **Read Project Documentation** (Check shared research first!)
-   - Check `.claude/shared_research.md` for existing findings
-   - Read `docs/product_requirement_docs.md` for requirements
-   - Read `docs/architecture.md` for system design
-   - Read `docs/technical.md` for technical decisions
-   - Read `tasks/active_context.md` for current state
+1. **Read Project Documentation from KB**
+   - Check KB research cache for existing findings
+   - Load PRD requirements from KB
+   - Load architecture design from KB
+   - Review technical decisions in decision log
+   - Check current pipeline status
 
 2. **Parallel Technology Research**
    ```
@@ -64,10 +105,9 @@ Before creating tasks, conduct thorough research:
 
 **SAVE RESEARCH OUTPUT**:
 ```bash
-# Save research findings
-cat >> docs/#/tasks.md << 'EOF'
-
-## Session: [DATE TIME]
+# Save research findings to KB
+RESEARCH_DATA=$(cat << 'EOF' | jq -Rs
+## Session: $(date +"%Y-%m-%d %H:%M:%S")
 
 ### Pre-Task Research
 #### Technology Research
@@ -81,6 +121,21 @@ cat >> docs/#/tasks.md << 'EOF'
 
 ### Status: Creating task breakdown
 EOF
+)
+
+# Save to KB
+kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"pre_task_research\",
+  \"content\": $RESEARCH_DATA
+}"
+
+# Update research data
+kb_save "$KB_FILE" '.project_data.tasks.research' "$RESEARCH_DATA"
+
+# Update pipeline status
+kb_save "$KB_FILE" '.pipeline_status.stages.tasks' '{"status": "in_progress", "phase": "research"}'"
+((RESEARCH_COUNT++))
 ```
 
 ## Task Creation Principles
@@ -379,9 +434,8 @@ Remember: Good tasks enable any developer to pick up and complete the work witho
 
 **SAVE TASK BREAKDOWN**:
 ```bash
-# Save complete task breakdown and generate convention agents
-cat >> docs/#/tasks.md << 'EOF'
-
+# Save complete task breakdown to KB
+TASK_BREAKDOWN=$(cat << 'EOF' | jq -Rs
 ### Task Breakdown
 [Include all tasks with format above]
 
@@ -399,9 +453,24 @@ cat >> docs/#/tasks.md << 'EOF'
 
 ### Handoff Package Generated
 [If in pipeline mode, note what was passed to next stage]
-
----
 EOF
+)
+
+# Save task breakdown to KB
+kb_save "$KB_FILE" '.project_data.tasks.breakdown' "$TASK_BREAKDOWN"
+
+# Append to session history
+kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"task_breakdown\",
+  \"content\": $TASK_BREAKDOWN
+}"
+
+# Mark tasks as completed and update pipeline
+kb_save "$KB_FILE" '.pipeline_status.stages.tasks' '{"status": "completed", "phase": "breakdown_complete"}'
+kb_save "$KB_FILE" '.pipeline_status.current_stage' '"plan"'
+kb_save "$KB_FILE" '.pipeline_status.next_stage' '"plan"'
+((TASK_COUNT++))
 
 # Generate project convention and quality agents
 echo "Generating project convention and quality assurance agents..."
@@ -764,9 +833,8 @@ You are a security engineering expert for ${PROJECT_NAME}.
 AGENT_EOF
 echo "✓ Created security-engineer agent (scarlet)"
 
-# Log agent generation
-cat >> docs/#/tasks.md << 'EOF'
-
+# Log agent generation to KB
+AGENT_LOG=$(cat << 'EOF' | jq -Rs
 ### Generated Convention Agents
 [List all generated quality and convention agents with their specialties]
 
@@ -778,6 +846,17 @@ To use these agents, restart Claude Code and resume your session:
 claude --resume
 ```
 EOF
+)
+
+# Save agent generation log to KB
+kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+  \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
+  \"phase\": \"agent_generation\",
+  \"content\": $AGENT_LOG
+}"
+
+# Update task data with generated agents
+kb_save "$KB_FILE" '.project_data.tasks.agents_generated' 'true'
 
 echo "Convention and quality agent generation complete!"
 echo ""
