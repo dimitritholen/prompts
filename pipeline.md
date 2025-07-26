@@ -4,50 +4,52 @@ You are an expert pipeline orchestrator and workflow architect with deep underst
 
 ## Output Management
 
-### File Persistence and Status Tracking
-This mode saves outputs to `docs/#/pipeline.md` for cross-session continuity and maintains pipeline status.
+### Knowledge Base Integration
+This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/pipeline.md`
-3. If exists, load pipeline status and determine current stage
-4. Read all mode-specific files from `docs/#/` to understand progress
+1. Source KB module: `source modules/kb-init.inc`
+2. Initialize project KB: `kb_init_project .`
+3. Load KB data: `KB_FILE=$(kb_load)`
+4. Query pipeline status: `kb_query "$KB_FILE" '.pipeline_status'`
+5. Determine current stage and show progress
 
 **During Execution**:
-- Save pipeline status after each stage transition
-- Track completed stages and current progress
-- Document handoffs between modes
-- Maintain pipeline history and decisions
-- Update status file with timestamps
+- Update KB after each stage: `kb_save "$KB_FILE" '.pipeline_status.current_stage' '"$STAGE"'`
+- Track completed stages in KB: `kb_append "$KB_FILE" '.pipeline_status.completed' '{"stage": "$STAGE", "timestamp": "$TIMESTAMP"}'`
+- Store handoff data: `kb_save "$KB_FILE" '.handoffs.$FROM_STAGE.$TO_STAGE' '$HANDOFF_DATA'`
+- Log decisions: `kb_append "$KB_FILE" '.decision_log' '$DECISION'`
+- Leverage KB rules for parallel execution enforcement
 
 **Resuming Work**:
 ```bash
-# Check current pipeline status
-if [ -f "docs/#/pipeline.md" ]; then
-    echo "Loading pipeline status..."
-    # Parse last status entry
-    # Determine current stage
-    # Show completed stages
-    # Recommend next action
-fi
+# Load KB and check pipeline status
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+COMPLETED=$(kb_query "$KB_FILE" '.pipeline_status.completed')
+
+echo "Current stage: $CURRENT_STAGE"
+echo "Completed stages: $COMPLETED"
+# KB automatically recommends next actions based on workflow rules
 ```
 
-**Pipeline Status Format**:
-```markdown
-## Pipeline Status: [DATE TIME]
-
-### Project: [Project Name]
-
-### Completed Stages
-- ✅ Brainstorm: [Completion date] - [Brief outcome]
-- ✅ PRD: [Completion date] - [Brief outcome]
-- ✅ Architect: [Completion date] - [Brief outcome]
-
-### Current Stage
-- 🔄 Tasks: [Start date] - [Progress percentage]
-
-### Upcoming Stages
-- ⏳ Plan
+**KB Pipeline Status Structure**:
+```json
+{
+  "pipeline_status": {
+    "project_name": "Project Name",
+    "started": "2024-01-01T00:00:00Z",
+    "current_stage": "tasks",
+    "completed": [
+      {"stage": "brainstorm", "timestamp": "2024-01-01T01:00:00Z", "outcome": "Generated 15 ideas"},
+      {"stage": "prd", "timestamp": "2024-01-01T02:00:00Z", "outcome": "Defined 8 requirements"},
+      {"stage": "architect", "timestamp": "2024-01-01T03:00:00Z", "outcome": "Designed microservices"}
+    ],
+    "upcoming": ["plan", "code", "test", "deploy"],
+    "progress": 42
+  }
+}
 - ⏳ Code
 - ⏳ Test
 - ⏳ Deploy
@@ -531,8 +533,10 @@ if [ -n "$PRD_FILES" ]; then
     PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
-    # Create pipeline status file
-    mkdir -p docs/#
+    # Initialize Knowledge Base
+    source modules/kb-init.inc
+    kb_init_project .
+    KB_FILE=$(kb_load)
     
     case $prd_choice in
         1)
@@ -541,42 +545,34 @@ if [ -n "$PRD_FILES" ]; then
             echo "✓ Will research and improve the existing PRD"
             echo ""
             
-            # Copy PRD to docs/#/prd.md
-            cp "$FIRST_PRD" docs/#/prd.md
+            # Store PRD in KB
+            PRD_CONTENT=$(cat "$FIRST_PRD" | jq -Rs . 2>/dev/null || echo '""')
+            kb_save "$KB_FILE" '.project_data.prd.original' "$PRD_CONTENT"
             
-            # Create pipeline status with brainstorm complete
-            cat > docs/#/pipeline.md << EOF
-# Pipeline Status
-
-## Project: [Project Name]
-## Project ID: ${PROJECT_ID}
-## Started: ${TIMESTAMP}
-
-### Pipeline Configuration
-- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
-- Current Stage: PRD
-- Next Action: Invoke PRD Mode to improve existing document
-
-### Stage Status
-- ✅ Brainstorm: Skipped - existing PRD found ($TIMESTAMP)
-- 🔄 PRD: Ready for improvement - imported from $FIRST_PRD ($TIMESTAMP)
-- ⏳ Architect: Not started
-- ⏳ Tasks: Not started
-- ⏳ Plan: Not started
-- ⏳ Code: Not started
-- ⏳ Test: Not started
-- ⏳ Deploy: Not started
-
-### Project Metadata
-- Project ID: ${PROJECT_ID}
-- Created: ${TIMESTAMP}
-- Last Updated: ${TIMESTAMP}
-- PRD Source: Existing document ($FIRST_PRD)
-
-### Notes
-- Existing PRD imported for research and improvement
-- Original PRD: $FIRST_PRD
+            # Update KB with pipeline status
+            PIPELINE_STATUS=$(cat << EOF
+{
+  "project_name": "[Project Name]",
+  "project_id": "${PROJECT_ID}",
+  "started": "${TIMESTAMP}",
+  "current_stage": "prd",
+  "next_action": "Invoke PRD Mode to improve existing document",
+  "stages": {
+    "brainstorm": {"status": "completed", "notes": "Skipped - existing PRD found"},
+    "prd": {"status": "in_progress", "notes": "Ready for improvement from ${FIRST_PRD}"},
+    "architect": {"status": "pending"},
+    "tasks": {"status": "pending"},
+    "plan": {"status": "pending"},
+    "code": {"status": "pending"},
+    "test": {"status": "pending"},
+    "deploy": {"status": "pending"}
+  },
+  "prd_source": "${FIRST_PRD}",
+  "notes": "Existing PRD imported for research and improvement"
+}
 EOF
+)
+            kb_save "$KB_FILE" '.pipeline_status' "$PIPELINE_STATUS"
             
             echo "> Pipeline initialized with existing PRD"
             echo "> Project ID: ${PROJECT_ID}"
@@ -590,42 +586,34 @@ EOF
             echo "✓ Using existing PRD as-is"
             echo ""
             
-            # Copy PRD to docs/#/prd.md
-            cp "$FIRST_PRD" docs/#/prd.md
+            # Store PRD in KB
+            PRD_CONTENT=$(cat "$FIRST_PRD" | jq -Rs . 2>/dev/null || echo '""')
+            kb_save "$KB_FILE" '.project_data.prd.original' "$PRD_CONTENT"
             
-            # Create pipeline status with brainstorm and PRD complete
-            cat > docs/#/pipeline.md << EOF
-# Pipeline Status
-
-## Project: [Project Name]
-## Project ID: ${PROJECT_ID}
-## Started: ${TIMESTAMP}
-
-### Pipeline Configuration
-- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
-- Current Stage: PRD Complete
-- Next Action: Invoke Architect Mode
-
-### Stage Status
-- ✅ Brainstorm: Skipped - existing PRD found ($TIMESTAMP)
-- ✅ PRD: Completed - using existing document as-is ($TIMESTAMP)
-- ⏳ Architect: Not started
-- ⏳ Tasks: Not started
-- ⏳ Plan: Not started
-- ⏳ Code: Not started
-- ⏳ Test: Not started
-- ⏳ Deploy: Not started
-
-### Project Metadata
-- Project ID: ${PROJECT_ID}
-- Created: ${TIMESTAMP}
-- Last Updated: ${TIMESTAMP}
-- PRD Source: Existing document used as-is ($FIRST_PRD)
-
-### Notes
-- Existing PRD accepted without modification
-- Original PRD: $FIRST_PRD
+            # Update KB with pipeline status
+            PIPELINE_STATUS=$(cat << EOF
+{
+  "project_name": "[Project Name]",
+  "project_id": "${PROJECT_ID}",
+  "started": "${TIMESTAMP}",
+  "current_stage": "architect",
+  "next_action": "Invoke Architect Mode",
+  "stages": {
+    "brainstorm": {"status": "completed", "notes": "Skipped - existing PRD found"},
+    "prd": {"status": "completed", "notes": "Using existing document as-is"},
+    "architect": {"status": "pending"},
+    "tasks": {"status": "pending"},
+    "plan": {"status": "pending"},
+    "code": {"status": "pending"},
+    "test": {"status": "pending"},
+    "deploy": {"status": "pending"}
+  },
+  "prd_source": "${FIRST_PRD}",
+  "notes": "Existing PRD accepted without modification"
+}
 EOF
+)
+            kb_save "$KB_FILE" '.pipeline_status' "$PIPELINE_STATUS"
             
             echo "> Pipeline initialized with existing PRD"
             echo "> Project ID: ${PROJECT_ID}"
@@ -639,37 +627,29 @@ EOF
             echo "✓ Starting fresh with brainstorming"
             echo ""
             
-            # Standard pipeline initialization
-            cat > docs/#/pipeline.md << EOF
-# Pipeline Status
-
-## Project: [Project Name]
-## Project ID: ${PROJECT_ID}
-## Started: ${TIMESTAMP}
-
-### Pipeline Configuration
-- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
-- Current Stage: Ideation
-- Next Action: Invoke Brainstorm Mode
-
-### Stage Status
-- ⏳ Brainstorm: Not started
-- ⏳ PRD: Not started
-- ⏳ Architect: Not started
-- ⏳ Tasks: Not started
-- ⏳ Plan: Not started
-- ⏳ Code: Not started
-- ⏳ Test: Not started
-- ⏳ Deploy: Not started
-
-### Project Metadata
-- Project ID: ${PROJECT_ID}
-- Created: ${TIMESTAMP}
-- Last Updated: ${TIMESTAMP}
-
-### Notes
-- Existing PRD files found but ignored per user choice
+            # Initialize KB with standard pipeline
+            PIPELINE_STATUS=$(cat << EOF
+{
+  "project_name": "[Project Name]",
+  "project_id": "${PROJECT_ID}",
+  "started": "${TIMESTAMP}",
+  "current_stage": "brainstorm",
+  "next_action": "Invoke Brainstorm Mode",
+  "stages": {
+    "brainstorm": {"status": "pending"},
+    "prd": {"status": "pending"},
+    "architect": {"status": "pending"},
+    "tasks": {"status": "pending"},
+    "plan": {"status": "pending"},
+    "code": {"status": "pending"},
+    "test": {"status": "pending"},
+    "deploy": {"status": "pending"}
+  },
+  "notes": "Existing PRD files found but ignored per user choice"
+}
 EOF
+)
+            kb_save "$KB_FILE" '.pipeline_status' "$PIPELINE_STATUS"
             
             echo "> Pipeline initialized"
             echo "> Project ID: ${PROJECT_ID}"
@@ -682,35 +662,33 @@ else
     PROJECT_ID=$(uuidgen 2>/dev/null || date +%s | sha256sum | cut -c1-8)
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
-    # Create pipeline status file
-    mkdir -p docs/#
-    cat > docs/#/pipeline.md << EOF
-# Pipeline Status
-
-## Project: [Project Name]
-## Project ID: ${PROJECT_ID}
-## Started: ${TIMESTAMP}
-
-### Pipeline Configuration
-- Type: Standard (Brainstorm → PRD → Architect → Tasks → Plan → Code → Test → Deploy)
-- Current Stage: Ideation
-- Next Action: Invoke Brainstorm Mode
-
-### Stage Status
-- ⏳ Brainstorm: Not started
-- ⏳ PRD: Not started
-- ⏳ Architect: Not started
-- ⏳ Tasks: Not started
-- ⏳ Plan: Not started
-- ⏳ Code: Not started
-- ⏳ Test: Not started
-- ⏳ Deploy: Not started
-
-### Project Metadata
-- Project ID: ${PROJECT_ID}
-- Created: ${TIMESTAMP}
-- Last Updated: ${TIMESTAMP}
+    # Initialize Knowledge Base
+    source modules/kb-init.inc
+    kb_init_project .
+    KB_FILE=$(kb_load)
+    
+    # Initialize KB with pipeline status
+    PIPELINE_STATUS=$(cat << EOF
+{
+  "project_name": "[Project Name]",
+  "project_id": "${PROJECT_ID}",
+  "started": "${TIMESTAMP}",
+  "current_stage": "brainstorm",
+  "next_action": "Invoke Brainstorm Mode",
+  "stages": {
+    "brainstorm": {"status": "pending"},
+    "prd": {"status": "pending"},
+    "architect": {"status": "pending"},
+    "tasks": {"status": "pending"},
+    "plan": {"status": "pending"},
+    "code": {"status": "pending"},
+    "test": {"status": "pending"},
+    "deploy": {"status": "pending"}
+  }
+}
 EOF
+)
+    kb_save "$KB_FILE" '.pipeline_status' "$PIPELINE_STATUS"
     
     echo "> Pipeline initialized"
     echo "> Project ID: ${PROJECT_ID}"
@@ -724,24 +702,50 @@ fi
 ```
 **Implementation**:
 ```bash
-# Read current status from persisted files
-if [ -f "docs/#/pipeline.md" ]; then
-    # Check each mode file for completion
-    stages=("brainstorm" "prd" "architect" "tasks" "plan" "code" "test" "deploy")
-    for stage in "${stages[@]}"; do
-        if [ -f "docs/#/${stage}.md" ]; then
-            # Parse completion status from file
-            echo "✓ ${stage^}: Completed"
-        else
-            echo "⏳ ${stage^}: Not started"
-        fi
-    done
+# Load KB and read current status
+source modules/kb-init.inc
+KB_FILE=$(kb_load)
+
+if [ -f "$KB_FILE" ]; then
+    STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
     
-    # Determine current stage based on last modified file
-    latest=$(ls -t docs/#/*.md 2>/dev/null | head -1)
-    if [ -n "$latest" ]; then
-        current=$(basename "$latest" .md)
-        echo "> Current stage: ${current^}"
+    if [ "$STATUS" != "null" ]; then
+        # Display pipeline status from KB
+        echo "## Pipeline Status"
+        echo
+        echo "Project: $(kb_query "$KB_FILE" '.pipeline_status.project_name')"
+        echo "Project ID: $(kb_query "$KB_FILE" '.pipeline_status.project_id')"
+        echo "Started: $(kb_query "$KB_FILE" '.pipeline_status.started')"
+        echo "Current Stage: $(kb_query "$KB_FILE" '.pipeline_status.current_stage')"
+        echo
+        echo "### Stage Status:"
+        
+        # Check each stage
+        stages=("brainstorm" "prd" "architect" "tasks" "plan" "code" "test" "deploy")
+        for stage in "${stages[@]}"; do
+            stage_status=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.status")
+            stage_notes=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.notes")
+            
+            case "$stage_status" in
+                "completed")
+                    echo "✅ ${stage^}: Completed"
+                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
+                    ;;
+                "in_progress")
+                    echo "🔄 ${stage^}: In Progress"
+                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
+                    ;;
+                *)
+                    echo "⏳ ${stage^}: Not started"
+                    ;;
+            esac
+        done
+        
+        echo
+        echo "Next Action: $(kb_query "$KB_FILE" '.pipeline_status.next_action')"
+    else
+        echo "> No pipeline in progress"
+        echo "> Run '/#:pipeline start' to begin"
     fi
 else
     echo "> No pipeline in progress"
@@ -1011,7 +1015,6 @@ if [ "$has_agents" = true ] || [ "$has_docs" = true ]; then
         if [ "$has_docs" = true ]; then
             mv docs/# "docs/#.backup.${timestamp}"
             echo "✓ Archived docs to docs/#.backup.${timestamp}"
-            mkdir -p docs/#
         fi
         
         echo

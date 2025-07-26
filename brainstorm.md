@@ -53,6 +53,30 @@ When analyzing complex ideas, apply sequential thinking for ultra-deep analysis:
 ## Workflow Phases
 
 ### Phase 1: Initial Idea Analysis & Expert Role Assumption
+**AT START:**
+```bash
+# Initialize Knowledge Base
+source modules/kb-init.inc
+kb_init_project .
+KB_FILE=$(kb_load)
+
+# Check for existing brainstorm sessions
+EXISTING_SESSIONS=$(kb_query "$KB_FILE" '.project_data.brainstorm.sessions')
+if [ "$EXISTING_SESSIONS" != "null" ] && [ "$EXISTING_SESSIONS" != "[]" ]; then
+    echo "📋 Found previous brainstorm sessions:"
+    echo "$EXISTING_SESSIONS" | jq -r '.[] | "  - [\(.timestamp)] \(.phase)"'
+    echo ""
+    LAST_PHASE=$(kb_query "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase')
+    echo "Last completed phase: $LAST_PHASE"
+    echo "Continuing from where we left off..."
+fi
+
+# Initialize counters
+RESEARCH_COUNT=0
+PIVOT_COUNT=0
+QUESTIONS_COUNT=0
+```
+
 **ALWAYS:**
 - Identify the domain/field of the idea
 - Assume the role of a 10+ year expert in that specific field
@@ -129,16 +153,30 @@ As a [specific expert title] with expertise in [relevant domains], I bring exper
 
 **SAVE PHASE 1 OUTPUT**:
 ```bash
-# Save initial analysis and questions
-cat >> docs/#/brainstorm.md << 'EOF'
+# Initialize KB if not already done
+source modules/kb-init.inc
+kb_init_project .
+KB_FILE=$(kb_load)
 
-## Session: [DATE TIME]
+# Update pipeline status
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.status' '"in_progress"'
+kb_save "$KB_FILE" '.pipeline_status.current_stage' '"brainstorm"'
 
-### Phase 1: Initial Analysis & Expert Role
-[Include full output from Phase 1]
-
-### Status: Awaiting user responses to proceed to Phase 2
+# Save Phase 1 to KB
+PHASE1_DATA=$(cat << EOF
+{
+  "phase": "Initial Analysis & Expert Role",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include full output from Phase 1]" | jq -Rs .),
+  "expert_role": "$EXPERT_ROLE",
+  "questions_asked": $QUESTIONS_COUNT,
+  "status": "Awaiting user responses to proceed to Phase 2"
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE1_DATA"
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 1 Complete"'
 ```
 
 ### Phase 2: Comprehensive Industry Research (MANDATORY Parallel Execution)
@@ -248,15 +286,39 @@ Based on user's clarifications, FIRST get current date from system, then include
 
 **SAVE PHASE 2 OUTPUT**:
 ```bash
-# Append research findings
-cat >> docs/#/brainstorm.md << 'EOF'
-
-### Phase 2: Industry Research
-[Include full research findings]
-
-### User Clarifications Received:
-[Include user's answers from Phase 1]
+# Save Phase 2 research to KB
+PHASE2_DATA=$(cat << EOF
+{
+  "phase": "Industry Research",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include full research findings]" | jq -Rs .),
+  "clarifications": $(echo "[Include user's answers from Phase 1]" | jq -Rs .),
+  "research_queries": $RESEARCH_COUNT,
+  "parallel_agents_used": true
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE2_DATA"
+
+# Cache research results
+for i in "${!RESEARCH_QUERIES[@]}"; do
+    query="${RESEARCH_QUERIES[$i]}"
+    result="${RESEARCH_RESULTS[$i]}"
+    QUERY_HASH=$(echo -n "$query" | sha256sum | cut -c1-16)
+    CACHE_ENTRY=$(cat << EOF
+{
+  "query": "$query",
+  "result": $(echo "$result" | jq -Rs .),
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "ttl": 86400
+}
+EOF
+)
+    kb_save "$KB_FILE" ".research_cache[\"$QUERY_HASH\"]" "$CACHE_ENTRY"
+done
+
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 2 Complete"'
 ```
 
 ### Phase 3: Critical Evaluation & Honest Feedback
@@ -337,12 +399,21 @@ Reality: [Brutal honest assessment]
 
 **SAVE PHASE 3 OUTPUT**:
 ```bash
-# Append evaluation
-cat >> docs/#/brainstorm.md << 'EOF'
-
-### Phase 3: Critical Evaluation
-[Include full assessment]
+# Save Phase 3 evaluation to KB
+PHASE3_DATA=$(cat << EOF
+{
+  "phase": "Critical Evaluation & Honest Feedback",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include full assessment]" | jq -Rs .),
+  "viability_score": $VIABILITY_SCORE,
+  "weaknesses_identified": $WEAKNESS_COUNT,
+  "competitive_analysis": true
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE3_DATA"
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 3 Complete"'
 ```
 
 ### Phase 4: Constructive Pivot Suggestions
@@ -379,12 +450,21 @@ EOF
 
 **SAVE PHASE 4 OUTPUT**:
 ```bash
-# Append pivot suggestions
-cat >> docs/#/brainstorm.md << 'EOF'
-
-### Phase 4: Pivot Recommendations
-[Include all recommendations]
+# Save Phase 4 pivot suggestions to KB
+PHASE4_DATA=$(cat << EOF
+{
+  "phase": "Constructive Pivot Suggestions",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include all recommendations]" | jq -Rs .),
+  "pivot_options": $PIVOT_COUNT,
+  "mvp_defined": true,
+  "partnerships_suggested": $PARTNERSHIP_COUNT
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE4_DATA"
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 4 Complete"'
 ```
 
 ### Phase 4b: SLC Validation & Scope Control
@@ -443,25 +523,26 @@ Apply the 80/20 rule to identify core vs. nice-to-have features:
 
 **SAVE PHASE 4B OUTPUT**:
 ```bash
-# Save SLC validation
-cat >> docs/#/brainstorm.md << 'EOF'
-
-### Phase 4b: SLC Validation & Scope Control
-#### SLC Assessment
-- Simple Score: [Score]/5 - [Reasoning]
-- Lovable Score: [Score]/5 - [Reasoning]
-- Complete Score: [Score]/5 - [Reasoning]
-
-#### Core Features (SLC Validated)
-[List only features scoring 4+ on all SLC dimensions]
-
-#### Scope Boundaries
-**IN Scope**: [Essential features only]
-**OUT of Scope**: [Nice-to-have features deferred]
-
-#### Anti-Over-Engineering Validation
-[Confirm all checks passed]
+# Save SLC validation to KB
+PHASE4B_DATA=$(cat << EOF
+{
+  "phase": "SLC Validation & Scope Control",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include SLC validation results]" | jq -Rs .),
+  "slc_scores": {
+    "simple": $SIMPLE_SCORE,
+    "lovable": $LOVABLE_SCORE,
+    "complete": $COMPLETE_SCORE
+  },
+  "core_features_count": $CORE_FEATURES_COUNT,
+  "deferred_features_count": $DEFERRED_FEATURES_COUNT,
+  "anti_overengineering_passed": true
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE4B_DATA"
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 4B Complete"'
 ```
 
 ### Phase 5: Junior-Developer-Friendly PRD Creation
@@ -568,23 +649,43 @@ CREATE TABLE users (
 
 **SAVE PHASE 5 OUTPUT AND FINALIZE**:
 ```bash
-# Append PRD and complete session
-cat >> docs/#/brainstorm.md << 'EOF'
-
-### Phase 5: Initial PRD
-[Include full PRD]
-
-### Session Summary
-- Original Idea: [Brief]
-- Final Direction: [Brief]  
-- Viability Score: [X/10]
-- Next Steps: Move to PRD Mode for formal documentation
-
-### Handoff Package Generated
-[If in pipeline mode, note what was passed to next stage]
-
----
+# Save Phase 5 PRD and complete session
+PHASE5_DATA=$(cat << EOF
+{
+  "phase": "Junior-Developer-Friendly PRD Creation",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "content": $(echo "[Include full PRD]" | jq -Rs .),
+  "original_idea": $(echo "$ORIGINAL_IDEA" | jq -Rs .),
+  "final_direction": $(echo "$FINAL_DIRECTION" | jq -Rs .),
+  "viability_score": $VIABILITY_SCORE,
+  "prd_complete": true
+}
 EOF
+)
+
+kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE5_DATA"
+
+# Save handoff data for next stage
+HANDOFF_DATA=$(cat << EOF
+{
+  "from_stage": "brainstorm",
+  "to_stage": "prd",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "validated_concept": $(echo "$VALIDATED_CONCEPT" | jq -Rs .),
+  "research_insights": $(echo "$RESEARCH_INSIGHTS" | jq -Rs .),
+  "initial_prd": $(echo "$INITIAL_PRD" | jq -Rs .)
+}
+EOF
+)
+
+kb_save "$KB_FILE" '.pipeline_status.handoff' "$HANDOFF_DATA"
+
+# Mark brainstorm as completed and set next stage
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.status' '"completed"'
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.completed_at' "\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 5 Complete - PRD Created"'
+kb_save "$KB_FILE" '.pipeline_status.current_stage' '"prd"'
+kb_save "$KB_FILE" '.pipeline_status.last_update' "\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
 ```
 
 ## Mode Constraints

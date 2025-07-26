@@ -75,6 +75,17 @@ MODULES=(
     "modules/agent-generation.inc"
     "modules/handoffs.inc"
     "modules/README.inc"
+    "modules/kb-init.inc"
+)
+
+# KB files to install
+KB_FILES=(
+    "kb/hash-prompts-kb.json"
+    "kb/project-kb-template.json"
+    "kb/kb-generator.js"
+    "kb/schemas/command-schema.json"
+    "kb/schemas/rules-schema.json"
+    "kb/schemas/project-schema.json"
 )
 
 # Function to print colored output
@@ -178,6 +189,8 @@ create_directories() {
     print_color "$BLUE" "Creating directory structure..."
     mkdir -p "$INSTALL_DIR/#"
     mkdir -p "$INSTALL_DIR/#/modules"
+    mkdir -p "$INSTALL_DIR/#/kb"
+    mkdir -p "$INSTALL_DIR/#/kb/schemas"
     print_color "$GREEN" "✓ Directories created"
 }
 
@@ -306,6 +319,58 @@ install_all_modules() {
     fi
 }
 
+# Function to install KB file
+install_kb_file() {
+    local kb_file=$1
+    local kb_name=$(basename "$kb_file")
+    local source_url="${BASE_URL}/${kb_file}"
+    local dest_file="${INSTALL_DIR}/#/${kb_file}"
+    
+    print_color "$BLUE" "Installing KB file: ${kb_name}..."
+    
+    # Download the KB file
+    if command -v curl &> /dev/null; then
+        if ! curl -sSL "$source_url" -o "$dest_file"; then
+            print_color "$RED" "❌ Failed to download ${kb_file}"
+            return 1
+        fi
+    elif command -v wget &> /dev/null; then
+        if ! wget -q "$source_url" -O "$dest_file"; then
+            print_color "$RED" "❌ Failed to download ${kb_file}"
+            return 1
+        fi
+    else
+        print_color "$RED" "❌ Neither curl nor wget is available"
+        exit 1
+    fi
+    
+    print_color "$GREEN" "✓ Installed KB file: ${kb_name}"
+    return 0
+}
+
+# Function to install all KB files
+install_all_kb_files() {
+    print_color "$BLUE" "\nInstalling Knowledge Base files..."
+    
+    local installed=0
+    local failed=0
+    
+    for kb_file in "${KB_FILES[@]}"; do
+        if install_kb_file "$kb_file"; then
+            installed=$((installed + 1))
+        else
+            failed=$((failed + 1))
+            print_color "$RED" "Failed to install: $kb_file"
+        fi
+    done
+    
+    echo
+    print_color "$GREEN" "✓ Successfully installed: $installed KB files"
+    if [ $failed -gt 0 ]; then
+        print_color "$YELLOW" "⚠ Failed to install: $failed KB files"
+    fi
+}
+
 # Function to show usage instructions
 show_usage() {
     echo
@@ -327,6 +392,9 @@ show_usage() {
     echo
     print_color "$GREEN" "✓ Modular Architecture:"
     echo "  Shared patterns are now in modules/ for better maintainability"
+    echo
+    print_color "$GREEN" "✓ Knowledge Base System:"
+    echo "  JSON-based KB for intelligent command execution and data persistence"
     echo
     if [ "$INSTALL_TYPE" = "local" ]; then
         print_color "$BLUE" "Note: These commands are only available in this project."
@@ -353,6 +421,7 @@ main() {
     create_directories
     install_all_prompts
     install_all_modules
+    install_all_kb_files
     show_usage
 }
 
