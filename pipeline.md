@@ -2728,3 +2728,239 @@ update_stage_status() {
 
 **SAVE PIPELINE STATUS**:
 (This is a duplicate section - see the KB-enabled version earlier in the file around line 1369)
+
+## Implementation
+
+When the user runs `/#:pipeline [command]`, execute the appropriate action:
+
+```bash
+# Parse the command
+COMMAND="${1:-status}"
+shift
+
+# Source required modules
+source modules/kb-helpers.inc 2>/dev/null || echo "KB helpers not found, some features may be limited"
+source modules/output-format.inc 2>/dev/null || echo "Output formatting not available"
+
+# Main command routing
+case "$COMMAND" in
+    "start")
+        # Handle start command with options
+        QUIET_MODE=false
+        PROJECT_NAME=""
+        
+        # Parse options
+        while [[ $# -gt 0 ]]; do
+            case $1 in
+                --quiet|-q)
+                    QUIET_MODE=true
+                    export KB_QUIET_MODE=true
+                    shift
+                    ;;
+                *)
+                    PROJECT_NAME="$1"
+                    shift
+                    ;;
+            esac
+        done
+        
+        # Initialize pipeline
+        echo "🚀 Initializing Hash Prompts Pipeline..."
+        
+        # Check for existing project
+        if [ -d "docs/#" ] && [ -f "docs/#/prd.md" ]; then
+            echo ""
+            echo "📋 Existing PRD found at docs/#/prd.md"
+            echo ""
+            echo "Would you like to:"
+            echo "1) Use existing PRD and continue pipeline"
+            echo "2) Start fresh (archive existing files)"
+            echo ""
+            read -p "Choice (1 or 2): " choice
+            
+            case $choice in
+                1)
+                    echo "> Using existing PRD"
+                    kb_init_pipeline "${PROJECT_NAME:-Existing Project}"
+                    kb_pipeline_update_stage "$(kb_load)" "prd" "brainstorm"
+                    echo "> Next: /#:architect"
+                    ;;
+                2)
+                    timestamp=$(date +%Y%m%d_%H%M%S)
+                    mv docs/# "docs/#.backup.${timestamp}"
+                    echo "> Archived to docs/#.backup.${timestamp}"
+                    kb_init_pipeline "${PROJECT_NAME:-New Project}"
+                    echo "> Next: /#:brainstorm [your idea]"
+                    ;;
+                *)
+                    echo "❌ Invalid choice"
+                    exit 1
+                    ;;
+            esac
+        else
+            # Fresh start
+            kb_init_pipeline "${PROJECT_NAME:-New Project}"
+            echo "> Pipeline initialized"
+            echo "> Next: /#:brainstorm [your idea]"
+        fi
+        ;;
+        
+    "status")
+        kb_pipeline_status
+        echo ""
+        kb_show_next_action
+        ;;
+        
+    "validate")
+        echo "🔍 Validating pipeline prerequisites..."
+        KB_FILE=$(kb_load)
+        
+        # Check each stage
+        stages=("brainstorm" "prd" "architect" "tasks" "plan" "code" "test" "deploy")
+        for stage in "${stages[@]}"; do
+            status=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.status" | tr -d '"')
+            if [ "$status" = "completed" ]; then
+                output_success "$stage completed"
+            elif [ "$status" = "in_progress" ]; then
+                output_info "$stage in progress"
+            else
+                output_warning "$stage pending"
+            fi
+        done
+        ;;
+        
+    "resume")
+        KB_FILE=$(kb_load)
+        current_stage=$(kb_get_current_stage "$KB_FILE")
+        
+        echo "📍 Resuming pipeline..."
+        echo "Current stage: $current_stage"
+        echo ""
+        
+        case "$current_stage" in
+            "brainstorm") echo "Next: /#:brainstorm [your idea]" ;;
+            "prd") echo "Next: /#:prd" ;;
+            "architect") echo "Next: /#:architect" ;;
+            "tasks") echo "Next: /#:tasks" ;;
+            "plan") echo "Next: /#:plan" ;;
+            "code") echo "Next: /#:code" ;;
+            "test") echo "Next: /#:test" ;;
+            "deploy") echo "Next: /#:deploy" ;;
+            *) echo "Pipeline complete or not started. Use /#:pipeline start" ;;
+        esac
+        ;;
+        
+    "reset")
+        echo "⚠️  This will archive your current pipeline and start fresh."
+        read -p "Are you sure? (y/N): " confirm
+        
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            timestamp=$(date +%Y%m%d_%H%M%S)
+            KB_FILE=$(kb_load)
+            
+            # Archive current KB
+            if [ -f "$KB_FILE" ]; then
+                cp "$KB_FILE" "${KB_FILE}.backup.${timestamp}"
+                echo "> Archived KB to ${KB_FILE}.backup.${timestamp}"
+            fi
+            
+            # Archive docs
+            if [ -d "docs/#" ]; then
+                mv docs/# "docs/#.backup.${timestamp}"
+                echo "> Archived docs to docs/#.backup.${timestamp}"
+            fi
+            
+            # Archive agents
+            if [ -d ".claude/agents" ]; then
+                mv .claude/agents ".claude/agents.backup.${timestamp}"
+                echo "> Archived agents to .claude/agents.backup.${timestamp}"
+            fi
+            
+            # Reinitialize
+            kb_init_pipeline "New Project"
+            echo ""
+            echo "✅ Pipeline reset complete"
+            echo "> Next: /#:brainstorm [your idea]"
+        else
+            echo "Reset cancelled"
+        fi
+        ;;
+        
+    "agents")
+        SUBCOMMAND="${1:-list}"
+        
+        case "$SUBCOMMAND" in
+            "list")
+                echo "🤖 Project Agents:"
+                if [ -d ".claude/agents" ]; then
+                    ls -la .claude/agents/*.md 2>/dev/null | awk '{print "  - " $9}' | sed 's|.*/||' | sed 's|.md||'
+                else
+                    echo "  No agents generated yet"
+                fi
+                ;;
+                
+            "clean")
+                if [ -d ".claude/agents" ]; then
+                    count=$(ls .claude/agents/*.md 2>/dev/null | wc -l)
+                    if [ "$count" -gt 0 ]; then
+                        timestamp=$(date +%Y%m%d_%H%M%S)
+                        mv .claude/agents ".claude/agents.backup.${timestamp}"
+                        echo "✅ Archived $count agents to .claude/agents.backup.${timestamp}"
+                    else
+                        echo "No agents to clean"
+                    fi
+                else
+                    echo "No agents directory found"
+                fi
+                ;;
+                
+            "validate")
+                echo "🔍 Validating agent consistency..."
+                KB_FILE=$(kb_load)
+                kb_agents=$(kb_query "$KB_FILE" '.agents_generated | keys[]' 2>/dev/null | tr -d '"')
+                
+                if [ -z "$kb_agents" ]; then
+                    echo "No agents recorded in KB"
+                else
+                    echo "Agents in KB:"
+                    echo "$kb_agents" | while read agent; do
+                        if [ -f ".claude/agents/${agent}.md" ]; then
+                            echo "  ✅ $agent"
+                        else
+                            echo "  ❌ $agent (missing file)"
+                        fi
+                    done
+                fi
+                ;;
+                
+            *)
+                echo "Unknown agents subcommand: $SUBCOMMAND"
+                echo "Usage: /#:pipeline agents [list|clean|validate]"
+                ;;
+        esac
+        ;;
+        
+    "help")
+        echo "📚 Pipeline Commands:"
+        echo ""
+        echo "  /#:pipeline start [name]    - Start new project pipeline"
+        echo "  /#:pipeline status         - Show current pipeline status"
+        echo "  /#:pipeline resume         - Get next steps for current stage"
+        echo "  /#:pipeline validate       - Check stage prerequisites"
+        echo "  /#:pipeline reset          - Archive and start fresh"
+        echo "  /#:pipeline agents         - Manage project agents"
+        echo "    - agents list           - List all project agents"
+        echo "    - agents clean          - Archive outdated agents"
+        echo "    - agents validate       - Check agent consistency"
+        echo ""
+        echo "Options:"
+        echo "  --quiet, -q               - Minimal output mode"
+        ;;
+        
+    *)
+        echo "❌ Unknown pipeline command: $COMMAND"
+        echo "Use /#:pipeline help for available commands"
+        exit 1
+        ;;
+esac
+```
