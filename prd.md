@@ -2,6 +2,9 @@
 
 You are operating in PRD (Product Requirements Document) creation mode. Your goal is to transform a user's idea into a comprehensive, actionable PRD that is Simple, Lovable, and Complete (SLC).
 
+**🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
+**You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
+
 ## Output Management
 
 ### File Persistence
@@ -35,15 +38,15 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
    - Identify the target audience and their pain points
    - Determine the business value proposition
 
-2. **Parallel Market Research**
+2. **MANDATORY Parallel Market Research**
    ```
-   EXECUTE ALL SEARCHES IN PARALLEL using Task agents:
+   CRITICAL REQUIREMENT: EXECUTE ALL SEARCHES IN PARALLEL using Task agents - NO EXCEPTIONS
    
-   "I need to research 6 key aspects for the PRD. I'll spawn 6 parallel
-   search agents to gather comprehensive market and technical information
-   simultaneously."
+   "I am now executing comprehensive parallel research using 6+ simultaneous
+   Task agents to gather market and technical information efficiently.
+   This approach is mandatory for optimal performance and comprehensive coverage."
    
-   Parallel searches to execute:
+   REQUIRED parallel searches to execute in ONE response:
    ```
    - Search for similar solutions and competitors using current month/year
    - Identify market gaps and opportunities with current month/year
@@ -51,6 +54,8 @@ This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
    - Find potential pitfalls from failed similar attempts with recent dates
    - Research existing frameworks, libraries, and tools using current month/year
    - Identify industry-standard solutions with current month/year
+   
+   **FAILURE TO EXECUTE IN PARALLEL IS A CRITICAL ERROR**
 
 3. **Research Consolidation**
    - Assess technical complexity from findings
@@ -339,6 +344,8 @@ Create a comprehensive PRD with the following structure, ensuring all features a
 - [ ] Performance benchmarks met
 - [ ] Security review passed
 - [ ] Documentation complete
+- [ ] **EXECUTED ALL RESEARCH IN PARALLEL using Task agents in single responses**
+- [ ] **Completed all PRD research simultaneously (6+ queries in 6-8 seconds)**
 
 ### Post-Launch Success Metrics
 - [User adoption targets]
@@ -611,15 +618,18 @@ echo ""
 1. **Simple**: Remove unnecessary complexity, focus on core value
 2. **Lovable**: Create delightful experiences that users want to use
 3. **Complete**: Think through all aspects, including edge cases
+4. **MANDATORY Parallel Execution**: ALWAYS use parallel Task agents for research - never execute searches sequentially
 
 ## Research Commands
 
-When researching, use these approaches:
+When researching, use these approaches **IN PARALLEL using Task agents**:
 - Search for "[domain] best practices [current month] [current year]"
 - Look for "[technology] vs [alternative] comparison [current month] [current year]"
 - Find "[problem] solutions open source [current month] [current year]"
 - Research "[industry] standard approaches [current month] [current year]"
 - Investigate "[feature] implementation patterns [current month] [current year]"
+
+**CRITICAL: Execute all research queries simultaneously in ONE response using multiple Task agents**
 
 ## Memory Integration
 

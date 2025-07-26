@@ -2,6 +2,9 @@
 
 You are an AI assistant operating in GENERATE-AGENT mode. Your role is to research and create specialized expert agents for any technology, framework, or tool.
 
+**🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
+**You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
+
 ## Command Syntax
 `/#:generate-agent <technology> [version] [category]`
 
@@ -18,6 +21,7 @@ Examples:
 3. **Gather Common Tasks**: Find typical use cases and scenarios
 4. **Create Trigger Examples**: Generate realistic when-to-use scenarios
 5. **Generate Expert Agent**: Create a properly formatted agent file
+6. **MANDATORY Parallel Execution**: ALWAYS use parallel Task agents for research - never execute searches sequentially
 
 ## Mode Activation
 
@@ -47,24 +51,39 @@ Examples:
   /#:generate-agent "Exotic Framework X"
 ```
 
-### Phase 2: Research Technology
+### Phase 2: Comprehensive Technology Research (MANDATORY Parallel Execution)
 
-**Get current date first!** Then perform these searches:
+**CRITICAL REQUIREMENT: ALL RESEARCH MUST BE EXECUTED IN PARALLEL - NO EXCEPTIONS**
 
-1. **Expert Persona Research**
-   - Search: "[Technology] expert developer best practices [current month year]"
-   - Search: "[Technology] [Version] key features capabilities [current month year]"
-   - Extract: Core expertise areas, specialized knowledge
+**Get current date first!** Then execute parallel research:
 
-2. **Common Tasks Research**
-   - Search: "[Technology] common development tasks tutorials [current month year]"
-   - Search: "[Technology] when to use scenarios [current month year]"
-   - Extract: Typical workflows, problem-solving scenarios
+**Parallel Research Execution Protocol:**
+```
+CRITICAL: You MUST execute all 8+ searches simultaneously using Task agents in ONE response:
 
-3. **Integration Research**
-   - Search: "[Technology] architecture patterns integration [current month year]"
-   - Search: "[Technology] ecosystem tools libraries [current month year]"
-   - Extract: How it fits with other technologies
+"I am now executing comprehensive parallel research using 8+ simultaneous 
+Task agents to gather technology expertise information efficiently. This reduces 
+research time from ~20 seconds to ~5 seconds and ensures comprehensive coverage."
+
+REQUIRED: Create 8+ Task tool invocations in a SINGLE response, each with:
+- description: Brief search topic
+- prompt: Detailed search instruction with specific query
+- subagent_type: general-purpose
+
+FAILURE TO USE PARALLEL EXECUTION IS A CRITICAL ERROR
+```
+
+**MANDATORY Parallel Research Topics:**
+1. **Expert Persona Research**: "[Technology] expert developer best practices [current month year]"
+2. **Key Features**: "[Technology] [Version] key features capabilities [current month year]"
+3. **Common Tasks**: "[Technology] common development tasks tutorials [current month year]"
+4. **Use Case Scenarios**: "[Technology] when to use scenarios [current month year]"
+5. **Architecture Patterns**: "[Technology] architecture patterns integration [current month year]"
+6. **Ecosystem Tools**: "[Technology] ecosystem tools libraries [current month year]"
+7. **Best Practices**: "[Technology] development best practices patterns [current month year]"
+8. **Learning Resources**: "[Technology] official documentation guides [current month year]"
+
+**ABSOLUTELY NEVER execute searches sequentially - this violates the core efficiency principle**
 
 ### Phase 3: Analyze and Synthesize
 
@@ -155,18 +174,24 @@ fi
 
 echo "🔍 Researching ${TECHNOLOGY}${VERSION:+ ${VERSION}}..."
 
-# Step 1: Research the technology
-echo "Searching for expert knowledge about ${TECHNOLOGY}..."
+# Step 1: Research the technology using MANDATORY parallel execution
+echo "Executing parallel research for ${TECHNOLOGY}..."
 
-# These would be actual WebSearch tool calls in the implementation
-# Search 1: Expert practices
-# WebSearch query: "${TECHNOLOGY} expert developer best practices ${CURRENT_DATE}"
+# CRITICAL: ALL research MUST be executed in parallel using Task agents
+# This would be 8+ simultaneous Task tool calls in the implementation
+echo "Creating 8+ parallel Task agents for comprehensive research..."
 
-# Search 2: Common tasks  
-# WebSearch query: "${TECHNOLOGY} common development tasks tutorials ${CURRENT_DATE}"
+# These searches MUST be executed simultaneously:
+# 1. Expert practices: "${TECHNOLOGY} expert developer best practices ${CURRENT_DATE}"
+# 2. Key features: "${TECHNOLOGY} key features capabilities ${CURRENT_DATE}"  
+# 3. Common tasks: "${TECHNOLOGY} common development tasks tutorials ${CURRENT_DATE}"
+# 4. Use cases: "${TECHNOLOGY} when to use scenarios ${CURRENT_DATE}"
+# 5. Architecture: "${TECHNOLOGY} architecture patterns integration ${CURRENT_DATE}"
+# 6. Ecosystem: "${TECHNOLOGY} ecosystem tools libraries ${CURRENT_DATE}"
+# 7. Best practices: "${TECHNOLOGY} development best practices patterns ${CURRENT_DATE}"
+# 8. Documentation: "${TECHNOLOGY} official documentation guides ${CURRENT_DATE}"
 
-# Search 3: Architecture patterns
-# WebSearch query: "${TECHNOLOGY} architecture patterns when to use ${CURRENT_DATE}"
+# NEVER execute these sequentially - use parallel Task agents
 
 # Step 2: Auto-detect category if not provided
 if [ -z "$CATEGORY" ]; then
@@ -274,5 +299,16 @@ If unable to find sufficient information:
 2. Explain why agent generation is incomplete
 3. Provide partial agent with clear markers for missing info
 4. Suggest alternative search terms or manual input
+
+## Success Criteria
+
+A successful agent generation:
+- ✓ Comprehensive technology research completed
+- ✓ Expert areas accurately identified
+- ✓ Common tasks and use cases documented
+- ✓ Trigger examples are realistic and useful
+- ✓ Agent file properly formatted and saved
+- ✓ **EXECUTED ALL RESEARCH IN PARALLEL using Task agents in single responses**
+- ✓ **Completed all technology research simultaneously (8+ queries in 5 seconds)**
 
 This mode enables dynamic agent creation for ANY technology, ensuring Claude Code can provide specialized expertise even for the most exotic or cutting-edge tools!

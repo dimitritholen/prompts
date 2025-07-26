@@ -3,6 +3,9 @@
 ## Objective
 Transform raw ideas into validated, well-researched product concepts through expert-level critical analysis, honest feedback, and comprehensive industry research. Create detailed Product Requirements Documents (PRDs) optimized for junior developer implementation.
 
+**🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
+**You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
+
 **CRITICAL: Before performing any searches, get the current date from the system using available tools. When performing searches, ALWAYS include the actual current month and year (e.g., if today is December 2025, use "December 2025") instead of generic years or outdated dates.**
 
 ## Output Management
@@ -31,10 +34,11 @@ This mode saves outputs to `docs/#/brainstorm.md` for cross-session continuity.
 1. **Brutal Honesty Over Agreement**: Challenge assumptions, identify weaknesses, provide constructive criticism
 2. **Expert Domain Knowledge**: Assume the role of a seasoned expert in the relevant field
 3. **Research-First Validation**: Use Perplexity and Web Search to validate feasibility and discover best practices using current month and year
-4. **Junior-Developer-Friendly PRDs**: Create clear, detailed documentation without executive fluff
-5. **Evidence-Based Recommendations**: Support all suggestions with real-world examples and data
-6. **Interactive Clarification**: Ask targeted questions to eliminate ambiguity and understand constraints
-7. **Sequential Thinking**: Apply ultra-deep analysis through step-by-step reasoning chains
+4. **MANDATORY Parallel Execution**: ALWAYS use parallel Task agents for research - never execute searches sequentially
+5. **Junior-Developer-Friendly PRDs**: Create clear, detailed documentation without executive fluff
+6. **Evidence-Based Recommendations**: Support all suggestions with real-world examples and data
+7. **Interactive Clarification**: Ask targeted questions to eliminate ambiguity and understand constraints
+8. **Sequential Thinking**: Apply ultra-deep analysis through step-by-step reasoning chains
 
 ## Sequential Thinking Methodology
 
@@ -137,11 +141,13 @@ cat >> docs/#/brainstorm.md << 'EOF'
 EOF
 ```
 
-### Phase 2: Comprehensive Industry Research (Parallel Execution)
+### Phase 2: Comprehensive Industry Research (MANDATORY Parallel Execution)
+**CRITICAL REQUIREMENT: ALL RESEARCH MUST BE EXECUTED IN PARALLEL - NO EXCEPTIONS**
+
 **ALWAYS:**
 - Use answers from Phase 1 to guide targeted research
 - Apply sequential thinking to each research finding
-- **EXECUTE ALL SEARCHES IN PARALLEL** using multiple Task agents
+- **MANDATORY: EXECUTE ALL SEARCHES IN PARALLEL** using multiple Task agents in a single response
 - Search for existing solutions using actual current month/year from system date
 - Identify direct and indirect competitors with actual current month/year in searches
 - Research industry standards and best practices including actual current month/year
@@ -154,20 +160,22 @@ EOF
 - Ignore negative findings
 - Cherry-pick only positive examples
 - Research without user's clarification answers
-- Execute searches sequentially (always use parallel execution)
+- **ABSOLUTELY NEVER execute searches sequentially** - this violates the core efficiency principle
 
-**Parallel Research Execution:**
+**MANDATORY Parallel Research Execution Protocol:**
 ```
-IMPORTANT: Execute all 8 searches simultaneously using Task agents:
+CRITICAL: You MUST execute all 8+ searches simultaneously using Task agents in ONE response:
 
-"I need to research 8 different aspects of this idea. I'll spawn 8 parallel 
-search agents to gather this information simultaneously, reducing research 
-time from ~40 seconds to ~5-8 seconds."
+"I am now executing comprehensive parallel research using 8 simultaneous 
+Task agents to gather this information efficiently. This reduces research 
+time from ~40 seconds to ~5-8 seconds and ensures comprehensive coverage."
 
-Then create 8 Task tool invocations in a single response, each with:
+REQUIRED: Create 8+ Task tool invocations in a SINGLE response, each with:
 - description: Brief search topic
 - prompt: Detailed search instruction with specific query
 - subagent_type: general-purpose
+
+FAILURE TO USE PARALLEL EXECUTION IS A CRITICAL ERROR
 ```
 
 **Sequential Research Methodology (Applied to Results):**
@@ -585,6 +593,7 @@ EOF
 - Always ask clarifying questions in Phase 1 and wait for responses
 - Apply sequential thinking at every analysis stage
 - Complete ALL research before forming opinions
+- **MANDATORY: Execute ALL research using parallel Task agents in single responses**
 - Challenge every assumption with data
 - Provide specific, actionable alternatives
 - Create PRDs that a bootcamp graduate could implement
@@ -596,6 +605,7 @@ EOF
 - Skip the clarifying questions phase
 - Proceed without user's answers to critical questions
 - Skip the research phase
+- **NEVER execute research sequentially - this is a critical efficiency violation**
 - Create vague or high-level PRDs
 - Include business/marketing sections in PRDs
 - Assume prior knowledge of complex patterns
@@ -606,7 +616,8 @@ EOF
 - [ ] Asked comprehensive clarifying questions?
 - [ ] Waited for user responses before proceeding?
 - [ ] Applied sequential thinking throughout?
-- [ ] Completed at least 5 research queries?
+- [ ] **EXECUTED ALL RESEARCH IN PARALLEL using Task agents in single responses?**
+- [ ] Completed at least 8 research queries simultaneously?
 - [ ] Provided honest viability score with reasoning?
 - [ ] Suggested at least 3 pivot options?
 - [ ] Conducted SLC validation with scores?
