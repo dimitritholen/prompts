@@ -136,9 +136,9 @@ kb_append() {
     
     if command -v jq &> /dev/null; then
         local temp_file=$(mktemp)
-        jq --arg path "$path" --argjson data "$data" \
-           'setpath($path | split("."); (getpath($path | split(".")) // []) + [$data])' \
-           "$kb_file" > "$temp_file" && mv "$temp_file" "$kb_file"
+        # Remove leading dot and create path array properly
+        path=$(echo "$path" | sed 's/^\.//')
+        jq --argjson data "$data" ".$path += [\$data]" "$kb_file" > "$temp_file" && mv "$temp_file" "$kb_file"
     else
         # Fallback: append to change log
         echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] APPEND $path: $data" >> "${kb_file}.log"

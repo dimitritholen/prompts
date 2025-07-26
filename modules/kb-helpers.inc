@@ -2,8 +2,8 @@
 # Knowledge Base (KB) Helper Functions
 # High-level functions to simplify KB operations and reduce output noise
 
-# Source the base KB module first
-source "$(dirname "${BASH_SOURCE[0]}")/kb-init.inc" 2>/dev/null || source modules/kb-init.inc
+# Source the multi-project KB module (which sources kb-init.inc)
+source "$(dirname "${BASH_SOURCE[0]}")/kb-multi-project.inc" 2>/dev/null || source modules/kb-multi-project.inc
 
 # Override the confirmation message from kb-init.inc
 kb_log() {

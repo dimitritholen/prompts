@@ -97,6 +97,16 @@ Hash Prompts is a comprehensive collection of AI prompts that guide you through 
 - `/#:pipeline validate` - Verify stage prerequisites
 - `/#:pipeline reset` - Archive and start fresh
 - `/#:pipeline agents` - List all project agents
+
+### 📁 Project Management
+
+**/#:project** - Manage multiple projects
+- `/#:project` - Show current project info
+- `/#:project list` - List all registered projects
+- `/#:project switch [name]` - Switch to another project
+- `/#:project search [term]` - Search central knowledge base
+- `/#:project share [type] [pattern]` - Share pattern to central KB
+- `/#:project migrate` - Migrate legacy KB files
 - `/#:pipeline agents clean` - Remove outdated agents
 - `/#:pipeline agents validate` - Check agent consistency
 - `/#:pipeline suggest` - Get agent recommendations

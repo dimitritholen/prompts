@@ -1,0 +1,4 @@
+# Keep KB files local
+*.kb.json
+*.kb.json.bak
+*.kb.json.log
