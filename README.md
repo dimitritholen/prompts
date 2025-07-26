@@ -28,13 +28,13 @@ This creates commands like `/#:brainstorm` and `/#:architect` that are easy to t
 **Unix/Linux/macOS:**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/dimitritholen/hash-prompts/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/dimitritholen/hash-prompts/feature/kb/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/dimitritholen/hash-prompts/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/dimitritholen/hash-prompts/feature/kb/scripts/install.ps1 | iex
 ```
 
 ### Option 2: Clone and Install

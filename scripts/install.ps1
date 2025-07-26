@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 # GitHub repository information
 $RepoOwner = "dimitritholen"
 $RepoName = "hash-prompts"
-$Branch = "main"
+$Branch = "feature/kb"
 $BaseUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch"
 
 # Prompt files to install
