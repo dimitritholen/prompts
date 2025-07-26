@@ -1,0 +1,799 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "description": "Hash Prompts Knowledge Base - Complete command and rules reference",
+    "generated": "2024-01-15",
+    "total_commands": 14,
+    "rules_version": "2.0"
+  },
+  
+  "rules": {
+    "global": {
+      "parallel_research": {
+        "id": "RULE_001",
+        "type": "mandatory",
+        "description": "ALL research MUST use parallel Task agents",
+        "enforcement": "CRITICAL_ERROR",
+        "parameters": {
+          "min_parallel_agents": 6,
+          "max_parallel_agents": 10,
+          "timeout_per_agent": 5000,
+          "execution_mode": "simultaneous"
+        },
+        "violation_message": "🚨 CRITICAL ERROR: Sequential research execution detected!",
+        "time_savings": {
+          "sequential": "30-60 seconds",
+          "parallel": "5-8 seconds",
+          "reduction": "75-85%"
+        }
+      },
+      
+      "slc_validation": {
+        "id": "RULE_002",
+        "type": "mandatory",
+        "description": "All features must pass SLC (Simple, Lovable, Complete) validation",
+        "criteria": {
+          "simple": {
+            "min_score": 4,
+            "description": "Remove barriers, streamline user experience",
+            "validation_questions": [
+              "Can this be explained in one sentence?",
+              "Does this remove complexity rather than add it?",
+              "Will new users understand the value within 5 minutes?"
+            ]
+          },
+          "lovable": {
+            "min_score": 4,
+            "description": "Build products that delight users",
+            "validation_questions": [
+              "Will users genuinely love this?",
+              "Does this solve a real pain point?",
+              "Would users recommend this to others?"
+            ]
+          },
+          "complete": {
+            "min_score": 4,
+            "description": "Fully deliver on core promise",
+            "validation_questions": [
+              "Does this fully solve the core problem?",
+              "Can users accomplish their main goal end-to-end?",
+              "Are there critical gaps in the core workflow?"
+            ]
+          }
+        }
+      },
+      
+      "yagni_principle": {
+        "id": "RULE_003",
+        "type": "mandatory",
+        "description": "You Aren't Gonna Need It - No speculative features",
+        "validation": [
+          "Build only what's needed now",
+          "Require evidence for new features",
+          "No hypothetical future requirements",
+          "Incremental complexity only when proven necessary"
+        ]
+      },
+      
+      "documentation_sync": {
+        "id": "RULE_004",
+        "type": "mandatory",
+        "description": "All outputs must be saved for cross-session continuity",
+        "requirements": [
+          "Save to docs/#/ directory",
+          "Update active context",
+          "Maintain handoff packages"
+        ]
+      }
+    },
+    
+    "quality_gates": {
+      "research": {
+        "entry": ["current_date_retrieved", "check_shared_research_first"],
+        "exit": ["min_parallel_agents_met", "results_stored", "time_under_10_seconds"]
+      },
+      "handoff": {
+        "requirements": ["all_deliverables_present", "validation_passed", "documentation_updated"]
+      }
+    }
+  },
+  
+  "commands": {
+    "brainstorm": {
+      "name": "brainstorm",
+      "description": "Expert idea development & critical analysis",
+      "aliases": [],
+      "category": "ideation",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Initial Idea Analysis & Expert Role Assumption",
+          "activities": [
+            "Identify domain/field",
+            "Assume 10+ year expert role",
+            "Ask comprehensive clarifying questions",
+            "Apply sequential thinking",
+            "Identify red flags"
+          ],
+          "outputs": {
+            "questions": "minimum 5 clarifying questions",
+            "assumptions": "documented explicitly",
+            "expert_role": "specific domain expertise stated"
+          },
+          "rules": {
+            "must_wait_for_responses": true,
+            "requires_parallel_research": false
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Comprehensive Industry Research",
+          "activities": [
+            "Execute parallel searches",
+            "Apply sequential thinking to findings",
+            "Research existing solutions",
+            "Identify competitors",
+            "Find case studies",
+            "Gather technical feasibility data"
+          ],
+          "parallel_research": {
+            "required": true,
+            "min_searches": 8,
+            "search_topics": [
+              "existing solutions",
+              "direct/indirect competitors",
+              "industry standards",
+              "case studies (success/failure)",
+              "technical feasibility",
+              "regulatory requirements",
+              "market analysis",
+              "best practices"
+            ],
+            "time_estimate": "8 seconds"
+          }
+        },
+        {
+          "id": "phase3",
+          "name": "Critical Evaluation & Honest Feedback",
+          "activities": [
+            "Provide unfiltered viability assessment",
+            "Compare against industry standards",
+            "Identify skill/resource gaps",
+            "Calculate realistic timelines",
+            "Challenge core assumptions"
+          ],
+          "outputs": {
+            "viability_score": "1-10 with reasoning",
+            "critical_weaknesses": "ordered by severity",
+            "competitive_analysis": "gap analysis",
+            "resource_requirements": "vs reality"
+          }
+        },
+        {
+          "id": "phase4",
+          "name": "Constructive Pivot Suggestions",
+          "activities": [
+            "Suggest realistic modifications",
+            "Propose niche targeting",
+            "Recommend MVP simplifications",
+            "Identify quick wins"
+          ]
+        },
+        {
+          "id": "phase4b",
+          "name": "SLC Validation & Scope Control",
+          "activities": [
+            "Validate against SLC principles",
+            "Apply 80/20 rule",
+            "Define scope boundaries",
+            "Anti-over-engineering checks"
+          ]
+        },
+        {
+          "id": "phase5",
+          "name": "Junior-Developer-Friendly PRD Creation",
+          "activities": [
+            "Create implementation guide",
+            "Include code examples",
+            "Add testing criteria",
+            "Reference specific libraries"
+          ]
+        }
+      ],
+      "workflow": {
+        "next_commands": ["prd"],
+        "prerequisites": [],
+        "handoff_deliverables": [
+          "validated_concept",
+          "market_research_findings", 
+          "target_user_definition",
+          "initial_prd_draft",
+          "key_assumptions"
+        ]
+      },
+      "time_estimates": {
+        "total": "2-3 hours",
+        "research": "8 seconds (parallel)",
+        "per_phase": {
+          "phase1": "30-45 minutes",
+          "phase2": "8 seconds",
+          "phase3": "30 minutes",
+          "phase4": "20 minutes",
+          "phase5": "45 minutes"
+        }
+      }
+    },
+    
+    "prd": {
+      "name": "prd",
+      "description": "Product Requirements Document creation",
+      "category": "requirements",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Discovery and Research",
+          "activities": [
+            "Extract core problem",
+            "Identify target audience",
+            "Determine value proposition"
+          ],
+          "parallel_research": {
+            "required": true,
+            "min_searches": 6,
+            "search_topics": [
+              "similar solutions and competitors",
+              "market gaps and opportunities",
+              "successful patterns",
+              "failed attempts analysis",
+              "frameworks and tools",
+              "industry standards"
+            ],
+            "time_estimate": "6-8 seconds"
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Clarification and Gap Analysis",
+          "activities": [
+            "Ask probing questions",
+            "Attack the plan",
+            "Fill the gaps"
+          ]
+        },
+        {
+          "id": "phase2b",
+          "name": "SLC Validation & Feature Prioritization",
+          "activities": [
+            "SLC framework validation",
+            "Feature prioritization",
+            "Anti-over-engineering checks"
+          ]
+        },
+        {
+          "id": "phase3",
+          "name": "PRD Document Creation",
+          "outputs": {
+            "document_sections": [
+              "Executive Summary",
+              "Problem Statement",
+              "Target Audience",
+              "Product Vision",
+              "Functional Requirements",
+              "Non-Functional Requirements",
+              "Success Criteria"
+            ]
+          }
+        }
+      ],
+      "workflow": {
+        "next_commands": ["architect"],
+        "prerequisites": ["brainstorm"],
+        "handoff_deliverables": [
+          "complete_prd_document",
+          "success_metrics",
+          "user_journeys",
+          "technical_requirements",
+          "acceptance_criteria"
+        ]
+      },
+      "agents_generated": [
+        "domain-expert",
+        "compliance-officer",
+        "product-manager",
+        "ux-designer"
+      ]
+    },
+    
+    "architect": {
+      "name": "architect",
+      "description": "System architecture design",
+      "category": "technical",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Comprehensive Research",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 15,
+            "categories": {
+              "architecture_patterns": 4,
+              "technology_stack": 5,
+              "agent_personas": 2,
+              "pattern_analysis": 4
+            },
+            "time_estimate": "5-8 seconds"
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Requirements Analysis"
+        },
+        {
+          "id": "phase3",
+          "name": "Architecture Design",
+          "validation": {
+            "simplicity_checks": true,
+            "necessity_validation": true,
+            "user_value_alignment": true
+          }
+        },
+        {
+          "id": "phase4",
+          "name": "Technology Selection",
+          "activities": [
+            "SLC-weighted selection matrix",
+            "Anti-over-engineering filters"
+          ]
+        },
+        {
+          "id": "phase5",
+          "name": "Scalability and Performance"
+        },
+        {
+          "id": "phase6",
+          "name": "Security Architecture"
+        },
+        {
+          "id": "phase7",
+          "name": "Documentation"
+        }
+      ],
+      "workflow": {
+        "next_commands": ["tasks"],
+        "prerequisites": ["prd"],
+        "handoff_deliverables": [
+          "architecture_document",
+          "technology_decisions",
+          "component_design",
+          "deployment_architecture"
+        ]
+      },
+      "agents_generated": "dynamic_based_on_stack"
+    },
+    
+    "tasks": {
+      "name": "tasks",
+      "description": "Task breakdown and planning",
+      "category": "planning",
+      "phases": [
+        {
+          "id": "pre_task",
+          "name": "Pre-Task Research",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 6,
+            "search_topics": [
+              "existing frameworks",
+              "industry packages",
+              "Docker containers",
+              "architectural patterns",
+              "best practices",
+              "common pitfalls"
+            ]
+          }
+        },
+        {
+          "id": "task_creation",
+          "name": "Task Creation",
+          "principles": [
+            "Atomic and focused (1-4 hours)",
+            "Self-contained context",
+            "Clear dependencies",
+            "Industry standards",
+            "SLC validation"
+          ]
+        }
+      ],
+      "workflow": {
+        "next_commands": ["plan"],
+        "prerequisites": ["architect"]
+      },
+      "agents_generated": [
+        "code-reviewer",
+        "test-engineer",
+        "documentation-writer",
+        "security-engineer"
+      ]
+    },
+    
+    "plan": {
+      "name": "plan",
+      "description": "Detailed implementation planning",
+      "category": "planning",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Requirements and Clarifications"
+        },
+        {
+          "id": "phase2",
+          "name": "Exhaustive Research and Analysis",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 6,
+            "time_estimate": "5-8 seconds"
+          }
+        },
+        {
+          "id": "phase3",
+          "name": "Solution Formulation"
+        },
+        {
+          "id": "phase4",
+          "name": "Comprehensive Plan Presentation"
+        },
+        {
+          "id": "phase5",
+          "name": "Validation and Refinement"
+        }
+      ],
+      "workflow": {
+        "next_commands": ["code"],
+        "prerequisites": ["tasks"]
+      }
+    },
+    
+    "code": {
+      "name": "code",
+      "description": "Code implementation",
+      "category": "implementation",
+      "phases": [
+        {
+          "id": "pre_implementation",
+          "name": "Pre-Implementation Research",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 6,
+            "search_topics": [
+              "implementation patterns",
+              "security best practices",
+              "performance optimization",
+              "error handling",
+              "testing strategies",
+              "code quality"
+            ],
+            "time_estimate": "6 seconds"
+          }
+        },
+        {
+          "id": "implementation",
+          "name": "Implementation",
+          "standards": [
+            "Clean code principles",
+            "SOLID principles",
+            "SLC implementation",
+            "YAGNI application"
+          ]
+        }
+      ],
+      "workflow": {
+        "next_commands": ["test", "deploy"],
+        "prerequisites": ["plan"]
+      }
+    },
+    
+    "feature": {
+      "name": "feature",
+      "description": "Feature integration",
+      "category": "enhancement",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Feature Analysis & Classification"
+        },
+        {
+          "id": "phase1b",
+          "name": "Comprehensive Feature Research",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 8,
+            "time_estimate": "8 seconds"
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Task Mapping & Integration"
+        },
+        {
+          "id": "phase3",
+          "name": "Documentation Updates"
+        },
+        {
+          "id": "phase4",
+          "name": "Output Generation"
+        }
+      ],
+      "workflow": {
+        "next_commands": ["plan"],
+        "prerequisites": ["deploy"]
+      }
+    },
+    
+    "test": {
+      "name": "test",
+      "description": "Testing strategy and implementation",
+      "category": "quality",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Test Strategy Analysis"
+        },
+        {
+          "id": "phase1b",
+          "name": "Comprehensive Testing Research",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 8,
+            "search_topics": [
+              "testing frameworks",
+              "test strategy patterns",
+              "automation tools",
+              "performance testing",
+              "security testing",
+              "coverage analysis",
+              "E2E testing",
+              "test data management"
+            ],
+            "time_estimate": "6 seconds"
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Test Architecture Design"
+        },
+        {
+          "id": "phase3",
+          "name": "Test Implementation Strategy"
+        },
+        {
+          "id": "phase4",
+          "name": "Tooling and Framework Selection"
+        }
+      ],
+      "workflow": {
+        "next_commands": ["deploy"],
+        "prerequisites": ["code"]
+      }
+    },
+    
+    "deploy": {
+      "name": "deploy",
+      "description": "Deployment and DevOps",
+      "category": "operations",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Infrastructure Assessment",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 10,
+            "search_topics": [
+              "cloud provider comparison",
+              "container orchestration",
+              "CI/CD tools",
+              "monitoring stack",
+              "security tools",
+              "infrastructure as code",
+              "database operations",
+              "load balancing",
+              "backup recovery",
+              "cost optimization"
+            ],
+            "time_estimate": "8 seconds"
+          }
+        },
+        {
+          "id": "phase2",
+          "name": "Infrastructure Architecture"
+        },
+        {
+          "id": "phase3",
+          "name": "CI/CD Pipeline Design"
+        },
+        {
+          "id": "phase4",
+          "name": "Container Strategy"
+        },
+        {
+          "id": "phase5",
+          "name": "Infrastructure as Code"
+        },
+        {
+          "id": "phase6",
+          "name": "Monitoring and Observability"
+        },
+        {
+          "id": "phase7",
+          "name": "Security Implementation"
+        },
+        {
+          "id": "phase8",
+          "name": "Deployment Strategies"
+        },
+        {
+          "id": "phase9",
+          "name": "Disaster Recovery"
+        }
+      ],
+      "workflow": {
+        "next_commands": ["feature"],
+        "prerequisites": ["test", "code"]
+      }
+    },
+    
+    "pipeline": {
+      "name": "pipeline",
+      "description": "Workflow orchestration",
+      "category": "orchestration",
+      "type": "meta_command",
+      "manages": [
+        "brainstorm",
+        "prd",
+        "architect",
+        "tasks",
+        "plan",
+        "code",
+        "test",
+        "deploy"
+      ],
+      "workflow_stages": [
+        {
+          "stage": "ideation",
+          "command": "brainstorm"
+        },
+        {
+          "stage": "requirements",
+          "command": "prd"
+        },
+        {
+          "stage": "architecture",
+          "command": "architect"
+        },
+        {
+          "stage": "planning",
+          "commands": ["tasks", "plan"]
+        },
+        {
+          "stage": "implementation",
+          "command": "code"
+        },
+        {
+          "stage": "quality",
+          "command": "test"
+        },
+        {
+          "stage": "deployment",
+          "command": "deploy"
+        }
+      ]
+    },
+    
+    "generate-agent": {
+      "name": "generate-agent",
+      "description": "Dynamic agent generation",
+      "category": "utility",
+      "phases": [
+        {
+          "id": "phase1",
+          "name": "Parse Command"
+        },
+        {
+          "id": "phase2",
+          "name": "Research Technology",
+          "parallel_research": {
+            "required": true,
+            "min_searches": 8,
+            "search_topics": [
+              "expert best practices",
+              "key features",
+              "common tasks",
+              "use case scenarios",
+              "architecture patterns",
+              "ecosystem tools",
+              "development patterns",
+              "official documentation"
+            ],
+            "time_estimate": "5 seconds"
+          }
+        },
+        {
+          "id": "phase3",
+          "name": "Analyze and Synthesize"
+        },
+        {
+          "id": "phase4",
+          "name": "Generate Agent"
+        }
+      ]
+    },
+    
+    "help": {
+      "name": "help",
+      "description": "Display command reference",
+      "category": "utility",
+      "type": "documentation"
+    },
+    
+    "anti-overengineering": {
+      "name": "anti-overengineering",
+      "description": "SLC and YAGNI guidelines",
+      "category": "guidelines",
+      "type": "principles"
+    }
+  },
+  
+  "relationships": {
+    "command_flow": [
+      {"from": "brainstorm", "to": "prd", "type": "handoff"},
+      {"from": "prd", "to": "architect", "type": "handoff"},
+      {"from": "architect", "to": "tasks", "type": "handoff"},
+      {"from": "tasks", "to": "plan", "type": "handoff"},
+      {"from": "plan", "to": "code", "type": "handoff"},
+      {"from": "code", "to": "test", "type": "handoff"},
+      {"from": "test", "to": "deploy", "type": "handoff"},
+      {"from": "deploy", "to": "feature", "type": "cycle"},
+      {"from": "feature", "to": "plan", "type": "handoff"}
+    ],
+    
+    "agent_generation": [
+      {"trigger": "prd", "generates": ["domain-expert", "product-manager"]},
+      {"trigger": "architect", "generates": "dynamic_tech_stack_agents"},
+      {"trigger": "tasks", "generates": ["code-reviewer", "test-engineer"]}
+    ]
+  },
+  
+  "execution_patterns": {
+    "parallel_research": {
+      "protocol": "Create N Task tool invocations in SINGLE response",
+      "benefits": {
+        "time_reduction": "75-85%",
+        "coverage": "comprehensive",
+        "efficiency": "optimal"
+      },
+      "example_code": "Create 8+ Task tool invocations in a SINGLE response"
+    }
+  },
+  
+  "modules": {
+    "common": {
+      "description": "Output management, file persistence, session handling",
+      "exports": ["save_output", "load_context", "manage_session"]
+    },
+    "research": {
+      "description": "Parallel search patterns, query templates, caching",
+      "exports": ["execute_parallel_research", "cache_results"]
+    },
+    "slc-validation": {
+      "description": "Complete SLC framework and validation checklists",
+      "exports": ["validate_slc", "score_feature"]
+    },
+    "agent-generation": {
+      "description": "Agent creation functions and color palettes",
+      "exports": ["generate_agent", "assign_color"]
+    },
+    "handoffs": {
+      "description": "Stage transitions, quality gates, handoff templates",
+      "exports": ["validate_handoff", "package_deliverables"]
+    }
+  }
+}

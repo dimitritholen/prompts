@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hash Prompts Command Schema",
+  "description": "Schema for validating command definitions in the knowledge base",
+  "type": "object",
+  "required": ["name", "description", "category"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z-]+$",
+      "description": "Command name (lowercase, hyphens allowed)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the command's purpose"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Alternative names for the command"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["ideation", "requirements", "technical", "planning", "implementation", "quality", "operations", "orchestration", "utility", "guidelines"],
+      "description": "Command category"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["standard", "meta_command", "documentation", "principles"],
+      "description": "Type of command"
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/phase"
+      },
+      "description": "Execution phases for the command"
+    },
+    "workflow": {
+      "$ref": "#/definitions/workflow",
+      "description": "Workflow relationships and handoffs"
+    },
+    "time_estimates": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string"
+        },
+        "research": {
+          "type": "string"
+        },
+        "per_phase": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "agents_generated": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "phase": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputs": {
+          "type": "object"
+        },
+        "rules": {
+          "type": "object"
+        },
+        "parallel_research": {
+          "$ref": "#/definitions/parallel_research"
+        },
+        "validation": {
+          "type": "object"
+        }
+      }
+    },
+    "parallel_research": {
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "min_searches": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "search_topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "categories": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "time_estimate": {
+          "type": "string"
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "next_commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "handoff_deliverables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

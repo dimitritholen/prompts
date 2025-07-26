@@ -638,6 +638,37 @@ Before adding any feature, ensure it passes:
 - **Lovable Violations**: Low engagement, high churn
 - **Complete Violations**: Users need external tools, create workarounds
 
+## Knowledge Base System
+
+Hash Prompts includes an intelligent Knowledge Base (KB) system that stores all command information, research results, and project data in a structured, queryable format. This eliminates the need to constantly parse markdown files and enables context-aware execution.
+
+### Key KB Features
+
+- **Structured Data**: All commands, rules, and workflows stored in JSON format
+- **Research Caching**: Automatic caching of web searches with TTL management
+- **Decision Tracking**: Complete audit trail of architectural and technical decisions
+- **Cross-Session Continuity**: Project context persists across conversations
+- **Performance Metrics**: Track command usage and time savings
+- **Parallel Research Enforcement**: Ensures 75-85% time savings on all research tasks
+
+### KB Architecture
+
+```
+kb/
+├── hash-prompts-kb.json      # Core KB with all commands and rules
+├── project-kb-template.json  # Template for project-specific data
+├── kb-generator.js          # Sync script for markdown → KB
+└── schemas/                 # JSON schemas for validation
+```
+
+### Using the KB
+
+1. **Generate/Update KB**: Run `node kb/kb-generator.js` after modifying commands
+2. **Project KB**: Copy `project-kb-template.json` to start tracking project data
+3. **Query KB**: Access command info, rules, and cached research programmatically
+
+See [kb/README.md](kb/README.md) for detailed documentation.
+
 ## Notes
 
 - These prompts are designed to work with AI assistants that support file references (like Claude, Cursor, etc.)
@@ -645,3 +676,4 @@ Before adding any feature, ensure it passes:
 - The prompts encourage the AI to ask clarifying questions before proceeding
 - All prompts emphasize industry best practices and avoiding reinventing the wheel
 - SLC validation is integrated throughout all modes to maintain product focus
+- The KB system ensures consistent parallel research execution for 75-85% time savings

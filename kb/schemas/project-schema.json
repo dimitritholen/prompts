@@ -1,0 +1,306 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hash Prompts Project KB Schema",
+  "description": "Schema for validating project-specific knowledge base data",
+  "type": "object",
+  "required": ["version", "metadata", "project_data"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["project_id", "project_name", "created", "last_updated"],
+      "properties": {
+        "project_id": {
+          "type": "string"
+        },
+        "project_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kb_schema_version": {
+          "type": "string"
+        }
+      }
+    },
+    "project_data": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "research_cache": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/research_entry"
+      }
+    },
+    "agents_generated": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/agent"
+      }
+    },
+    "decision_log": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/decision"
+      }
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "data_flow": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/data_flow"
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dependency"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "session_history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/session"
+      }
+    },
+    "notes": {
+      "type": "object"
+    }
+  },
+  "definitions": {
+    "research_entry": {
+      "type": "object",
+      "required": ["id", "query", "timestamp", "data"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ttl_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source": {
+          "type": "string",
+          "enum": ["WebSearch", "Task", "Manual"]
+        },
+        "data": {
+          "type": "object"
+        },
+        "used_by": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "required": ["name", "created", "technology"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trigger": {
+          "type": "string"
+        },
+        "technology": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "expertise": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color": {
+          "type": "string"
+        },
+        "usage_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["id", "timestamp", "command", "decision"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "command": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "decision_type": {
+          "type": "string",
+          "enum": ["technical", "business", "process"]
+        },
+        "decision": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "impact": {
+          "type": "string"
+        },
+        "reversible": {
+          "type": "boolean"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "data_flow": {
+      "type": "object",
+      "required": ["id", "from", "to", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["informs", "constrains", "validates", "generates"]
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "required": ["dependent", "dependency", "type"],
+      "properties": {
+        "dependent": {
+          "type": "string"
+        },
+        "dependency": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["requires", "optional", "blocks"]
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "required": ["session_id", "started"],
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "started": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "commands_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputs_generated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "decisions_made": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "handoffs_completed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

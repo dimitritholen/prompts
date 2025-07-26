@@ -1,0 +1,208 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "project_id": "",
+    "project_name": "",
+    "description": "",
+    "created": "",
+    "last_updated": "",
+    "kb_schema_version": "1.0"
+  },
+  
+  "project_data": {
+    "brainstorm": {
+      "sessions": []
+    },
+    
+    "prd": {
+      "requirements": {
+        "functional": [],
+        "non_functional": {},
+        "success_metrics": []
+      },
+      "user_journeys": [],
+      "acceptance_criteria": []
+    },
+    
+    "architect": {
+      "decisions": {
+        "pattern": null,
+        "stack": {
+          "frontend": null,
+          "backend": null,
+          "database": null,
+          "infrastructure": null
+        },
+        "rationale": {},
+        "alternatives_considered": []
+      },
+      "components": [],
+      "security_measures": [],
+      "scalability_plan": {}
+    },
+    
+    "tasks": {
+      "task_list": [],
+      "dependencies": {},
+      "milestones": [],
+      "resource_allocation": {}
+    },
+    
+    "plan": {
+      "sprints": [],
+      "implementation_strategy": {},
+      "risk_mitigation": []
+    },
+    
+    "code": {
+      "implementations": [],
+      "code_reviews": [],
+      "refactoring_log": []
+    },
+    
+    "test": {
+      "test_strategy": {},
+      "test_results": [],
+      "coverage_reports": [],
+      "bug_tracking": []
+    },
+    
+    "deploy": {
+      "infrastructure": {},
+      "deployments": [],
+      "monitoring_setup": {},
+      "incidents": []
+    },
+    
+    "feature": {
+      "integrations": [],
+      "feature_flags": {},
+      "rollout_status": {}
+    }
+  },
+  
+  "research_cache": {
+    "_template": {
+      "id": "unique_key",
+      "query": "original search query",
+      "timestamp": "ISO 8601 datetime",
+      "ttl_days": 30,
+      "source": "WebSearch|Task|Manual",
+      "data": {},
+      "used_by": [],
+      "tags": [],
+      "confidence": 0.0
+    }
+  },
+  
+  "agents_generated": {
+    "_template": {
+      "name": "agent-name",
+      "created": "ISO 8601 datetime",
+      "trigger": "command.phase.decision",
+      "technology": "specific tech/framework",
+      "version": "tech version",
+      "expertise": [],
+      "color": "assigned color",
+      "usage_count": 0
+    }
+  },
+  
+  "decision_log": [
+    {
+      "_template": {
+        "id": "decision_id",
+        "timestamp": "ISO 8601 datetime",
+        "command": "command that made decision",
+        "phase": "phase within command",
+        "decision_type": "technical|business|process",
+        "decision": "what was decided",
+        "rationale": "why this choice",
+        "alternatives": ["other options considered"],
+        "impact": "expected impact",
+        "reversible": true,
+        "references": ["research_cache_ids", "other_decision_ids"]
+      }
+    }
+  ],
+  
+  "relationships": {
+    "data_flow": [
+      {
+        "_template": {
+          "id": "flow_id",
+          "from": "source.path.in.kb",
+          "to": "destination.path.in.kb",
+          "type": "informs|constrains|validates|generates",
+          "created": "ISO 8601 datetime",
+          "description": "how data flows between points"
+        }
+      }
+    ],
+    
+    "dependencies": [
+      {
+        "_template": {
+          "dependent": "item that depends",
+          "dependency": "item depended upon",
+          "type": "requires|optional|blocks",
+          "reason": "why this dependency exists"
+        }
+      }
+    ]
+  },
+  
+  "metrics": {
+    "time_saved": {
+      "research_parallelization": {
+        "total_seconds_saved": 0,
+        "research_sessions": 0,
+        "average_time_reduction": "0%"
+      }
+    },
+    
+    "command_usage": {
+      "_template": {
+        "command_name": {
+          "invocations": 0,
+          "last_used": null,
+          "average_duration": null,
+          "success_rate": "100%"
+        }
+      }
+    },
+    
+    "quality_metrics": {
+      "slc_scores": {
+        "simple": [],
+        "lovable": [],
+        "complete": []
+      },
+      "rule_compliance": {
+        "parallel_research": "100%",
+        "yagni_adherence": "100%"
+      }
+    }
+  },
+  
+  "session_history": [
+    {
+      "_template": {
+        "session_id": "unique_session_id",
+        "started": "ISO 8601 datetime",
+        "ended": "ISO 8601 datetime",
+        "commands_used": [],
+        "outputs_generated": [],
+        "decisions_made": [],
+        "handoffs_completed": []
+      }
+    }
+  ],
+  
+  "notes": {
+    "project_notes": "",
+    "technical_notes": "",
+    "business_notes": "",
+    "lessons_learned": []
+  }
+}

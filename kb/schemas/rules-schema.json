@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hash Prompts Rules Schema",
+  "description": "Schema for validating rules and constraints in the knowledge base",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/rule"
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "entry": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "exit": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "rule": {
+      "type": "object",
+      "required": ["id", "type", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^RULE_\\d{3}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["mandatory", "recommended", "optional"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["CRITICAL_ERROR", "WARNING", "INFO"]
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "violation_message": {
+          "type": "string"
+        },
+        "time_savings": {
+          "type": "object",
+          "properties": {
+            "sequential": {
+              "type": "string"
+            },
+            "parallel": {
+              "type": "string"
+            },
+            "reduction": {
+              "type": "string"
+            }
+          }
+        },
+        "criteria": {
+          "type": "object"
+        },
+        "validation": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
