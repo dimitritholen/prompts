@@ -11,7 +11,7 @@ You are an expert DevOps engineer and deployment specialist with extensive exper
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Initialize project KB: `kb_init_project .`
 3. Load KB data: `KB_FILE=$(kb_load)`
 4. Query deployment status: `kb_query "$KB_FILE" '.project_data.deploy'`
@@ -27,7 +27,7 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **Resuming Work**:
 ```bash
 # Load KB and check deployment status
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 CURRENT_PHASE=$(kb_query "$KB_FILE" '.project_data.deploy.current_phase')
 DEPLOY_STATUS=$(kb_query "$KB_FILE" '.project_data.deploy.infrastructure')
@@ -82,7 +82,7 @@ echo "Deployment status: $DEPLOY_STATUS"
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 kb_init_project .
 KB_FILE=$(kb_load)
 
@@ -176,7 +176,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE1_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE1_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"infrastructure_design"'
 ```
 
@@ -237,7 +237,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE2_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE2_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.architecture' "$PHASE2_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"cicd_design"'
 ```
@@ -312,7 +312,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE3_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE3_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.cicd' "$PHASE3_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"container_strategy"'
 ```
@@ -391,7 +391,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE4_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE4_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.containers' "$PHASE4_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"infrastructure_as_code"'
 ```
@@ -429,7 +429,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE5_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE5_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.iac' "$PHASE5_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"monitoring_setup"'
 ```
@@ -528,7 +528,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE6_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE6_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.monitoring' "$PHASE6_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"security_implementation"'
 ```
@@ -583,7 +583,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE7_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE7_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.security' "$PHASE7_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"deployment_strategies"'
 ```
@@ -642,7 +642,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE8_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE8_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.deployment_strategies' "$PHASE8_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"disaster_recovery"'
 ```
@@ -695,7 +695,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$PHASE9_DATA"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$PHASE9_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.disaster_recovery' "$PHASE9_DATA"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"finalizing"'
 ```
@@ -803,7 +803,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.deploy.sessions' "$COMPLETE_STRATEGY"
+kb_save_session_data "$KB_FILE" "deploy" "$PHASE" "$COMPLETE_STRATEGY"
 kb_save "$KB_FILE" '.project_data.deploy.complete_strategy' "$COMPLETE_STRATEGY"
 kb_save "$KB_FILE" '.project_data.deploy.current_phase' '"completed"'
 
@@ -814,7 +814,7 @@ if [ "$PIPELINE_STATUS" != "null" ]; then
     TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     
     # Update deploy stage status
-    kb_save "$KB_FILE" '.pipeline_status.stages.deploy.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "deploy"
     kb_save "$KB_FILE" '.pipeline_status.stages.deploy.completed_at' "\"$TIMESTAMP\""
     kb_save "$KB_FILE" '.pipeline_status.stages.deploy.outcome' '"Production-ready deployment configured"'
     

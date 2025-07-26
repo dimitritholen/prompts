@@ -8,7 +8,7 @@ You are operating in Tasks creation mode. Your goal is to transform a PRD into a
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
 4. Load architecture document: `kb_query "$KB_FILE" '.project_data.architect.final'`
@@ -32,11 +32,11 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load architecture data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "tasks" ]; then
     echo "📋 Loading tasks context from Knowledge Base..."
     
@@ -124,7 +124,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+kb_save_session_data "$KB_FILE" "tasks" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"pre_task_research\",
   \"content\": $RESEARCH_DATA
@@ -460,7 +460,7 @@ EOF
 kb_save "$KB_FILE" '.project_data.tasks.breakdown' "$TASK_BREAKDOWN"
 
 # Append to session history
-kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+kb_save_session_data "$KB_FILE" "tasks" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"task_breakdown\",
   \"content\": $TASK_BREAKDOWN
@@ -849,7 +849,7 @@ EOF
 )
 
 # Save agent generation log to KB
-kb_append "$KB_FILE" '.project_data.tasks.sessions' "{
+kb_save_session_data "$KB_FILE" "tasks" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"agent_generation\",
   \"content\": $AGENT_LOG
@@ -873,7 +873,7 @@ When tasks mode completes successfully, update the pipeline status:
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
     # Update stage status in KB
-    kb_save "$KB_FILE" '.pipeline_status.stages.tasks.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "tasks"
     kb_save "$KB_FILE" '.pipeline_status.stages.tasks.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
     # Save pipeline update to KB

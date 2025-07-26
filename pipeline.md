@@ -8,23 +8,23 @@ You are an expert pipeline orchestrator and workflow architect with deep underst
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Initialize project KB: `kb_init_project .`
 3. Load KB data: `KB_FILE=$(kb_load)`
 4. Query pipeline status: `kb_query "$KB_FILE" '.pipeline_status'`
 5. Determine current stage and show progress
 
 **During Execution**:
-- Update KB after each stage: `kb_save "$KB_FILE" '.pipeline_status.current_stage' '"$STAGE"'`
-- Track completed stages in KB: `kb_append "$KB_FILE" '.pipeline_status.completed' '{"stage": "$STAGE", "timestamp": "$TIMESTAMP"}'`
-- Store handoff data: `kb_save "$KB_FILE" '.handoffs.$FROM_STAGE.$TO_STAGE' '$HANDOFF_DATA'`
+- Update KB after each stage: `kb_pipeline_update_stage "$KB_FILE" "$NEW_STAGE"`
+- Create handoffs between stages: `kb_pipeline_handoff "$KB_FILE" "$FROM_STAGE" "$TO_STAGE" '$HANDOFF_DATA'`
+- Save session data: `kb_save_session_data "$KB_FILE" "$MODE" "$PHASE" '$CONTENT'`
 - Log decisions: `kb_append "$KB_FILE" '.decision_log' '$DECISION'`
 - Leverage KB rules for parallel execution enforcement
 
 **Resuming Work**:
 ```bash
 # Load KB and check pipeline status
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
 COMPLETED=$(kb_query "$KB_FILE" '.pipeline_status.completed')
@@ -507,9 +507,9 @@ if [[ "$QUIET_MODE" == "true" ]]; then
     show_progress "Initializing pipeline"
 fi
 
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 complete_progress
 
@@ -594,7 +594,7 @@ if [ -n "$PRD_FILES" ]; then
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
     # Initialize Knowledge Base
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     kb_init_project .
     KB_FILE=$(kb_load)
     
@@ -727,7 +727,7 @@ else
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
     # Initialize Knowledge Base
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     kb_init_project .
     KB_FILE=$(kb_load)
     
@@ -766,55 +766,9 @@ fi
 ```
 **Implementation**:
 ```bash
-# Load KB and read current status
-source modules/kb-init.inc
-KB_FILE=$(kb_load)
-
-if [ -f "$KB_FILE" ]; then
-    STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
-    
-    if [ "$STATUS" != "null" ]; then
-        # Display pipeline status from KB
-        echo "## Pipeline Status"
-        echo
-        echo "Project: $(kb_query "$KB_FILE" '.pipeline_status.project_name')"
-        echo "Project ID: $(kb_query "$KB_FILE" '.pipeline_status.project_id')"
-        echo "Started: $(kb_query "$KB_FILE" '.pipeline_status.started')"
-        echo "Current Stage: $(kb_query "$KB_FILE" '.pipeline_status.current_stage')"
-        echo
-        echo "### Stage Status:"
-        
-        # Check each stage
-        stages=("brainstorm" "prd" "architect" "tasks" "plan" "code" "test" "deploy")
-        for stage in "${stages[@]}"; do
-            stage_status=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.status")
-            stage_notes=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.notes")
-            
-            case "$stage_status" in
-                "completed")
-                    echo "✅ ${stage^}: Completed"
-                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
-                    ;;
-                "in_progress")
-                    echo "🔄 ${stage^}: In Progress"
-                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
-                    ;;
-                *)
-                    echo "⏳ ${stage^}: Not started"
-                    ;;
-            esac
-        done
-        
-        echo
-        echo "Next Action: $(kb_query "$KB_FILE" '.pipeline_status.next_action')"
-    else
-        echo "> No pipeline in progress"
-        echo "> Run '/#:pipeline start' to begin"
-    fi
-else
-    echo "> No pipeline in progress"
-    echo "> Run '/#:pipeline start' to begin"
-fi
+# Load KB and display status using helpers
+source modules/kb-helpers.inc
+kb_pipeline_status
 ```
 
 ### Pipeline Validation
@@ -824,7 +778,7 @@ fi
 **Implementation**:
 ```bash
 # Load KB and validate prerequisites for each stage
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 echo "> Checking stage prerequisites..."
@@ -875,7 +829,7 @@ fi
 **Implementation**:
 ```bash
 # Load KB and analyze current state
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 echo "> Analyzing pipeline state..."
@@ -891,7 +845,7 @@ if [ "$CURRENT_STAGE" != "null" ]; then
     # Show relevant data from KB
     case $CURRENT_STAGE in
         "brainstorm")
-            SESSIONS=$(kb_query "$KB_FILE" '.project_data.brainstorm.sessions | length')
+            SESSIONS=$(kb_count_sessions "$KB_FILE" "brainstorm")
             echo "> Brainstorm sessions: $SESSIONS"
             ;;
         "prd")
@@ -1021,7 +975,7 @@ if [ -n "$latest_file" ]; then
 fi
 
 # Check current pipeline stage from KB
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 current_stage=$(kb_query "$KB_FILE" '.pipeline_status.current_stage' 2>/dev/null)
 if [ "$current_stage" != "null" ]; then
@@ -1118,9 +1072,9 @@ fi
 echo "> Cleaning outdated agents..."
 
 # Load KB to check for active project
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 if [ "$PIPELINE_EXISTS" = "null" ]; then
     echo "❌ No active project found. Run '/#:pipeline start' first."
@@ -1128,7 +1082,7 @@ if [ "$PIPELINE_EXISTS" = "null" ]; then
 fi
 
 # Get current project ID from KB
-CURRENT_PROJECT_ID=$(kb_query "$KB_FILE" '.pipeline_status.project_id' | tr -d '"')
+CURRENT_PROJECT_ID=$(kb_get_project_id "$KB_FILE" | tr -d '"')
 cleaned=0
 kept=0
 
@@ -1164,9 +1118,9 @@ echo "  - Kept: $kept current agents"
 echo "> Validating project agents..."
 
 # Load KB to check for active project
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 if [ "$PIPELINE_EXISTS" = "null" ]; then
     echo "❌ No active project found. Run '/#:pipeline start' first."
@@ -1174,8 +1128,8 @@ if [ "$PIPELINE_EXISTS" = "null" ]; then
 fi
 
 # Get current project ID from KB
-CURRENT_PROJECT_ID=$(kb_query "$KB_FILE" '.pipeline_status.project_id' | tr -d '"')
-PROJECT_NAME=$(kb_query "$KB_FILE" '.pipeline_status.project_name' | tr -d '"')
+CURRENT_PROJECT_ID=$(kb_get_project_id "$KB_FILE" | tr -d '"')
+PROJECT_NAME=$(kb_get_project_name "$KB_FILE" | tr -d '"')
 
 valid=0
 stale=0
@@ -1359,7 +1313,7 @@ update_stage_status() {
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     
     # Load KB
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     KB_FILE=$(kb_load)
     
     # Update stage status in KB
@@ -1397,7 +1351,7 @@ update_stage_status() {
 **SAVE PIPELINE STATUS**:
 ```bash
 # Save current pipeline status to KB
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Create pipeline update entry
@@ -1426,7 +1380,7 @@ EOF
 **SAVE PIPELINE STATUS**:
 ```bash
 # Initialize KB if needed
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Save current pipeline status to KB
@@ -1931,9 +1885,9 @@ if [[ "$QUIET_MODE" == "true" ]]; then
     show_progress "Initializing pipeline"
 fi
 
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 complete_progress
 
@@ -2018,7 +1972,7 @@ if [ -n "$PRD_FILES" ]; then
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
     # Initialize Knowledge Base
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     kb_init_project .
     KB_FILE=$(kb_load)
     
@@ -2151,7 +2105,7 @@ else
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     
     # Initialize Knowledge Base
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     kb_init_project .
     KB_FILE=$(kb_load)
     
@@ -2190,55 +2144,9 @@ fi
 ```
 **Implementation**:
 ```bash
-# Load KB and read current status
-source modules/kb-init.inc
-KB_FILE=$(kb_load)
-
-if [ -f "$KB_FILE" ]; then
-    STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
-    
-    if [ "$STATUS" != "null" ]; then
-        # Display pipeline status from KB
-        echo "## Pipeline Status"
-        echo
-        echo "Project: $(kb_query "$KB_FILE" '.pipeline_status.project_name')"
-        echo "Project ID: $(kb_query "$KB_FILE" '.pipeline_status.project_id')"
-        echo "Started: $(kb_query "$KB_FILE" '.pipeline_status.started')"
-        echo "Current Stage: $(kb_query "$KB_FILE" '.pipeline_status.current_stage')"
-        echo
-        echo "### Stage Status:"
-        
-        # Check each stage
-        stages=("brainstorm" "prd" "architect" "tasks" "plan" "code" "test" "deploy")
-        for stage in "${stages[@]}"; do
-            stage_status=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.status")
-            stage_notes=$(kb_query "$KB_FILE" ".pipeline_status.stages.$stage.notes")
-            
-            case "$stage_status" in
-                "completed")
-                    echo "✅ ${stage^}: Completed"
-                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
-                    ;;
-                "in_progress")
-                    echo "🔄 ${stage^}: In Progress"
-                    [ "$stage_notes" != "null" ] && echo "   └─ $stage_notes"
-                    ;;
-                *)
-                    echo "⏳ ${stage^}: Not started"
-                    ;;
-            esac
-        done
-        
-        echo
-        echo "Next Action: $(kb_query "$KB_FILE" '.pipeline_status.next_action')"
-    else
-        echo "> No pipeline in progress"
-        echo "> Run '/#:pipeline start' to begin"
-    fi
-else
-    echo "> No pipeline in progress"
-    echo "> Run '/#:pipeline start' to begin"
-fi
+# Load KB and display status using helpers
+source modules/kb-helpers.inc
+kb_pipeline_status
 ```
 
 ### Pipeline Validation
@@ -2248,7 +2156,7 @@ fi
 **Implementation**:
 ```bash
 # Load KB and validate prerequisites for each stage
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 echo "> Checking stage prerequisites..."
@@ -2299,7 +2207,7 @@ fi
 **Implementation**:
 ```bash
 # Load KB and analyze current state
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 echo "> Analyzing pipeline state..."
@@ -2315,7 +2223,7 @@ if [ "$CURRENT_STAGE" != "null" ]; then
     # Show relevant data from KB
     case $CURRENT_STAGE in
         "brainstorm")
-            SESSIONS=$(kb_query "$KB_FILE" '.project_data.brainstorm.sessions | length')
+            SESSIONS=$(kb_count_sessions "$KB_FILE" "brainstorm")
             echo "> Brainstorm sessions: $SESSIONS"
             ;;
         "prd")
@@ -2445,7 +2353,7 @@ if [ -n "$latest_file" ]; then
 fi
 
 # Check current pipeline stage from KB
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 current_stage=$(kb_query "$KB_FILE" '.pipeline_status.current_stage' 2>/dev/null)
 if [ "$current_stage" != "null" ]; then
@@ -2542,9 +2450,9 @@ fi
 echo "> Cleaning outdated agents..."
 
 # Load KB to check for active project
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 if [ "$PIPELINE_EXISTS" = "null" ]; then
     echo "❌ No active project found. Run '/#:pipeline start' first."
@@ -2552,7 +2460,7 @@ if [ "$PIPELINE_EXISTS" = "null" ]; then
 fi
 
 # Get current project ID from KB
-CURRENT_PROJECT_ID=$(kb_query "$KB_FILE" '.pipeline_status.project_id' | tr -d '"')
+CURRENT_PROJECT_ID=$(kb_get_project_id "$KB_FILE" | tr -d '"')
 cleaned=0
 kept=0
 
@@ -2588,9 +2496,9 @@ echo "  - Kept: $kept current agents"
 echo "> Validating project agents..."
 
 # Load KB to check for active project
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
-PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
+PIPELINE_EXISTS=$(kb_has_data "$KB_FILE" '.pipeline_status' && echo "exists" || echo "null")
 
 if [ "$PIPELINE_EXISTS" = "null" ]; then
     echo "❌ No active project found. Run '/#:pipeline start' first."
@@ -2598,8 +2506,8 @@ if [ "$PIPELINE_EXISTS" = "null" ]; then
 fi
 
 # Get current project ID from KB
-CURRENT_PROJECT_ID=$(kb_query "$KB_FILE" '.pipeline_status.project_id' | tr -d '"')
-PROJECT_NAME=$(kb_query "$KB_FILE" '.pipeline_status.project_name' | tr -d '"')
+CURRENT_PROJECT_ID=$(kb_get_project_id "$KB_FILE" | tr -d '"')
+PROJECT_NAME=$(kb_get_project_name "$KB_FILE" | tr -d '"')
 
 valid=0
 stale=0
@@ -2783,7 +2691,7 @@ update_stage_status() {
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     
     # Load KB
-    source modules/kb-init.inc
+    source modules/kb-helpers.inc
     KB_FILE=$(kb_load)
     
     # Update stage status in KB

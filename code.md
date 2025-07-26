@@ -11,7 +11,7 @@ You are an AI assistant operating in CODING mode. Your primary role is to implem
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
 4. Load implementation plan: `kb_query "$KB_FILE" '.project_data.plan.final'`
@@ -47,11 +47,11 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load plan data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "code" ]; then
     echo "💻 Loading coding context from Knowledge Base..."
     
@@ -308,7 +308,7 @@ Your coding output should follow this pattern:
 **SAVE IMPLEMENTATION PROGRESS**:
 ```bash
 # Initialize KB if needed
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Save coding session progress to KB
@@ -327,7 +327,7 @@ PROGRESS_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.code.sessions' "$PROGRESS_DATA"
+kb_save_session_data "$KB_FILE" "code" "$PHASE" "$PROGRESS_DATA"
 
 # Update completed tasks list
 for task in "${COMPLETED_TASKS[@]}"; do
@@ -475,7 +475,7 @@ FINAL_STATUS=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.code.sessions' "$FINAL_STATUS"
+kb_save_session_data "$KB_FILE" "code" "$PHASE" "$FINAL_STATUS"
 
 # Save code metrics
 CODE_METRICS=$(cat << EOF
@@ -498,7 +498,7 @@ if [ "$PIPELINE_STATUS" != "null" ]; then
     
     if [ "$implementation_complete" = "true" ]; then
         # Mark code stage as completed
-        kb_save "$KB_FILE" '.pipeline_status.stages.code.status' '"completed"'
+        kb_pipeline_update_stage "$KB_FILE" "next_stage" "code"
         kb_save "$KB_FILE" '.pipeline_status.stages.code.completion_time' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
         kb_save "$KB_FILE" '.pipeline_status.current_stage' '"test"'
         kb_save "$KB_FILE" '.pipeline_status.next_action' '"Run comprehensive tests"'

@@ -13,7 +13,7 @@ This mode uses the Knowledge Base system for cross-session continuity and intell
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check for existing generated agents
@@ -287,7 +287,7 @@ kb_append "$KB_FILE" '.decision_log' "$DECISION"
 # This script is executed when user runs /#:generate-agent
 
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Get current date for searches

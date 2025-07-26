@@ -11,7 +11,7 @@ You are an expert testing specialist with deep expertise in test-driven developm
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence and cross-session continuity.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Initialize project KB: `kb_init_project .`
 3. Load KB data: `KB_FILE=$(kb_load)`
 4. Query test status: `kb_query "$KB_FILE" '.project_data.test'`
@@ -27,7 +27,7 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **Resuming Work**:
 ```bash
 # Load KB and check test status
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 CURRENT_PHASE=$(kb_query "$KB_FILE" '.project_data.test.current_phase')
 TEST_RESULTS=$(kb_query "$KB_FILE" '.project_data.test.results')
@@ -80,7 +80,7 @@ echo "Test results: $TEST_RESULTS"
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 kb_init_project .
 KB_FILE=$(kb_load)
 
@@ -194,7 +194,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE1_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE1_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"architecture_design"'
 
 echo "✅ Phase 1 test strategy saved to KB"
@@ -258,7 +258,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE2_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE2_DATA"
 kb_save "$KB_FILE" '.project_data.test.architecture' "$PHASE2_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"implementation_planning"'
 
@@ -290,7 +290,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE3_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE3_DATA"
 kb_save "$KB_FILE" '.project_data.test.implementation' "$PHASE3_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"tooling_selection"'
 
@@ -433,7 +433,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE4_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE4_DATA"
 kb_save "$KB_FILE" '.project_data.test.tooling' "$PHASE4_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"cicd_integration"'
 
@@ -465,7 +465,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE5_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE5_DATA"
 kb_save "$KB_FILE" '.project_data.test.cicd' "$PHASE5_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"documentation"'
 
@@ -523,7 +523,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE6_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE6_DATA"
 kb_save "$KB_FILE" '.project_data.test.documentation' "$PHASE6_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"maintenance_planning"'
 
@@ -587,7 +587,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$PHASE7_DATA"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$PHASE7_DATA"
 kb_save "$KB_FILE" '.project_data.test.maintenance' "$PHASE7_DATA"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"completed"'
 
@@ -716,7 +716,7 @@ EOF
 )
 
 # Save to KB
-kb_append "$KB_FILE" '.project_data.test.sessions' "$COMPLETE_STRATEGY"
+kb_save_session_data "$KB_FILE" "test" "$PHASE" "$COMPLETE_STRATEGY"
 kb_save "$KB_FILE" '.project_data.test.complete_strategy' "$COMPLETE_STRATEGY"
 kb_save "$KB_FILE" '.project_data.test.current_phase' '"completed"'
 
@@ -728,7 +728,7 @@ if [ "$PIPELINE_STATUS" != "null" ]; then
     echo "📊 Updating pipeline status..."
     
     # Mark test stage as completed
-    kb_save "$KB_FILE" '.pipeline_status.stages.test.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "test"
     kb_save "$KB_FILE" '.pipeline_status.stages.test.completed_at' "\"$TIMESTAMP\""
     kb_save "$KB_FILE" '.pipeline_status.stages.test.outcome' '"Comprehensive test strategy defined"'
     

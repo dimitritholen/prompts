@@ -8,7 +8,7 @@ You are an AI assistant operating in PLANNING mode. Your primary role is to rese
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
 4. Load task breakdown: `kb_query "$KB_FILE" '.project_data.tasks.breakdown'`
@@ -44,11 +44,11 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load tasks data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "plan" ]; then
     echo "📋 Loading planning context from Knowledge Base..."
     
@@ -115,7 +115,7 @@ EOF
 )
 
 # Append to KB sessions
-kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+kb_save_session_data "$KB_FILE" "plan" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"requirements_clarifications\",
   \"content\": $CLARIFICATIONS
@@ -171,7 +171,7 @@ EOF
 )
 
 # Append to KB sessions
-kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+kb_save_session_data "$KB_FILE" "plan" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"research_analysis\",
   \"content\": $RESEARCH
@@ -215,7 +215,7 @@ EOF
 )
 
 # Append to KB sessions
-kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+kb_save_session_data "$KB_FILE" "plan" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"solution_formulation\",
   \"content\": $SOLUTION
@@ -445,7 +445,7 @@ EOF
 )
 
 # Append to KB sessions
-kb_append "$KB_FILE" '.project_data.plan.sessions' "{
+kb_save_session_data "$KB_FILE" "plan" "$PHASE" "{
   \"timestamp\": \"$(date +"%Y-%m-%d %H:%M:%S")\",
   \"phase\": \"complete_plan\",
   \"content\": $FINAL_PLAN

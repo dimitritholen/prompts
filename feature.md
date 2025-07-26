@@ -13,11 +13,11 @@ This mode uses the Knowledge Base system for cross-session continuity and pipeli
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load feature data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "feature" ]; then
     echo "🔧 Loading feature integration context from Knowledge Base..."
     
@@ -37,7 +37,7 @@ if [ "$CURRENT_STAGE" = "feature" ]; then
 fi
 
 # Initialize counters
-FEATURE_COUNT=$(kb_query "$KB_FILE" '.project_data.feature.sessions | length' || echo "0")
+FEATURE_COUNT=$(kb_count_sessions "$KB_FILE" "feature" || echo "0")
 INTEGRATION_COUNT=0
 ```
 
@@ -140,7 +140,7 @@ EOF
 )
 
 kb_save "$KB_FILE" '.project_data.feature.current' "$PHASE1_DATA"
-kb_append "$KB_FILE" '.project_data.feature.sessions' "$PHASE1_DATA"
+kb_save_session_data "$KB_FILE" "feature" "$PHASE" "$PHASE1_DATA"
 
 # Update research count
 RESEARCH_COUNT=$((RESEARCH_COUNT + 8))
@@ -536,7 +536,7 @@ kb_save "$KB_FILE" '.project_data.feature.last_integration' "$FINAL_DATA"
 PIPELINE_STATUS=$(kb_query "$KB_FILE" '.pipeline_status')
 if [ "$PIPELINE_STATUS" != "null" ]; then
     # Mark feature stage as completed
-    kb_save "$KB_FILE" '.pipeline_status.stages.feature.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "feature"
     kb_save "$KB_FILE" '.pipeline_status.stages.feature.completion_time' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     kb_save "$KB_FILE" '.pipeline_status.current_stage' '"plan"'
     kb_save "$KB_FILE" '.pipeline_status.next_action' '"Plan implementation approach"'

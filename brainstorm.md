@@ -1,7 +1,7 @@
 # BRAINSTORM Mode - Expert Idea Development & Critical Analysis
 
 ## Objective
-Transform raw ideas into validated, well-researched product concepts through expert-level critical analysis, honest feedback, and comprehensive industry research. Create detailed Product Requirements Documents (PRDs) optimized for junior developer implementation.
+Transform raw ideas into validated, well-researched product concepts through expert-level critical analysis, honest feedback, and comprehensive industry research. Create initial/draft Product Requirements Documents (PRDs) optimized for junior developer implementation, which will be formalized in the PRD phase.
 
 **🚨 CRITICAL EFFICIENCY REQUIREMENT: ALL RESEARCH MUST USE PARALLEL TASK AGENTS 🚨**
 **You MUST execute all research queries simultaneously in single responses using multiple Task agents. Sequential execution violates core efficiency principles and is not acceptable.**
@@ -14,7 +14,7 @@ Transform raw ideas into validated, well-researched product concepts through exp
 This mode uses the Knowledge Base system for cross-session continuity.
 
 **At Mode Start**:
-1. Initialize KB: `source modules/kb-init.inc && kb_init_project`
+1. Initialize KB: `source modules/kb-helpers.inc && kb_init_project`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. If exists, briefly summarize previous sessions from KB
 4. Resume from last incomplete phase if applicable
@@ -56,7 +56,7 @@ When analyzing complex ideas, apply sequential thinking for ultra-deep analysis:
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 kb_init_project .
 KB_FILE=$(kb_load)
 
@@ -154,7 +154,7 @@ As a [specific expert title] with expertise in [relevant domains], I bring exper
 **SAVE PHASE 1 OUTPUT**:
 ```bash
 # Initialize KB if not already done
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 kb_init_project .
 KB_FILE=$(kb_load)
 
@@ -175,7 +175,7 @@ PHASE1_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE1_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE1_DATA"
 kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 1 Complete"'
 ```
 
@@ -299,7 +299,7 @@ PHASE2_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE2_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE2_DATA"
 
 # Cache research results
 for i in "${!RESEARCH_QUERIES[@]}"; do
@@ -412,7 +412,7 @@ PHASE3_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE3_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE3_DATA"
 kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 3 Complete"'
 ```
 
@@ -463,7 +463,7 @@ PHASE4_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE4_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE4_DATA"
 kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 4 Complete"'
 ```
 
@@ -541,11 +541,11 @@ PHASE4B_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE4B_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE4B_DATA"
 kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 4B Complete"'
 ```
 
-### Phase 5: Junior-Developer-Friendly PRD Creation
+### Phase 5: Junior-Developer-Friendly Initial PRD Creation
 **ALWAYS:**
 - Use clear, jargon-free language
 - Include code examples and pseudocode
@@ -560,7 +560,7 @@ kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 4B Co
 - Use business jargon
 - Skip technical details
 
-**PRD Template:**
+**Initial PRD Template (Draft for PRD Phase):**
 ```markdown
 # Product Requirements Document: [Product Name]
 
@@ -652,7 +652,7 @@ CREATE TABLE users (
 # Save Phase 5 PRD and complete session
 PHASE5_DATA=$(cat << EOF
 {
-  "phase": "Junior-Developer-Friendly PRD Creation",
+  "phase": "Junior-Developer-Friendly Initial PRD Creation",
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "content": $(echo "[Include full PRD]" | jq -Rs .),
   "original_idea": $(echo "$ORIGINAL_IDEA" | jq -Rs .),
@@ -663,7 +663,7 @@ PHASE5_DATA=$(cat << EOF
 EOF
 )
 
-kb_append "$KB_FILE" '.project_data.brainstorm.sessions' "$PHASE5_DATA"
+kb_save_session_data "$KB_FILE" "brainstorm" "$PHASE" "$PHASE5_DATA"
 
 # Save handoff data for next stage
 HANDOFF_DATA=$(cat << EOF
@@ -681,9 +681,9 @@ EOF
 kb_save "$KB_FILE" '.pipeline_status.handoff' "$HANDOFF_DATA"
 
 # Mark brainstorm as completed and set next stage
-kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.status' '"completed"'
+# Use kb_pipeline_update_stage instead
 kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.completed_at' "\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
-kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 5 Complete - PRD Created"'
+kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.last_phase' '"Phase 5 Complete - Initial PRD Draft Created"'
 kb_save "$KB_FILE" '.pipeline_status.current_stage' '"prd"'
 kb_save "$KB_FILE" '.pipeline_status.last_update' "\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
 ```
@@ -771,7 +771,34 @@ After brainstorming is complete and concept is validated:
 
 ### Initial PRD
 [PRD created in Phase 5]
+
+### Next Step: Run /#:prd to expand this initial PRD with formal requirements documentation, success metrics, and detailed user journeys.
 ```
+
+## Final Output Instructions
+
+When completing the brainstorm phase, your final output MUST follow this exact structure:
+
+1. **Common Gotchas** section from the PRD
+2. **Next Steps** section that MUST say:
+   ```
+   ## Next Steps
+   
+   With this initial PRD draft complete, you're ready to formalize the requirements.
+   
+   > Next: Run `/#:prd` to expand this initial PRD with:
+   > - Formal requirements documentation
+   > - Success metrics and KPIs
+   > - Detailed user journeys
+   > - Technical specifications
+   > - Risk assessment
+   
+   The PRD mode will take this initial draft and transform it into a comprehensive Product Requirements Document suitable for the architecture phase.
+   ```
+
+3. **Brainstorm → PRD Handoff** section as defined above
+
+IMPORTANT: Never suggest the user is "ready to start development" after brainstorm. The pipeline requires completing PRD, Architecture, Tasks, and Planning phases before any coding begins.
 
 ## Example Usage
 "I have an idea for an app that helps people track their water intake. Help me brainstorm and develop this into something realistic."
@@ -806,8 +833,8 @@ Please answer these so I can provide targeted research and recommendations."
 ### Phase 4 - Pivot Recommendations
 "Instead of another general water tracking app, consider these pivots based on my research..."
 
-### Phase 5 - Junior-Developer PRD
-"Here's a detailed PRD for the pivoted concept with implementation steps..."
+### Phase 5 - Junior-Developer Initial PRD
+"Here's a detailed initial PRD draft for the pivoted concept with implementation steps..."
 
 ## Pipeline Status Update
 
@@ -816,34 +843,19 @@ When brainstorm mode completes successfully, update the pipeline status:
 ```bash
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status in KB
-    kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.status' '"completed"'
-    kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+    # Update stage status using helper
+    kb_pipeline_update_stage "$KB_FILE" "prd" "brainstorm"
     
-    # Save pipeline update to KB
-    PIPELINE_UPDATE=$(cat << EOF
+    # Create handoff to PRD phase
+    HANDOFF_DATA=$(cat << EOF
 {
-  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "stage_transition": {
-    "from": "Ideation",
-    "to": "Requirements Definition",
-    "handoff": "Brainstorm phase completed with validated concept and initial PRD"
-  },
-  "decisions_made": [
-    "Key decisions from brainstorming",
-    "Selected approach/pivot",
-    "Viability assessment outcome"
-  ],
-  "next_steps": {
-    "command": "/#:prd",
-    "description": "Create formal Product Requirements Document",
-    "notes": "The PRD mode will expand on the initial draft created during brainstorming"
-  }
+  "validated_concept": "$VALIDATED_CONCEPT",
+  "research_insights": "$RESEARCH_INSIGHTS", 
+  "initial_prd": "$INITIAL_PRD",
+  "viability_score": "$VIABILITY_SCORE"
 }
 EOF
 )
-    kb_append "$KB_FILE" '.pipeline_status.updates' "$PIPELINE_UPDATE"
-    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"Requirements Definition"'
-    kb_save "$KB_FILE" '.pipeline_status.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+    kb_pipeline_handoff "$KB_FILE" "brainstorm" "prd" "$HANDOFF_DATA"
 fi
 ```

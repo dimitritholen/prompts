@@ -8,7 +8,7 @@ You are an AI assistant operating in ARCHITECT mode. Your primary role is to des
 This mode uses the JSON-based Knowledge Base (KB) system for intelligent data persistence.
 
 **At Mode Start**:
-1. Source KB module: `source modules/kb-init.inc`
+1. Source KB module: `source modules/kb-helpers.inc`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. Check pipeline status: `kb_query "$KB_FILE" '.pipeline_status.current_stage'`
 4. Load PRD requirements: `kb_query "$KB_FILE" '.project_data.prd.final'`
@@ -42,11 +42,11 @@ This mode uses the JSON-based Knowledge Base (KB) system for intelligent data pe
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load PRD data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "architect" ]; then
     echo "🏗️ Loading architecture context from Knowledge Base..."
     
@@ -132,7 +132,7 @@ RESEARCH_DATA="{
   \"status\": \"proceeding_to_requirements_analysis\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$RESEARCH_DATA"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$RESEARCH_DATA"
 kb_save "$KB_FILE" '.project_data.architect.research' "$RESEARCH_DATA"
 kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"in_progress"'
 kb_save "$KB_FILE" '.pipeline_status.stages.architect.last_update' "\"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\""
@@ -171,7 +171,7 @@ REQUIREMENTS_DATA="{
   \"status\": \"designing_architecture\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$REQUIREMENTS_DATA"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$REQUIREMENTS_DATA"
 kb_save "$KB_FILE" '.project_data.architect.requirements' "$REQUIREMENTS_DATA"
 
 echo "✅ Phase 2 requirements analysis saved to Knowledge Base"
@@ -259,7 +259,7 @@ ARCHITECTURE_DESIGN_DATA="{
   \"status\": \"selecting_technology_stack\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$ARCHITECTURE_DESIGN_DATA"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$ARCHITECTURE_DESIGN_DATA"
 kb_save "$KB_FILE" '.project_data.architect.design' "$ARCHITECTURE_DESIGN_DATA"
 kb_append "$KB_FILE" '.decision_log' "$(echo "$KEY_DESIGN_DECISIONS" | jq -Rs '{timestamp: now | strftime(\"%Y-%m-%dT%H:%M:%SZ\"), type: \"architecture_design\", decisions: .}')"
 
@@ -310,7 +310,7 @@ TECH_SELECTION_DATA="{
   \"status\": \"planning_scalability\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$TECH_SELECTION_DATA"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$TECH_SELECTION_DATA"
 kb_save "$KB_FILE" '.project_data.architect.tech_stack' "$TECH_SELECTION_DATA"
 
 echo "✅ Phase 4 technology selection saved to Knowledge Base"
@@ -499,7 +499,7 @@ AGENT_GENERATION_DATA="{
   \"activation_instructions\": \"Exit Claude Code (Ctrl+C or Cmd+C) then resume with: claude --resume\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$AGENT_GENERATION_DATA"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$AGENT_GENERATION_DATA"
 kb_save "$KB_FILE" '.project_data.architect.agents' "$AGENT_GENERATION_DATA"
 
 echo "✅ Agent generation data saved to Knowledge Base"
@@ -611,11 +611,11 @@ FINAL_ARCHITECTURE="{
   \"status\": \"completed\"
 }"
 
-kb_append "$KB_FILE" '.project_data.architect.sessions' "$FINAL_ARCHITECTURE"
+kb_save_session_data "$KB_FILE" "architect" "$PHASE" "$FINAL_ARCHITECTURE"
 kb_save "$KB_FILE" '.project_data.architect.final' "$FINAL_ARCHITECTURE"
 
 # Update pipeline status
-kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"completed"'
+kb_pipeline_update_stage "$KB_FILE" "next_stage" "architect"
 kb_save "$KB_FILE" '.pipeline_status.stages.architect.completed_at' "\"$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\""
 kb_save "$KB_FILE" '.pipeline_status.current_stage' '"tasks"'
 kb_save "$KB_FILE" '.pipeline_status.stages.tasks.status' '"pending"'
@@ -739,7 +739,7 @@ When architect mode completes successfully, update the pipeline status:
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
     # Update stage status in KB
-    kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "architect"
     kb_save "$KB_FILE" '.pipeline_status.stages.architect.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
     # Save pipeline update to KB

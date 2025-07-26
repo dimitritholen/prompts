@@ -11,7 +11,7 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
 This mode uses the Knowledge Base system for cross-session continuity.
 
 **At Mode Start**:
-1. Initialize KB: `source modules/kb-init.inc && kb_init_project`
+1. Initialize KB: `source modules/kb-helpers.inc && kb_init_project`
 2. Load KB: `KB_FILE=$(kb_load)`
 3. Check for existing PRD data in KB
 4. If coming from brainstorm mode, read brainstorm data from KB
@@ -33,11 +33,11 @@ This mode uses the Knowledge Base system for cross-session continuity.
 **AT START:**
 ```bash
 # Initialize Knowledge Base
-source modules/kb-init.inc
+source modules/kb-helpers.inc
 KB_FILE=$(kb_load)
 
 # Check pipeline status and load handoff data
-CURRENT_STAGE=$(kb_query "$KB_FILE" '.pipeline_status.current_stage')
+CURRENT_STAGE=$(kb_get_current_stage "$KB_FILE")
 if [ "$CURRENT_STAGE" = "prd" ]; then
     echo "📋 Loading PRD context from Knowledge Base..."
     
@@ -777,7 +777,7 @@ When PRD mode completes successfully, update the pipeline status:
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
     # Update stage status in KB
-    kb_save "$KB_FILE" '.pipeline_status.stages.prd.status' '"completed"'
+    kb_pipeline_update_stage "$KB_FILE" "next_stage" "prd"
     kb_save "$KB_FILE" '.pipeline_status.stages.prd.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
     # Save pipeline update to KB
