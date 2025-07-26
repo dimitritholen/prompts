@@ -738,41 +738,37 @@ When architect mode completes successfully, update the pipeline status:
 ```bash
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Architect: Not started/- ✅ Architect: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+    # Update stage status in KB
+    kb_save "$KB_FILE" '.pipeline_status.stages.architect.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.architect.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
-    update_stage_status "architect"
-    
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Architecture Design
-- To: Task Planning
-- Handoff: Architecture phase completed with full technical design and tech agents
-
-### Decisions Made
-- [Architecture pattern selected]
-- [Technology stack decisions]
-- [Infrastructure approach]
-- [Security architecture]
-
-### Agents Generated
-- [List technical agents created]
-
-### Next Steps
-- Run \`/#:tasks\` to break down the architecture into implementation tasks
-- Tasks mode will create atomic work items with clear dependencies
-
----
+    # Save pipeline update to KB
+    PIPELINE_UPDATE=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "stage_transition": {
+    "from": "Architecture Design",
+    "to": "Task Planning",
+    "handoff": "Architecture phase completed with full technical design and tech agents"
+  },
+  "decisions_made": [
+    "Architecture pattern selected",
+    "Technology stack decisions",
+    "Infrastructure approach",
+    "Security architecture"
+  ],
+  "agents_generated": "[List technical agents created]",
+  "next_steps": {
+    "command": "/#:tasks",
+    "description": "Break down the architecture into implementation tasks",
+    "notes": "Tasks mode will create atomic work items with clear dependencies"
+  }
+}
 EOF
+)
+    kb_append "$KB_FILE" '.pipeline_status.updates' "$PIPELINE_UPDATE"
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"Task Planning"'
+    kb_save "$KB_FILE" '.pipeline_status.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
 fi
 ```
 - Diagrams: [Location of architecture diagrams]

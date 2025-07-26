@@ -872,44 +872,40 @@ When tasks mode completes successfully, update the pipeline status:
 ```bash
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Tasks: Not started/- ✅ Tasks: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+    # Update stage status in KB
+    kb_save "$KB_FILE" '.pipeline_status.stages.tasks.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.tasks.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
-    update_stage_status "tasks"
-    
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Task Planning
-- To: Development Planning
-- Handoff: Tasks phase completed with atomic tasks and QA agents
-
-### Decisions Made
-- [Task breakdown approach]
-- [Prioritization strategy]
-- [Dependency management]
-
-### Agents Generated
-- [List QA and convention agents created]
-
-### Task Summary
-- [Total number of tasks]
-- [Priority breakdown]
-- [Estimated timeline]
-
-### Next Steps
-- Run \`/#:plan\` to create development plan with task sequencing
-- Plan mode will organize tasks into sprints and milestones
-
----
+    # Save pipeline update to KB
+    PIPELINE_UPDATE=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "stage_transition": {
+    "from": "Task Planning",
+    "to": "Development Planning",
+    "handoff": "Tasks phase completed with atomic tasks and QA agents"
+  },
+  "decisions_made": [
+    "Task breakdown approach",
+    "Prioritization strategy",
+    "Dependency management"
+  ],
+  "agents_generated": "[List QA and convention agents created]",
+  "task_summary": {
+    "total_tasks": "[Total number of tasks]",
+    "priority_breakdown": "[Priority breakdown]",
+    "estimated_timeline": "[Estimated timeline]"
+  },
+  "next_steps": {
+    "command": "/#:plan",
+    "description": "Create development plan with task sequencing",
+    "notes": "Plan mode will organize tasks into sprints and milestones"
+  }
+}
 EOF
+)
+    kb_append "$KB_FILE" '.pipeline_status.updates' "$PIPELINE_UPDATE"
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"Development Planning"'
+    kb_save "$KB_FILE" '.pipeline_status.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
 fi
 ```

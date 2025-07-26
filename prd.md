@@ -7,14 +7,14 @@ You are operating in PRD (Product Requirements Document) creation mode. Your goa
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/prd.md` for cross-session continuity.
+### KB Integration
+This mode uses the Knowledge Base system for cross-session continuity.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/prd.md`
-3. If exists, review previous PRD work
-4. If coming from brainstorm mode, read `docs/#/brainstorm.md`
+1. Initialize KB: `source modules/kb-init.inc && kb_init_project`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. Check for existing PRD data in KB
+4. If coming from brainstorm mode, read brainstorm data from KB
 
 **During Execution**:
 - Save research findings after Phase 1
@@ -776,39 +776,35 @@ When PRD mode completes successfully, update the pipeline status:
 ```bash
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ PRD: Not started/- ✅ PRD: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+    # Update stage status in KB
+    kb_save "$KB_FILE" '.pipeline_status.stages.prd.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.prd.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
-    update_stage_status "prd"
-    
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Requirements Definition
-- To: Architecture Design
-- Handoff: PRD phase completed with comprehensive requirements and domain agents
-
-### Decisions Made
-- [Key product decisions]
-- [Feature prioritization outcomes]
-- [Success metrics defined]
-
-### Agents Generated
-- [List domain-specific agents created]
-
-### Next Steps
-- Run \`/#:architect\` to design technical architecture and system components
-- Architecture phase will build on PRD requirements for technical implementation
-
----
+    # Save pipeline update to KB
+    PIPELINE_UPDATE=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "stage_transition": {
+    "from": "Requirements Definition",
+    "to": "Architecture Design",
+    "handoff": "PRD phase completed with comprehensive requirements and domain agents"
+  },
+  "decisions_made": [
+    "Key product decisions",
+    "Feature prioritization outcomes",
+    "Success metrics defined"
+  ],
+  "agents_generated": "[List domain-specific agents created]",
+  "next_steps": {
+    "command": "/#:architect",
+    "description": "Design technical architecture and system components",
+    "notes": "Architecture phase will build on PRD requirements for technical implementation"
+  }
+}
 EOF
+)
+    kb_append "$KB_FILE" '.pipeline_status.updates' "$PIPELINE_UPDATE"
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"Architecture Design"'
+    kb_save "$KB_FILE" '.pipeline_status.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
 fi
 ```

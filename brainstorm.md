@@ -10,13 +10,13 @@ Transform raw ideas into validated, well-researched product concepts through exp
 
 ## Output Management
 
-### File Persistence
-This mode saves outputs to `docs/#/brainstorm.md` for cross-session continuity.
+### KB Integration  
+This mode uses the Knowledge Base system for cross-session continuity.
 
 **At Mode Start**:
-1. Create output directory: `mkdir -p docs/#`
-2. Check for existing file: `docs/#/brainstorm.md`
-3. If exists, briefly summarize previous sessions
+1. Initialize KB: `source modules/kb-init.inc && kb_init_project`
+2. Load KB: `KB_FILE=$(kb_load)`
+3. If exists, briefly summarize previous sessions from KB
 4. Resume from last incomplete phase if applicable
 
 **During Execution**:
@@ -816,36 +816,34 @@ When brainstorm mode completes successfully, update the pipeline status:
 ```bash
 # Update pipeline status if in pipeline mode
 if [ -f "docs/#/pipeline.md" ]; then
-    # Update stage status
-    update_stage_status() {
-        local stage="$1"
-        local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        sed -i "s/- ⏳ Brainstorm: Not started/- ✅ Brainstorm: Completed ($timestamp)/" docs/#/pipeline.md
-        sed -i "s/- Last Updated: .*/- Last Updated: $timestamp/" docs/#/pipeline.md
-    }
+    # Update stage status in KB
+    kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.status' '"completed"'
+    kb_save "$KB_FILE" '.pipeline_status.stages.brainstorm.completed_at' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     
-    update_stage_status "brainstorm"
-    
-    # Append pipeline update
-    cat >> docs/#/pipeline.md << EOF
-
-## Pipeline Update: $(date +"%Y-%m-%d %H:%M:%S")
-
-### Stage Transition
-- From: Ideation
-- To: Requirements Definition
-- Handoff: Brainstorm phase completed with validated concept and initial PRD
-
-### Decisions Made
-- [Key decisions from brainstorming]
-- [Selected approach/pivot]
-- [Viability assessment outcome]
-
-### Next Steps
-- Run \`/#:prd\` to create formal Product Requirements Document
-- The PRD mode will expand on the initial draft created during brainstorming
-
----
+    # Save pipeline update to KB
+    PIPELINE_UPDATE=$(cat << EOF
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "stage_transition": {
+    "from": "Ideation",
+    "to": "Requirements Definition",
+    "handoff": "Brainstorm phase completed with validated concept and initial PRD"
+  },
+  "decisions_made": [
+    "Key decisions from brainstorming",
+    "Selected approach/pivot",
+    "Viability assessment outcome"
+  ],
+  "next_steps": {
+    "command": "/#:prd",
+    "description": "Create formal Product Requirements Document",
+    "notes": "The PRD mode will expand on the initial draft created during brainstorming"
+  }
+}
 EOF
+)
+    kb_append "$KB_FILE" '.pipeline_status.updates' "$PIPELINE_UPDATE"
+    kb_save "$KB_FILE" '.pipeline_status.current_stage' '"Requirements Definition"'
+    kb_save "$KB_FILE" '.pipeline_status.last_updated' '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
 fi
 ```
