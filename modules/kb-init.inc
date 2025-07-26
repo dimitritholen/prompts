@@ -1,13 +1,32 @@
 # Knowledge Base (KB) Initialization Module
 # This module provides functions for initializing and working with the JSON-based KB system
 
+# Output control variables
+KB_QUIET_MODE="${KB_QUIET:-false}"
+KB_VERBOSE_MODE="${KB_VERBOSE:-false}"
+
+# Helper function for conditional output
+kb_log() {
+    [[ "$KB_QUIET_MODE" != "true" ]] && echo "$@"
+}
+
+# Helper function for verbose output
+kb_debug() {
+    [[ "$KB_VERBOSE_MODE" == "true" ]] && echo "[DEBUG] $@" >&2
+}
+
+# Helper function for error output (always shown)
+kb_error() {
+    echo "❌ ERROR: $@" >&2
+}
+
 # Function to initialize project KB
 kb_init_project() {
     local project_root="${1:-.}"
     local kb_file="${project_root}/project-kb.json"
     
     if [ ! -f "$kb_file" ]; then
-        echo "🔧 Initializing project Knowledge Base..."
+        kb_log "🔧 Initializing project Knowledge Base..."
         
         # Find the template file
         local template_paths=(
@@ -21,13 +40,13 @@ kb_init_project() {
             if [ -f "$template" ]; then
                 cp "$template" "$kb_file"
                 template_found=true
-                echo "✅ Created project-kb.json from template"
+                kb_log "✅ Created project-kb.json from template"
                 break
             fi
         done
         
         if [ "$template_found" = false ]; then
-            echo "⚠️  Could not find KB template, creating minimal KB"
+            kb_log "⚠️  Could not find KB template, creating minimal KB"
             cat > "$kb_file" << 'EOF'
 {
   "version": "1.0",
@@ -59,7 +78,7 @@ kb_init_project() {
 EOF
         fi
     else
-        echo "✅ Using existing project-kb.json"
+        kb_log "✅ Using existing project-kb.json"
     fi
 }
 
@@ -92,7 +111,7 @@ kb_save() {
     else
         # Fallback: append to a change log
         echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $path: $data" >> "${kb_file}.log"
-        echo "⚠️  jq not available, changes logged to ${kb_file}.log"
+        kb_error "jq not available, changes logged to ${kb_file}.log"
     fi
 }
 
@@ -104,7 +123,7 @@ kb_query() {
     if command -v jq &> /dev/null; then
         jq -r "$path" "$kb_file" 2>/dev/null || echo "null"
     else
-        echo "⚠️  jq not available for KB queries"
+        kb_debug "⚠️  jq not available for KB queries"
         echo "null"
     fi
 }
@@ -156,5 +175,8 @@ export -f kb_save
 export -f kb_query
 export -f kb_append
 export -f kb_save_output
+export -f kb_log
+export -f kb_debug
+export -f kb_error
 
 echo "✅ KB initialization module loaded"

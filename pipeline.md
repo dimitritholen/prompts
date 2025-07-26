@@ -449,30 +449,84 @@ EOF
 
 ### Starting a New Project
 ```markdown
-/#:pipeline start
+/#:pipeline start [--quiet|-q] [--verbose|-v]
 ```
+
+**Options**:
+- `--quiet` or `-q`: Suppress informational output, show only errors and prompts
+- `--verbose` or `-v`: Show detailed debug information
+
 **Implementation**:
 ```bash
+# Parse command line arguments
+QUIET_MODE=false
+VERBOSE_MODE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --quiet|-q)
+            QUIET_MODE=true
+            export KB_QUIET=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE_MODE=true
+            export KB_VERBOSE=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Helper functions for output control
+log_info() {
+    [[ "$QUIET_MODE" != "true" ]] && echo "$@"
+}
+
+log_verbose() {
+    [[ "$VERBOSE_MODE" == "true" ]] && echo "[VERBOSE] $@" >&2
+}
+
+show_progress() {
+    if [[ "$QUIET_MODE" == "true" ]]; then
+        echo -n "$1..."
+    else
+        echo "$1"
+    fi
+}
+
+complete_progress() {
+    [[ "$QUIET_MODE" == "true" ]] && echo " ✓"
+}
+
 # Check for existing agents without pipeline context
 # Load KB to check for pipeline status
+if [[ "$QUIET_MODE" == "true" ]]; then
+    show_progress "Initializing pipeline"
+fi
+
 source modules/kb-init.inc
 KB_FILE=$(kb_load)
 PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
 
+complete_progress
+
 if [ -d ".claude/agents" ] && [ "$PIPELINE_EXISTS" = "null" ]; then
-    echo "⚠️  Found existing agents without project context"
-    echo "These may be from a previous project iteration."
-    echo ""
-    echo "Options:"
-    echo "1) Archive existing agents to .claude/agents.backup.[timestamp]"
-    echo "2) Delete existing agents" 
-    echo "3) Keep existing agents (may cause conflicts)"
+    log_info "⚠️  Found existing agents without project context"
+    log_info "These may be from a previous project iteration."
+    log_info ""
+    log_info "Options:"
+    log_info "1) Archive existing agents to .claude/agents.backup.[timestamp]"
+    log_info "2) Delete existing agents" 
+    log_info "3) Keep existing agents (may cause conflicts)"
     
     # Check if running interactively
     if [ -t 0 ]; then
         read -p "Choose (1/2/3) [1]: " choice
     else
-        echo "Running in non-interactive mode, defaulting to archive"
+        log_info "Running in non-interactive mode, defaulting to archive"
         choice="1"
     fi
     
@@ -486,37 +540,38 @@ if [ -d ".claude/agents" ] && [ "$PIPELINE_EXISTS" = "null" ]; then
             # Archive existing agents
             timestamp=$(date +%Y%m%d_%H%M%S)
             mv .claude/agents ".claude/agents.backup.${timestamp}"
-            echo "✓ Archived existing agents to .claude/agents.backup.${timestamp}"
+            log_info "✓ Archived existing agents to .claude/agents.backup.${timestamp}"
             mkdir -p .claude/agents
             ;;
         2)
             # Delete existing agents
             rm -rf .claude/agents
-            echo "✓ Deleted existing agents"
+            log_info "✓ Deleted existing agents"
             mkdir -p .claude/agents
             ;;
         3)
             # Keep existing agents
-            echo "⚠️  Keeping existing agents - may cause conflicts with new project"
+            log_info "⚠️  Keeping existing agents - may cause conflicts with new project"
             ;;
     esac
-    echo
+    [[ "$QUIET_MODE" != "true" ]] && echo
 fi
 
 # Check for existing PRD documents
+log_verbose "Searching for existing PRD documents..."
 PRD_FILES=$(find . -maxdepth 3 -type f \( -iname "*prd*.md" -o -iname "*product*requirement*.md" \) -not -path "./docs/#/*" -not -path "./.claude/*" 2>/dev/null | head -10)
 
 if [ -n "$PRD_FILES" ]; then
-    echo "📋 Found existing PRD document(s):"
+    log_info "📋 Found existing PRD document(s):"
     echo "$PRD_FILES" | while read -r file; do
-        echo "  - $file"
+        log_info "  - $file"
     done
-    echo ""
-    echo "How would you like to proceed?"
-    echo "1) Research and improve the PRD (recommended)"
-    echo "2) Use the PRD as-is and skip to architecture"
-    echo "3) Start fresh with brainstorming (ignore existing PRD)"
-    echo ""
+    log_info ""
+    log_info "How would you like to proceed?"
+    log_info "1) Research and improve the PRD (recommended)"
+    log_info "2) Use the PRD as-is and skip to architecture"
+    log_info "3) Start fresh with brainstorming (ignore existing PRD)"
+    log_info ""
     
     # Check if running interactively
     if [ -t 0 ]; then
@@ -546,9 +601,13 @@ if [ -n "$PRD_FILES" ]; then
     case $prd_choice in
         1)
             # Research and improve the PRD
-            echo ""
-            echo "✓ Will research and improve the existing PRD"
-            echo ""
+            if [[ "$QUIET_MODE" == "true" ]]; then
+                show_progress "Processing PRD option"
+            else
+                echo ""
+                echo "✓ Will research and improve the existing PRD"
+                echo ""
+            fi
             
             # Store PRD in KB
             PRD_CONTENT=$(cat "$FIRST_PRD" | jq -Rs . 2>/dev/null || echo '""')
@@ -1814,30 +1873,84 @@ EOF
 
 ### Starting a New Project
 ```markdown
-/#:pipeline start
+/#:pipeline start [--quiet|-q] [--verbose|-v]
 ```
+
+**Options**:
+- `--quiet` or `-q`: Suppress informational output, show only errors and prompts
+- `--verbose` or `-v`: Show detailed debug information
+
 **Implementation**:
 ```bash
+# Parse command line arguments
+QUIET_MODE=false
+VERBOSE_MODE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --quiet|-q)
+            QUIET_MODE=true
+            export KB_QUIET=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE_MODE=true
+            export KB_VERBOSE=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Helper functions for output control
+log_info() {
+    [[ "$QUIET_MODE" != "true" ]] && echo "$@"
+}
+
+log_verbose() {
+    [[ "$VERBOSE_MODE" == "true" ]] && echo "[VERBOSE] $@" >&2
+}
+
+show_progress() {
+    if [[ "$QUIET_MODE" == "true" ]]; then
+        echo -n "$1..."
+    else
+        echo "$1"
+    fi
+}
+
+complete_progress() {
+    [[ "$QUIET_MODE" == "true" ]] && echo " ✓"
+}
+
 # Check for existing agents without pipeline context
 # Load KB to check for pipeline status
+if [[ "$QUIET_MODE" == "true" ]]; then
+    show_progress "Initializing pipeline"
+fi
+
 source modules/kb-init.inc
 KB_FILE=$(kb_load)
 PIPELINE_EXISTS=$(kb_query "$KB_FILE" '.pipeline_status' 2>/dev/null)
 
+complete_progress
+
 if [ -d ".claude/agents" ] && [ "$PIPELINE_EXISTS" = "null" ]; then
-    echo "⚠️  Found existing agents without project context"
-    echo "These may be from a previous project iteration."
-    echo ""
-    echo "Options:"
-    echo "1) Archive existing agents to .claude/agents.backup.[timestamp]"
-    echo "2) Delete existing agents" 
-    echo "3) Keep existing agents (may cause conflicts)"
+    log_info "⚠️  Found existing agents without project context"
+    log_info "These may be from a previous project iteration."
+    log_info ""
+    log_info "Options:"
+    log_info "1) Archive existing agents to .claude/agents.backup.[timestamp]"
+    log_info "2) Delete existing agents" 
+    log_info "3) Keep existing agents (may cause conflicts)"
     
     # Check if running interactively
     if [ -t 0 ]; then
         read -p "Choose (1/2/3) [1]: " choice
     else
-        echo "Running in non-interactive mode, defaulting to archive"
+        log_info "Running in non-interactive mode, defaulting to archive"
         choice="1"
     fi
     
@@ -1851,37 +1964,38 @@ if [ -d ".claude/agents" ] && [ "$PIPELINE_EXISTS" = "null" ]; then
             # Archive existing agents
             timestamp=$(date +%Y%m%d_%H%M%S)
             mv .claude/agents ".claude/agents.backup.${timestamp}"
-            echo "✓ Archived existing agents to .claude/agents.backup.${timestamp}"
+            log_info "✓ Archived existing agents to .claude/agents.backup.${timestamp}"
             mkdir -p .claude/agents
             ;;
         2)
             # Delete existing agents
             rm -rf .claude/agents
-            echo "✓ Deleted existing agents"
+            log_info "✓ Deleted existing agents"
             mkdir -p .claude/agents
             ;;
         3)
             # Keep existing agents
-            echo "⚠️  Keeping existing agents - may cause conflicts with new project"
+            log_info "⚠️  Keeping existing agents - may cause conflicts with new project"
             ;;
     esac
-    echo
+    [[ "$QUIET_MODE" != "true" ]] && echo
 fi
 
 # Check for existing PRD documents
+log_verbose "Searching for existing PRD documents..."
 PRD_FILES=$(find . -maxdepth 3 -type f \( -iname "*prd*.md" -o -iname "*product*requirement*.md" \) -not -path "./docs/#/*" -not -path "./.claude/*" 2>/dev/null | head -10)
 
 if [ -n "$PRD_FILES" ]; then
-    echo "📋 Found existing PRD document(s):"
+    log_info "📋 Found existing PRD document(s):"
     echo "$PRD_FILES" | while read -r file; do
-        echo "  - $file"
+        log_info "  - $file"
     done
-    echo ""
-    echo "How would you like to proceed?"
-    echo "1) Research and improve the PRD (recommended)"
-    echo "2) Use the PRD as-is and skip to architecture"
-    echo "3) Start fresh with brainstorming (ignore existing PRD)"
-    echo ""
+    log_info ""
+    log_info "How would you like to proceed?"
+    log_info "1) Research and improve the PRD (recommended)"
+    log_info "2) Use the PRD as-is and skip to architecture"
+    log_info "3) Start fresh with brainstorming (ignore existing PRD)"
+    log_info ""
     
     # Check if running interactively
     if [ -t 0 ]; then
@@ -1911,9 +2025,13 @@ if [ -n "$PRD_FILES" ]; then
     case $prd_choice in
         1)
             # Research and improve the PRD
-            echo ""
-            echo "✓ Will research and improve the existing PRD"
-            echo ""
+            if [[ "$QUIET_MODE" == "true" ]]; then
+                show_progress "Processing PRD option"
+            else
+                echo ""
+                echo "✓ Will research and improve the existing PRD"
+                echo ""
+            fi
             
             # Store PRD in KB
             PRD_CONTENT=$(cat "$FIRST_PRD" | jq -Rs . 2>/dev/null || echo '""')

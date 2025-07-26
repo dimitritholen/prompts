@@ -76,6 +76,7 @@ MODULES=(
     "modules/handoffs.inc"
     "modules/README.inc"
     "modules/kb-init.inc"
+    "modules/output-helpers.inc"
 )
 
 # KB files to install
