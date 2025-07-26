@@ -611,6 +611,11 @@ echo ""
 echo "⚠️  IMPORTANT: Restart Claude Code to activate the new agents."
 echo "   Exit Claude Code and resume with: claude --resume"
 echo ""
+echo "✅ PRD creation complete! Your product requirements are fully documented."
+echo ""
+echo "🏗️  Next step: Design the technical architecture"
+echo "   Run: \`/#:architect\` to create system architecture"
+echo ""
 ```
 
 ## Key Principles

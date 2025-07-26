@@ -7,14 +7,25 @@ Track decisions, designs, and rationale.
 
 ## Pre-Architecture Research (PARALLEL)
 
-Get system date. Execute simultaneously with MM-YYYY:
-
-**Analyze Requirements**:
+**First**: Analyze Requirements
 - Read PRD for functional/non-functional requirements
 - Identify scalability, security, performance needs
 - Map user journeys to technical flows
 
-**Research** (10+ parallel):
+**Then**: Get system date and execute 10+ searches simultaneously using Task tool:
+
+```
+"I am now executing comprehensive parallel research using 10+ simultaneous 
+Task agents to gather architecture patterns and best practices. This reduces 
+research time from ~50 seconds to ~5-8 seconds."
+```
+
+**Create 10+ Task tool invocations in SINGLE response**:
+- description: "[search topic]"
+- prompt: "[detailed search with current MM-YYYY]"
+- subagent_type: general-purpose
+
+**Required searches** (replace MM-YYYY with actual date):
 - "[domain] architecture patterns [MONTH YEAR]"
 - "[scale] system design examples [YEAR]"
 - "[requirement] best practices [MONTH YEAR]"
@@ -136,6 +147,23 @@ Get system date. Execute simultaneously with MM-YYYY:
 - [ ] Cost-effective for projected scale
 - [ ] Monitoring/observability planned
 
-## Handoff
-Next: Tasks Mode
-Package: Architecture docs, ADRs, component specs, tech decisions
+## Completion & Handoff
+
+**SAVE Architecture & Show Next Steps**:
+```bash
+cat >> docs/#/architect.md << 'EOF'
+## Architecture Design Complete
+- Stack decisions: [Summary]
+- Key ADRs: [List]
+- Component design: Complete
+- Security/scalability: Planned
+EOF
+
+echo -e "\n✅ Architecture design complete! System design and tech stack finalized.\n"
+echo -e "📋 Next step: Break down into actionable tasks"
+echo -e "   Run: \`/#:tasks\` to create task breakdown\n"
+```
+
+**Handoff Package**:
+- Architecture docs, ADRs, component specs, tech decisions
+- Next: Tasks Mode for implementation planning

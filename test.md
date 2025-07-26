@@ -523,5 +523,9 @@ if [ -f "docs/#/pipeline.md" ]; then
 
 ---
 EOF
+
+echo -e "\n✅ Testing complete! All quality checks passed.\n"
+echo -e "🚀 Next step: Deploy to production"
+echo -e "   Run: \`/#:deploy\` to start deployment\n"
 fi
 ```

@@ -403,5 +403,9 @@ if [ -f "docs/#/pipeline.md" ]; then
 
 ---
 EOF
+
+echo -e "\n✅ Sprint planning complete! Development roadmap created.\n"
+echo -e "💻 Next step: Start implementation"
+echo -e "   Run: \`/#:code\` to begin coding\n"
 fi
 ```

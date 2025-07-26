@@ -7,15 +7,26 @@ Check existing on start. Update progressively.
 
 ## Pre-Task Research (PARALLEL)
 
-Get system date first. Execute simultaneously with MM-YYYY:
-
 **Read First**:
 - `.claude/shared_research.md` (existing findings)
 - `docs/product_requirement_docs.md`
 - `docs/architecture.md`
 - `tasks/active_context.md`
 
-**Research** (8+ parallel searches):
+**Then**: Get system date and execute 8+ searches simultaneously using Task tool:
+
+```
+"I am now executing comprehensive parallel research using 8+ simultaneous 
+Task agents to find implementation patterns and existing solutions. This 
+reduces research time from ~40 seconds to ~5-8 seconds."
+```
+
+**Create 8+ Task tool invocations in SINGLE response**:
+- description: "[search topic]"
+- prompt: "[detailed search with current MM-YYYY]"
+- subagent_type: general-purpose
+
+**Required searches** (replace MM-YYYY with actual date):
 - "frameworks [domain] [MONTH YEAR]"
 - "packages [technology] standard [MONTH YEAR]"
 - "Docker services [technology] [MONTH YEAR]"
@@ -145,6 +156,22 @@ Sprint 2: [Task IDs] - Core features
 ...
 ```
 
-## Handoff
-Next: Plan Mode
-Deliverables: Atomic tasks, dependencies, estimates, technical context
+## Completion & Handoff
+
+**SAVE Tasks & Show Next Steps**:
+```bash
+cat >> docs/#/tasks.md << 'EOF'
+## Task Breakdown Complete
+- Total tasks: [Number]
+- Estimated effort: [Hours/days]
+- Critical path identified
+- Dependencies mapped
+EOF
+
+echo -e "\n✅ Task breakdown complete! All work items documented and estimated.\n"
+echo -e "📅 Next step: Create sprint plan and timeline"
+echo -e "   Run: \`/#:plan\` to create implementation plan\n"
+```
+
+**Deliverables**: Atomic tasks, dependencies, estimates, technical context
+**Next**: Plan Mode for sprint planning

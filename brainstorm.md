@@ -122,6 +122,22 @@ Week 3-4: [ ] Features [ ] Tests
 [Links, common mistakes]
 ```
 
+**SAVE Final Output & Show Next Steps**:
+```bash
+cat >> docs/#/brainstorm.md << 'EOF'
+### Phase 5: PRD Draft
+[Include PRD]
+
+### Session Complete
+- Concept validated and refined
+- Ready for formal PRD creation
+EOF
+
+echo -e "\n✅ Brainstorming complete! Your concept has been validated and refined.\n"
+echo -e "📄 Next step: Create the formal Product Requirements Document"
+echo -e "   Run: \`/#:prd\` to start PRD creation\n"
+```
+
 ## Do/Don't
 DO: Ask questions → Wait → Research parallel → Challenge assumptions → Create implementable PRDs
 DON'T: Skip questions → Sequential research → Sugarcoat → Create vague PRDs
