@@ -65,6 +65,7 @@ PROMPTS=(
     "pipeline.md"
     "generate-agent.md"
     "help.md"
+    "project.md"
 )
 
 # Module files to install
@@ -77,6 +78,9 @@ MODULES=(
     "modules/README.inc"
     "modules/kb-init.inc"
     "modules/output-helpers.inc"
+    "modules/kb-helpers.inc"
+    "modules/kb-multi-project.inc"
+    "modules/output-format.inc"
 )
 
 # KB files to install
@@ -390,12 +394,15 @@ show_usage() {
     echo "  /#:architect Design a microservices architecture"
     echo "  /#:generate-agent Qiskit 2026 quantum"
     echo "  /#:pipeline start"
+    echo "  /#:project list"
     echo
     print_color "$GREEN" "✓ Modular Architecture:"
     echo "  Shared patterns are now in modules/ for better maintainability"
     echo
     print_color "$GREEN" "✓ Knowledge Base System:"
     echo "  JSON-based KB for intelligent command execution and data persistence"
+    echo "  Multi-project support with isolated .hash/project.kb.json files"
+    echo "  Central knowledge repository for cross-project learning"
     echo
     if [ "$INSTALL_TYPE" = "local" ]; then
         print_color "$BLUE" "Note: These commands are only available in this project."

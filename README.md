@@ -77,6 +77,7 @@ Hash Prompts installs commands under the `#` namespace, giving you access to:
 - `/#:deploy` - Deployment and DevOps
 - `/#:pipeline` - Workflow orchestration
 - `/#:generate-agent` - Dynamic agent generation
+- `/#:project` - Multi-project management with isolated KBs
 - `/#:help` - Display command reference and workflows
 
 Commands are installed globally by default (~/.claude/commands) but can be installed locally for project-specific use.
@@ -644,7 +645,9 @@ Hash Prompts includes an intelligent Knowledge Base (KB) system that stores all 
 
 ### Key KB Features
 
-- **Structured Data**: All commands, rules, and workflows stored in JSON format
+- **Multi-Project Support**: Each project gets its own isolated KB in `.hash/project.kb.json`
+- **Central Knowledge Repository**: Share patterns and solutions across projects at `~/.claude/commands/#/kb/`
+- **Automatic Project Detection**: KB automatically switches based on your current directory
 - **Research Caching**: Automatic caching of web searches with TTL management
 - **Decision Tracking**: Complete audit trail of architectural and technical decisions
 - **Cross-Session Continuity**: Project context persists across conversations
@@ -654,18 +657,42 @@ Hash Prompts includes an intelligent Knowledge Base (KB) system that stores all 
 ### KB Architecture
 
 ```
+# Per-Project KB (automatically created)
+.hash/
+├── project.kb.json          # Project-specific data (gitignored)
+└── .gitignore              # Keeps KB local to your machine
+
+# Central KB System
+~/.claude/commands/#/kb/
+├── central.kb.json         # Cross-project patterns and solutions
+└── projects.json          # Registry of all your projects
+
+# Command Definitions
 kb/
-├── hash-prompts-kb.json      # Core KB with all commands and rules
-├── project-kb-template.json  # Template for project-specific data
-├── kb-generator.js          # Sync script for markdown → KB
-└── schemas/                 # JSON schemas for validation
+├── hash-prompts-kb.json    # Core KB with all commands and rules
+├── kb-generator.js         # Sync script for markdown → KB
+└── schemas/               # JSON schemas for validation
+```
+
+### Project Management
+
+Use the `/#:project` command to manage multiple projects:
+
+```bash
+/#:project                    # Show current project info
+/#:project list              # List all registered projects
+/#:project switch [name]     # Switch to another project
+/#:project search [term]     # Search central KB for patterns
+/#:project share [type] [pattern]  # Share solution to central KB
+/#:project migrate           # Migrate legacy KB files
 ```
 
 ### Using the KB
 
-1. **Generate/Update KB**: Run `node kb/kb-generator.js` after modifying commands
-2. **Project KB**: Copy `project-kb-template.json` to start tracking project data
-3. **Query KB**: Access command info, rules, and cached research programmatically
+1. **Automatic Setup**: KB is automatically initialized when you run any Hash Prompts command
+2. **Project Isolation**: Each project maintains its own KB data, preventing cross-contamination
+3. **Knowledge Sharing**: Share successful patterns to the central KB for reuse
+4. **Legacy Support**: Automatically migrates old `project-kb.json` files to new structure
 
 See [kb/README.md](kb/README.md) for detailed documentation.
 
