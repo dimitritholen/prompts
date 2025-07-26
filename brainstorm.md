@@ -27,8 +27,35 @@ Check/create on start. Resume from last phase if exists.
 **Must Answer**: [3-5 critical questions]
 ```
 
+**[WAIT FOR USER RESPONSES BEFORE PROCEEDING TO PHASE 2]**
+
+**SAVE Phase 1**:
+```bash
+cat >> docs/#/brainstorm.md << 'EOF'
+## Session: [DATE TIME]
+### Phase 1: Initial Analysis
+[Include full output]
+### Status: Awaiting user responses
+EOF
+```
+
 ### Phase 2: Research (PARALLEL ONLY)
-Get system date. Execute 8+ searches simultaneously with current MM-YYYY:
+**WAIT FOR USER ANSWERS FROM PHASE 1 BEFORE PROCEEDING**
+
+Get system date using Bash. Then execute 8+ searches simultaneously using Task tool:
+
+```
+"I am now executing comprehensive parallel research using 8+ simultaneous 
+Task agents to gather all necessary information. This reduces research 
+time from ~40 seconds to ~5-8 seconds."
+```
+
+**Create 8+ Task tool invocations in SINGLE response**:
+- description: "[search topic]"
+- prompt: "[detailed search with current MM-YYYY]"
+- subagent_type: general-purpose
+
+**Required searches** (replace MM-YYYY with actual date):
 - "[problem] solutions [MONTH YEAR]"
 - "[approach] best practices [MONTH YEAR]"
 - "[idea] failures case studies [YEAR]"
@@ -39,6 +66,14 @@ Get system date. Execute 8+ searches simultaneously with current MM-YYYY:
 - "[alternative] successes [YEAR]"
 
 **Analyze**: Existing solutions, failure patterns, best practices, feasibility
+
+**SAVE Phase 2**:
+```bash
+cat >> docs/#/brainstorm.md << 'EOF'
+### Phase 2: Research Results
+[Include research findings]
+EOF
+```
 
 ### Phase 3: Honest Assessment
 **Score**: X/10 with reasoning
@@ -95,3 +130,8 @@ DON'T: Skip questions → Sequential research → Sugarcoat → Create vague PRD
 Entry: User idea
 Exit: Validated concept → PRD Mode
 Save: Each phase to `docs/#/brainstorm.md`
+
+**Important**: 
+- Complete ALL phases before updating pipeline status
+- If user wants more brainstorming on any aspect, continue in current mode
+- Only mark brainstorm complete when user explicitly agrees to proceed to PRD
