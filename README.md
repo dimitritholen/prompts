@@ -696,6 +696,30 @@ Use the `/#:project` command to manage multiple projects:
 
 See [kb/README.md](kb/README.md) for detailed documentation.
 
+## Troubleshooting
+
+If commands aren't working properly:
+
+1. **Verify Installation**:
+   ```bash
+   ./verify-installation.sh
+   ```
+
+2. **Fix Installation**:
+   ```bash
+   ./fix-installation.sh
+   ```
+
+3. **Test Commands**:
+   ```bash
+   ./test-commands.sh
+   ```
+
+4. **Common Issues**:
+   - Make sure you're using Claude Code (not regular Claude)
+   - Try commands in a new conversation
+   - Check the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide
+
 ## Notes
 
 - These prompts are designed to work with AI assistants that support file references (like Claude, Cursor, etc.)
